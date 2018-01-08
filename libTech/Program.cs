@@ -13,18 +13,52 @@ using Ultraviolet.Graphics.Graphics2D.Text;
 using Ultraviolet.OpenGL;
 using Ultraviolet.Platform;
 
+using libTech.Reflection;
+using libTech.Importer;
+using System.Reflection;
+
 namespace libTech {
+	public class IntImporter : Importer<int> {
+		public override bool CanLoadExt(string Extension) {
+			if (Extension == ".int")
+				return true;
+			return false;
+		}
+
+		public override int Load(string FilePath) {
+			return 1;
+		}
+	}
+
+	public class Int2Importer : Importer<int> {
+		public override bool CanLoadExt(string Extension) {
+			if (Extension == ".int2")
+				return true;
+			return false;
+		}
+
+		public override int Load(string FilePath) {
+			return 2;
+		}
+	}
+
 	public class Program : UltravioletApplication {
 		static void Main(string[] args) {
 			Console.Title = "libTech";
 
 			using (Program P = new Program()) {
+				P.Preinitialize();
 				P.Run();
 			}
 		}
 
 		public Program() : base("Carpmanium", "libTech") {
+		}
 
+		public void Preinitialize() {
+			foreach (var Type in Reflect.GetAllTypes(Reflect.GetExeAssembly()))
+				if (Reflect.Inherits(Type, typeof(Importer.Importer)) && !(Type == typeof(Importer<>)))
+					Importers.Register(Type);
 		}
 
 		protected override UltravioletContext OnCreatingUltravioletContext() {
@@ -48,8 +82,8 @@ namespace libTech {
 			IUltravioletPlatform Platform = Ultraviolet.GetPlatform();
 			IUltravioletWindow Window = Platform.Windows.FirstOrDefault();
 
-			if (Window != null) 
-				Window.Caption = "libTech";	
+			if (Window != null)
+				Window.Caption = "libTech";
 		}
 
 		protected override void OnDrawing(UltravioletTime time) {
