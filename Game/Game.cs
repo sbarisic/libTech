@@ -7,7 +7,7 @@ using libTech;
 
 namespace Game {
 	public class Game {
-		
+
 	}
 
 	public class MainMenu {
