@@ -37,8 +37,9 @@
     <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\Ultraviolet\bin\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NuklearDotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -52,26 +53,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Ultraviolet">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.dll</HintPath>
+    <Reference Include="Ultraviolet, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.BASS">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.BASS.dll</HintPath>
+    <Reference Include="Ultraviolet.BASS, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.BASS.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.Core">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.Core.dll</HintPath>
+    <Reference Include="Ultraviolet.Core, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.OpenGL">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.OpenGL.dll</HintPath>
+    <Reference Include="Ultraviolet.OpenGL, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.OpenGL.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.OpenGL.Bindings">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.OpenGL.Bindings.dll</HintPath>
+    <Reference Include="Ultraviolet.OpenGL.Bindings, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.OpenGL.Bindings.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.SDL2">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.SDL2.dll</HintPath>
+    <Reference Include="Ultraviolet.SDL2, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.SDL2.dll</HintPath>
     </Reference>
-    <Reference Include="Ultraviolet.Shims.Desktop">
-      <HintPath>..\..\Ultraviolet\bin\Ultraviolet.Shims.Desktop.dll</HintPath>
+    <Reference Include="Ultraviolet.Shims.Desktop, Version=2017.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\Ultraviolet.Shims.Desktop.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +92,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Reflect.cs" />
+    <Compile Include="Renderer\Gfx.cs" />
+    <Compile Include="Renderer\RenderDevice.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
