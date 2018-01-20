@@ -124,6 +124,18 @@ namespace libTech {
 					RenderDevice.OnMouseButton((NuklearEvent.MouseButton)(Button - 1), Pos.X, Pos.Y, false);
 			};
 
+			Keyboard.KeyPressed += (W, Dev, Key, Ctrl, Alt, Shift, Repeat) => {
+				NkKeys K = Key.ToNkKeys();
+				if (K != (NkKeys)(-1))
+					RenderDevice.OnKey(K, true);
+			};
+
+			Keyboard.KeyReleased += (W, Dev, Key) => {
+				NkKeys K = Key.ToNkKeys();
+				if (K != (NkKeys)(-1))
+					RenderDevice.OnKey(K, false);
+			};
+
 			NuklearAPI.Init(RenderDevice);
 		}
 
@@ -149,34 +161,6 @@ namespace libTech {
 						Environment.Exit(0);
 				});
 			});
-		}
-	}
-
-	delegate void OnMouseMoveFunc(int DeltaX, int DeltaY);
-
-	class Test1 {
-		public event OnMouseMoveFunc OnMouseMove;
-
-		public void MoveMouse(int DeltaX, int DeltaY) {
-			if (OnMouseMove != null)
-				OnMouseMove(DeltaX, DeltaY);
-		}
-	}
-
-	class Test2 {
-		Test1 Test1Instance;
-
-		public Test2() {
-			Test1Instance.OnMouseMove += OnMouseMove;
-			Test1Instance.OnMouseMove += (DeltaX, DeltaY) => {
-				Console.WriteLine("MOUSE MOVED {0}, {1}", DeltaX, DeltaY);
-			};
-
-			Test1Instance.MoveMouse(2, 3);
-		}
-
-		void OnMouseMove(int DeltaX, int DeltaY) {
-			Console.WriteLine("MOVED {0}, {1}", DeltaX, DeltaY);
 		}
 	}
 }
