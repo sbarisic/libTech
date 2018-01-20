@@ -30,8 +30,6 @@ namespace libTech {
 	public class Engine : UltravioletApplication {
 		internal RenderDevice RenderDevice;
 
-		public static bool HUE_FRAME = true;
-
 		static void Main(string[] args) {
 			Console.Title = "libTech";
 
@@ -126,11 +124,6 @@ namespace libTech {
 					RenderDevice.OnMouseButton((NuklearEvent.MouseButton)(Button - 1), Pos.X, Pos.Y, false);
 			};
 
-			Keyboard.ButtonPressed += (W, Dev, Button) => {
-				if (Button == Scancode.Escape)
-					HUE_FRAME = true;
-			};
-
 			NuklearAPI.Init(RenderDevice);
 		}
 
@@ -140,8 +133,6 @@ namespace libTech {
 
 		protected override void OnDrawing(UltravioletTime time) {
 			base.OnDrawing(time);
-			if (HUE_FRAME)
-				Console.WriteLine("BEGIN_DRAWING");
 
 			IUltravioletGraphics UVGfx = Ultraviolet.GetGraphics();
 			Gfx.UVGfx = UVGfx;
@@ -158,10 +149,34 @@ namespace libTech {
 						Environment.Exit(0);
 				});
 			});
+		}
+	}
 
-			if (HUE_FRAME)
-				Console.WriteLine("END_DRAWING");
-			HUE_FRAME = false;
+	delegate void OnMouseMoveFunc(int DeltaX, int DeltaY);
+
+	class Test1 {
+		public event OnMouseMoveFunc OnMouseMove;
+
+		public void MoveMouse(int DeltaX, int DeltaY) {
+			if (OnMouseMove != null)
+				OnMouseMove(DeltaX, DeltaY);
+		}
+	}
+
+	class Test2 {
+		Test1 Test1Instance;
+
+		public Test2() {
+			Test1Instance.OnMouseMove += OnMouseMove;
+			Test1Instance.OnMouseMove += (DeltaX, DeltaY) => {
+				Console.WriteLine("MOUSE MOVED {0}, {1}", DeltaX, DeltaY);
+			};
+
+			Test1Instance.MoveMouse(2, 3);
+		}
+
+		void OnMouseMove(int DeltaX, int DeltaY) {
+			Console.WriteLine("MOVED {0}, {1}", DeltaX, DeltaY);
 		}
 	}
 }

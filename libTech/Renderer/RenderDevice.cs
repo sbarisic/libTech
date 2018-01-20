@@ -131,9 +131,6 @@ namespace libTech.Renderer {
 		}
 
 		public override void SetBuffer(NkVertex[] Verts, ushort[] Inds) {
-			if (Engine.HUE_FRAME)
-				Console.WriteLine("SetBuffer");
-
 			EnsureBufferSize(Verts.Length, Inds.Length);
 
 			for (int i = 0; i < Verts.Length; i++) {
@@ -146,9 +143,6 @@ namespace libTech.Renderer {
 		}
 
 		public void BeginBuffering() {
-			if (Engine.HUE_FRAME)
-				Console.WriteLine("BeginBuffering");
-
 			Graphics.SetRenderTarget(RenderTarget, Color.Transparent);
 
 			Graphics.SetBlendState(Blending);
@@ -160,10 +154,8 @@ namespace libTech.Renderer {
 		}
 
 		public override void Render(NkHandle Userdata, Texture2D Texture, NkRect ClipRect, uint Offset, uint Count) {
-			if (Engine.HUE_FRAME)
-				Console.WriteLine("Render");
-
 			Effect.Texture = Texture;
+
 			foreach (var Pass in Effect.CurrentTechnique.Passes) {
 				Pass.Apply();
 
@@ -173,16 +165,10 @@ namespace libTech.Renderer {
 		}
 
 		public void EndBuffering() {
-			if (Engine.HUE_FRAME)
-				Console.WriteLine("EndBuffering");
-
 			Graphics.SetRenderTarget(null);
 		}
 
 		public void RenderFinal() {
-			if (Engine.HUE_FRAME)
-				Console.WriteLine("RenderFinal");
-
 			Batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 			Batch.Draw(ColorBuffer, Vector2.Zero, Color.White);
 			Batch.End();
