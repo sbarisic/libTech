@@ -87,7 +87,7 @@ namespace libTech {
 		}
 
 		public override string ToString() {
-			return string.Format("{0} = `{1}´, default `{2}´", Name, Value ?? "null", DefaultValue ?? "null");
+			return string.Format("{0} = '{1}', default '{2}'", Name, Value ?? "null", DefaultValue ?? "null");
 		}
 
 		static List<CVar> CVars;

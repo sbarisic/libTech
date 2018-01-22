@@ -31,8 +31,6 @@ namespace libTech {
 		internal RenderDevice RenderDevice;
 
 		static void Main(string[] args) {
-			Console.Title = "libTech";
-
 			CVar.InitMode = true;
 			CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init, (This, Old, New) => This.Value = Path.GetFullPath((string)New));
 
@@ -43,17 +41,27 @@ namespace libTech {
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
-				CVar CVar = CVar.Find(Arg.Key);
+				switch (Arg.Key) {
+					case "console":
+						GConsole.Open = true;
+						break;
 
-				if (CVar != null)
-					CVar.Value = Arg.Value.LastOrDefault();
-				else
-					CVar.Register(Arg.Key, Arg.Value.LastOrDefault());
+					default: {
+							CVar CVar = CVar.Find(Arg.Key);
+
+							if (CVar != null)
+								CVar.Value = Arg.Value.LastOrDefault();
+							else
+								CVar.Register(Arg.Key, Arg.Value.LastOrDefault());
+
+							break;
+						}
+				}
 			}
 
 			CVar.InitMode = false;
 			foreach (var CVar in CVar.GetAll())
-				Console.WriteLine(CVar);
+				GConsole.WriteLine(CVar);
 
 			foreach (var Type in Reflect.GetAllTypes(Reflect.GetExeAssembly()))
 				if (!Type.IsAbstract && Reflect.Inherits(Type, typeof(Importer.Importer)))
@@ -80,11 +88,11 @@ namespace libTech {
 			Cfg.Debug = true;
 			Cfg.DebugLevels = DebugLevels.Warning | DebugLevels.Error;
 
-			Cfg.DebugCallback = (UV, Lvl, Msg) => Console.WriteLine("{0}: {1}", Lvl, Msg);
+			Cfg.DebugCallback = (UV, Lvl, Msg) => GConsole.WriteLine("{0}: {1}", Lvl, Msg);
 #endif
 
 			OpenGLUltravioletContext Ctx = new OpenGLUltravioletContext(this, Cfg);
-			Console.WriteLine("{0}", gl.GetString(gl.GL_VERSION));
+			GConsole.WriteLine("{0}", gl.GetString(gl.GL_VERSION));
 			return Ctx;
 		}
 
@@ -125,6 +133,12 @@ namespace libTech {
 			};
 
 			Keyboard.KeyPressed += (W, Dev, Key, Ctrl, Alt, Shift, Repeat) => {
+				if (Key == Key.F1) {
+					GConsole.Open = true;
+					NuklearAPI.QueueForceUpdate();
+					return;
+				}
+
 				NkKeys K = Key.ToNkKeys();
 				if (K != (NkKeys)(-1))
 					RenderDevice.OnKey(K, true);
@@ -134,6 +148,17 @@ namespace libTech {
 				NkKeys K = Key.ToNkKeys();
 				if (K != (NkKeys)(-1))
 					RenderDevice.OnKey(K, false);
+			};
+
+			Keyboard.TextEditing += (W, Dev) => {
+				Console.WriteLine("Text editing");
+			};
+
+			StringBuilder TextInputBuffer = new StringBuilder();
+
+			Keyboard.TextInput += (W, Dev) => {
+				Dev.GetTextInput(TextInputBuffer);
+				RenderDevice.OnText(TextInputBuffer.ToString());
 			};
 
 			NuklearAPI.Init(RenderDevice);
@@ -151,7 +176,9 @@ namespace libTech {
 			UVGfx.Clear(new Color(70, 90, 190));
 
 			NuklearAPI.Frame(() => {
-				NuklearAPI.Window("Ultraviolet", 100, 100, 200, 200, NkPanelFlags.BorderTitle | NkPanelFlags.MovableScalable | NkPanelFlags.Minimizable, () => {
+				GConsole.NuklearDraw(50, 50);
+
+				/*NuklearAPI.Window("Ultraviolet", 100, 100, 200, 200, NkPanelFlags.BorderTitle | NkPanelFlags.MovableScalable | NkPanelFlags.Minimizable, () => {
 					NuklearAPI.LayoutRowDynamic(35);
 
 					for (int i = 0; i < 5; i++)
@@ -159,7 +186,7 @@ namespace libTech {
 
 					if (NuklearAPI.ButtonLabel("Exit"))
 						Environment.Exit(0);
-				});
+				});*/
 			});
 		}
 	}
