@@ -4,12 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ultraviolet.Input;
-
 namespace libTech {
 	public static class Utils {
-
-		public static NkKeys ToNkKeys(this Key K) {
+		/*public static NkKeys ToNkKeys(this Key K) {
 			if (K == Key.None)
 				return NkKeys.None;
 			else if (K == Key.LeftShift || K == Key.RightShift)
@@ -48,6 +45,6 @@ namespace libTech {
 				return NkKeys.TextUndo;
 
 			return (NkKeys)(-1);
-		}
+		}*/
 	}
 }

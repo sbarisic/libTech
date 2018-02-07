@@ -4,12 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using libTech;
+using libTech.UI;
 
 namespace Game {
-	public class Game {
+	public class Game : LibTechGame {
+		public override void Load() {
 
-	}
 
-	public class MainMenu {
+
+		}
+
+		public override void Unload() {
+
+		}
 	}
 }

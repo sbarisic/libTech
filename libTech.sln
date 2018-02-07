@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "basegame", "basegame", "{0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{97C3DC85-9495-4F66-9409-F95F4BC4EFBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{83AC2525-9901-4475-9688-6989B6CC894A} = {0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}
+		{97C3DC85-9495-4F66-9409-F95F4BC4EFBC} = {0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C2663A4-61BA-41BA-975E-E38032980A41}

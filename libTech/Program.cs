@@ -4,17 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Ultraviolet;
-using Ultraviolet.Content;
-using Ultraviolet.Core;
-using Ultraviolet.Core.Text;
-using Ultraviolet.Graphics;
-using Ultraviolet.Graphics.Graphics2D;
-using Ultraviolet.Graphics.Graphics2D.Text;
-using Ultraviolet.OpenGL;
-using Ultraviolet.Platform;
-using Ultraviolet.OpenGL.Bindings;
-
 using libTech.Reflection;
 using libTech.Importer;
 using System.Reflection;
@@ -23,13 +12,11 @@ using System.IO;
 
 using NuklearDotNet;
 using System.Runtime.InteropServices;
-using Ultraviolet.Input;
 using libTech.Renderer;
+using libTech.UI;
 
 namespace libTech {
-	public class Engine : UltravioletApplication {
-		internal RenderDevice RenderDevice;
-
+	public static class Engine {
 		static void Main(string[] args) {
 			CVar.InitMode = true;
 			CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init, (This, Old, New) => This.Value = Path.GetFullPath((string)New));
@@ -67,40 +54,26 @@ namespace libTech {
 				if (!Type.IsAbstract && Reflect.Inherits(Type, typeof(Importer.Importer)))
 					Importers.Register(Type);
 
-			using (Engine P = new Engine()) {
-				P.Run();
+			CreateContext();
+			LoadContent();
+
+			while (true) {
+				Update(0);
+				Draw(0);
 			}
 		}
 
-		public Engine() : base("Carpmanium", "libTech") {
-			RenderDevice = new RenderDevice(this);
+		static void CreateContext() {
+
 		}
 
-		protected override UltravioletContext OnCreatingUltravioletContext() {
-			OpenGLUltravioletConfiguration Cfg = new OpenGLUltravioletConfiguration();
-			Cfg.MinimumOpenGLVersion = new Version(3, 2);
-			Cfg.BackBufferRenderTargetUsage = RenderTargetUsage.PreserveContents;
-
-			Cfg.WindowIsResizable = CVar.GetBool("resizable");
-			Cfg.WindowIsBorderless = CVar.GetBool("borderless");
-
-#if DEBUG
-			Cfg.Debug = true;
-			Cfg.DebugLevels = DebugLevels.Warning | DebugLevels.Error;
-
-			Cfg.DebugCallback = (UV, Lvl, Msg) => GConsole.WriteLine("{0}: {1}", Lvl, Msg);
-#endif
-
-			OpenGLUltravioletContext Ctx = new OpenGLUltravioletContext(this, Cfg);
-			GConsole.WriteLine("{0}", gl.GetString(gl.GL_VERSION));
-			return Ctx;
-		}
-
-		protected override void OnInitialized() {
-			base.OnInitialized();
+		static void LoadContent() {
+			/*base.OnLoadingContent();
 
 			IUltravioletPlatform Platform = Ultraviolet.GetPlatform();
 			IUltravioletWindow Window = Platform.Windows.GetPrimary();
+
+			ScreenService.Init(Ultraviolet.GetUI());
 
 			if (Window != null) {
 				Window.Caption = "libTech";
@@ -161,33 +134,23 @@ namespace libTech {
 				RenderDevice.OnText(TextInputBuffer.ToString());
 			};
 
-			NuklearAPI.Init(RenderDevice);
+			NuklearAPI.Init(RenderDevice);*/
 		}
 
-		protected override void OnUpdating(UltravioletTime time) {
-			base.OnUpdating(time);
+		static void Update(float Time) {
+
 		}
 
-		protected override void OnDrawing(UltravioletTime time) {
-			base.OnDrawing(time);
+		static void Draw(float Time) {
+			/*base.OnDrawing(time);
 
 			IUltravioletGraphics UVGfx = Ultraviolet.GetGraphics();
 			Gfx.UVGfx = UVGfx;
 			UVGfx.Clear(new Color(70, 90, 190));
 
 			NuklearAPI.Frame(() => {
-				GConsole.NuklearDraw(50, 50);
-
-				/*NuklearAPI.Window("Ultraviolet", 100, 100, 200, 200, NkPanelFlags.BorderTitle | NkPanelFlags.MovableScalable | NkPanelFlags.Minimizable, () => {
-					NuklearAPI.LayoutRowDynamic(35);
-
-					for (int i = 0; i < 5; i++)
-						NuklearAPI.ButtonLabel("Some Button " + i);
-
-					if (NuklearAPI.ButtonLabel("Exit"))
-						Environment.Exit(0);
-				});*/
-			});
+				GConsole.NuklearDraw(100, 100);
+			});*/
 		}
 	}
 }

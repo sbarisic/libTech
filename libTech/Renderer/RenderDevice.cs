@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ultraviolet;
-using Ultraviolet.Content;
-using Ultraviolet.Core;
-using Ultraviolet.Core.Text;
-using Ultraviolet.Graphics;
-using Ultraviolet.Graphics.Graphics2D;
-using Ultraviolet.Graphics.Graphics2D.Text;
-using Ultraviolet.OpenGL;
-using Ultraviolet.Platform;
-using Ultraviolet.OpenGL.Bindings;
 
 using libTech.Reflection;
 using libTech.Importer;
@@ -22,10 +12,9 @@ using System.IO;
 
 using NuklearDotNet;
 using System.Runtime.InteropServices;
-using Ultraviolet.Input;
-using Ultraviolet.OpenGL.Graphics;
 
 namespace libTech.Renderer {
+	/*
 	internal unsafe class RenderDevice : NuklearDeviceTex<Texture2D>, IFrameBuffered {
 		Engine Engine;
 
@@ -81,7 +70,8 @@ namespace libTech.Renderer {
 			Rasterizing = RasterizerState.Create();
 			Rasterizing.ScissorTestEnable = true;
 			Rasterizing.CullMode = CullMode.None;
-			//Rasterizing.FillMode = FillMode.Wireframe;
+			Rasterizing.FillMode = FillMode.Solid;
+
 			VPort = new Viewport(0, 0, Wind.ClientSize.Width, Wind.ClientSize.Height);
 
 			Effect = BasicEffect.Create();
@@ -132,12 +122,7 @@ namespace libTech.Renderer {
 
 		public override void SetBuffer(NkVertex[] Verts, ushort[] Inds) {
 			EnsureBufferSize(Verts.Length, Inds.Length);
-
-			for (int i = 0; i < Verts.Length; i++) {
-				Verts[i].Position.X = (int)Verts[i].Position.X;
-				Verts[i].Position.Y = (int)Verts[i].Position.Y;
-			}
-
+			
 			IndexBuffer.SetData(Inds);
 			VertexBuffer.SetData(Verts);
 		}
@@ -159,8 +144,12 @@ namespace libTech.Renderer {
 			foreach (var Pass in Effect.CurrentTechnique.Passes) {
 				Pass.Apply();
 
+				gl.PolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE);
+
 				Graphics.SetScissorRectangle((int)ClipRect.X, (int)ClipRect.Y, (int)ClipRect.W, (int)ClipRect.H);
 				Graphics.DrawIndexedPrimitives(PrimitiveType.TriangleList, (int)Offset, (int)Count / 3);
+
+				gl.PolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL);
 			}
 		}
 
@@ -169,11 +158,13 @@ namespace libTech.Renderer {
 		}
 
 		public void RenderFinal() {
-			Batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
+			Batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 			Batch.Draw(ColorBuffer, Vector2.Zero, Color.White);
 			Batch.End();
+			//Batch.Flush();
 
 			Graphics.UnbindTexture(ColorBuffer);
 		}
 	}
+	*/
 }
