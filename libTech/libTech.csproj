@@ -37,41 +37,73 @@
   <PropertyGroup>
     <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin_dbg\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Glfw.Net">
-      <HintPath>..\3rdParty\Glfw.Net.dll</HintPath>
+      <HintPath>..\dlls\Glfw.Net.dll</HintPath>
     </Reference>
     <Reference Include="NuklearDotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\NuklearDotNet\bin_dbg\NuklearDotNet.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net">
-      <HintPath>..\3rdParty\OpenGL.Net.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net-CoreProfile">
-      <HintPath>..\3rdParty\OpenGL.Net-CoreProfile.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net-CoreProfile.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net-ES2Profile">
-      <HintPath>..\3rdParty\OpenGL.Net-ES2Profile.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net-ES2Profile.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net-SC2Profile">
-      <HintPath>..\3rdParty\OpenGL.Net-SC2Profile.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net-SC2Profile.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net.Math">
-      <HintPath>..\3rdParty\OpenGL.Net.Math.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net.Math.dll</HintPath>
     </Reference>
     <Reference Include="OpenGL.Net.Objects">
-      <HintPath>..\3rdParty\OpenGL.Net.Objects.dll</HintPath>
+      <HintPath>..\dlls\OpenGL.Net.Objects.dll</HintPath>
     </Reference>
     <Reference Include="OpenVX.Net">
-      <HintPath>..\3rdParty\OpenVX.Net.dll</HintPath>
+      <HintPath>..\dlls\OpenVX.Net.dll</HintPath>
     </Reference>
     <Reference Include="OpenWF.Net">
-      <HintPath>..\3rdParty\OpenWF.Net.dll</HintPath>
+      <HintPath>..\dlls\OpenWF.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Pegasus.Common">
+      <HintPath>..\dlls\Pegasus.Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dlls\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\dlls\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -106,6 +138,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ico.ico" />
+    <Content Include="native\glfw3_64\glfw3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL.Net-CoreProfile.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL.Net-ES2Profile.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL.Net-SC2Profile.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL.Net.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
