@@ -15,8 +15,19 @@ using System.Runtime.InteropServices;
 using libTech.Renderer;
 using libTech.UI;
 
+using Glfw3;
+using OpenGL;
+using System.Threading;
+using OpenGL.Objects;
+using OpenGL.Objects.Scene;
+using System.Diagnostics;
+
 namespace libTech {
 	public static class Engine {
+		internal static Glfw.Window Window;
+
+		static int FPS;
+
 		static void Main(string[] args) {
 			CVar.InitMode = true;
 			CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init, (This, Old, New) => This.Value = Path.GetFullPath((string)New));
@@ -57,14 +68,49 @@ namespace libTech {
 			CreateContext();
 			LoadContent();
 
-			while (true) {
-				Update(0);
-				Draw(0);
+			Stopwatch SWatch = Stopwatch.StartNew();
+			float Target = 1.0f / 120;
+			float Dt = Target;
+
+			while (!Glfw.WindowShouldClose(Window)) {
+				Update(Dt);
+				Draw(Dt);
+
+				while ((float)SWatch.ElapsedMilliseconds / 1000 < Target)
+					;
+				Dt = (float)SWatch.ElapsedMilliseconds / 1000;
+				FPS = (int)(1.0f / Dt);
+				SWatch.Restart();
 			}
+
+			Environment.Exit(0);
 		}
 
 		static void CreateContext() {
+			Gl.Initialize();
+			Glfw.ConfigureNativesDirectory("native/glfw3_64"); // TODO
 
+			if (!Glfw.Init()) {
+				GConsole.WriteLine("Could not initialize GLFW");
+
+				while (true)
+					Thread.Sleep(10);
+			}
+
+			int W = CVar.GetInt("width", 800);
+			int H = CVar.GetInt("height", 600);
+
+			Window = Glfw.CreateWindow(W, H, "libTech");
+			if (!Window) {
+				GConsole.WriteLine("Could not create window({0}x{1})", W, H);
+
+				while (true)
+					Thread.Sleep(10);
+			}
+
+			Glfw.MakeContextCurrent(Window);
+
+			Gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		}
 
 		static void LoadContent() {
@@ -138,10 +184,14 @@ namespace libTech {
 		}
 
 		static void Update(float Time) {
+			Glfw.PollEvents();
+
 
 		}
 
 		static void Draw(float Time) {
+			Gl.Clear(ClearBufferMask.ColorBufferBit);
+
 			/*base.OnDrawing(time);
 
 			IUltravioletGraphics UVGfx = Ultraviolet.GetGraphics();
@@ -151,6 +201,8 @@ namespace libTech {
 			NuklearAPI.Frame(() => {
 				GConsole.NuklearDraw(100, 100);
 			});*/
+
+			Glfw.SwapBuffers(Window);
 		}
 	}
 }
