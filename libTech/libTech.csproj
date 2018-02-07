@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>libTech</RootNamespace>
     <AssemblyName>libTech</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -37,16 +38,40 @@
     <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\3rdParty\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Glfw.Net">
+      <HintPath>..\3rdParty\Glfw.Net.dll</HintPath>
     </Reference>
     <Reference Include="NuklearDotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\NuklearDotNet\bin_dbg\NuklearDotNet.dll</HintPath>
     </Reference>
+    <Reference Include="OpenGL.Net">
+      <HintPath>..\3rdParty\OpenGL.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net-CoreProfile">
+      <HintPath>..\3rdParty\OpenGL.Net-CoreProfile.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net-ES2Profile">
+      <HintPath>..\3rdParty\OpenGL.Net-ES2Profile.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net-SC2Profile">
+      <HintPath>..\3rdParty\OpenGL.Net-SC2Profile.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net.Math">
+      <HintPath>..\3rdParty\OpenGL.Net.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net.Objects">
+      <HintPath>..\3rdParty\OpenGL.Net.Objects.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenVX.Net">
+      <HintPath>..\3rdParty\OpenVX.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenWF.Net">
+      <HintPath>..\3rdParty\OpenWF.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -81,15 +106,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ico.ico" />
-    <Content Include="x64\win32nt\bass.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\win32nt\bass_fx.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\win32nt\SDL2.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
