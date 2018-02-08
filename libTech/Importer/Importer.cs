@@ -1,7 +1,9 @@
-﻿using System;
+﻿using libTech.Reflection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +21,11 @@ namespace libTech.Importer {
 					throw new Exception("Importer already registered: " + T.ToString());
 
 			AllImporters.Add((Importer)Activator.CreateInstance(T));
+		}
+
+		public static void RegisterAll(Assembly A) {
+			foreach (var Type in Reflect.GetAllImplementationsOf(A, typeof(Importer)))
+				Register(Type);
 		}
 
 		public static IEnumerable<Importer<T>> GetAll<T>() {
