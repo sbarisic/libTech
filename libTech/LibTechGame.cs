@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace libTech {
 	public abstract class LibTechGame {
-		public abstract void Load();
-		public abstract void Unload();
+		public virtual void Load() {
+		}
+
+		public virtual void Unload() {
+		}
+
+		public abstract void Update(float Dt);
+		public abstract void Draw(float Dt);
 	}
 }
