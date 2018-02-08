@@ -53,8 +53,17 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Glfw.Net">
+      <HintPath>..\dlls\Glfw.Net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OpenGL.Net-CoreProfile">
+      <HintPath>..\dlls\OpenGL.Net-CoreProfile.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
