@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech {
-	static class GConsole {
+	public static class GConsole {
 		const int ConsoleBufferSize = 256;
 
 		struct GConsoleEntry {
