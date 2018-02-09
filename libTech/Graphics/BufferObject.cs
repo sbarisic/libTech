@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenGL;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace libTech.Graphics {
 	public unsafe class BufferObject : GraphicsObject {
@@ -21,11 +22,12 @@ namespace libTech.Graphics {
 			Gl.NamedBufferData(ID, Size, Data, Usage);
 		}
 
-		public void SetData(Vector3[] Data, BufferUsage Usage = BufferUsage.DynamicDraw) {
+		public void SetData<T>(T[] Data, BufferUsage Usage = BufferUsage.DynamicDraw) where T : struct {
 			ElementCount = Data.Length;
 
-			fixed (Vector3* DataPtr = Data)
-				SetData((uint)(sizeof(Vector3) * Data.Length), (IntPtr)DataPtr, Usage);
+			GCHandle PinHandle = GCHandle.Alloc(Data, GCHandleType.Pinned);
+			SetData((uint)(Marshal.SizeOf<T>() * Data.Length), PinHandle.AddrOfPinnedObject(), Usage);
+			PinHandle.Free();
 		}
 
 		public override void GraphicsDispose() {

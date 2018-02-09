@@ -86,7 +86,7 @@ namespace libTech {
 
 				Game.Draw(Dt);
 				Glfw.SwapBuffers(Window);
-				
+
 				// Cap at Target framerate
 				while ((float)SWatch.ElapsedMilliseconds / 1000 < Target)
 					;
