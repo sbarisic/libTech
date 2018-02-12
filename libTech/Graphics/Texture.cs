@@ -20,6 +20,10 @@ namespace libTech.Graphics {
 			Storage2D(W, H);
 		}
 
+		public Texture(Image FromImage) : this(FromImage.Width, FromImage.Height) {
+			SubImage2D(FromImage);
+		}
+
 		public void TextureParam(TextureParameterName ParamName, int Val) {
 			Gl.TextureParameter(ID, ParamName, Val);
 		}

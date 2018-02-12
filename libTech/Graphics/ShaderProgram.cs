@@ -5,15 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenGL;
 using System.IO;
+using Matrix4 = System.Numerics.Matrix4x4;
 
 namespace libTech.Graphics {
 	public class ShaderProgram : GraphicsObject {
 		List<ShaderStage> ShaderStages;
+		Dictionary<string, int> UniformLocations;
 
 		public ShaderProgram() {
 			ID = Gl.CreateProgram();
 
 			ShaderStages = new List<ShaderStage>();
+			UniformLocations = new Dictionary<string, int>();
+		}
+
+		public ShaderProgram(params ShaderStage[] Stages) : this() {
+			foreach (var S in Stages)
+				AttachShader(S);
+			Link();
 		}
 
 		public void AttachShader(ShaderStage S) {
@@ -37,6 +46,17 @@ namespace libTech.Graphics {
 				return false;
 			}
 
+			string[] UniformKeys = UniformLocations.Keys.ToArray();
+			UniformLocations.Clear();
+
+			for (int i = 0; i < UniformKeys.Length; i++)
+				GetUniformLocation(UniformKeys[i]);
+
+			// Get some defaults
+			GetUniformLocation("Model");
+			GetUniformLocation("View");
+			GetUniformLocation("Project");
+
 			ErrorString = "";
 			return true;
 		}
@@ -58,6 +78,30 @@ namespace libTech.Graphics {
 			return Gl.GetAttribLocation(ID, Name);
 		}
 
+		public int GetUniformLocation(string Name) {
+			if (UniformLocations.ContainsKey(Name))
+				return UniformLocations[Name];
+
+			int Loc = Gl.GetUniformLocation(ID, Name);
+			if (Loc != -1)
+				UniformLocations.Add(Name, Loc);
+
+			return Loc;
+		}
+
+		public void UniformMatrix4f(string Uniform, Matrix4 M, bool Transpose = false) {
+			Gl.ProgramUniformMatrix4f(ID, GetUniformLocation(Uniform), 1, Transpose, ref M);
+		}
+
+		public void UpdateCamera(Camera C) {
+			UniformMatrix4f("View", C.View);
+			UniformMatrix4f("Project", C.Projection);
+		}
+
+		public void SetModelMatrix(Matrix4 M) {
+			UniformMatrix4f("Model", M);
+		}
+
 		public override void GraphicsDispose() {
 			Gl.DeleteProgram(ID);
 		}
@@ -77,14 +121,23 @@ namespace libTech.Graphics {
 			ShaderType = T;
 		}
 
-		public void SetSourceCode(string Code) {
-			Source = Code;
-			SrcFile = null;
+		public ShaderStage(ShaderType T, string SourceFile) : this(T) {
+			SetSourceFile(SourceFile);
+			Compile();
 		}
 
-		public void SetSourceFile(string FilePath) {
+		public ShaderStage SetSourceCode(string Code) {
+			Source = Code;
+			SrcFile = null;
+
+			return this;
+		}
+
+		public ShaderStage SetSourceFile(string FilePath) {
 			Source = File.ReadAllText(FilePath);
 			SrcFile = Path.GetFullPath(FilePath);
+
+			return this;
 		}
 
 		public bool Compile(out string ErrorString) {
@@ -111,9 +164,11 @@ namespace libTech.Graphics {
 			return true;
 		}
 
-		public void Compile() {
+		public ShaderStage Compile() {
 			if (!Compile(out string ErrorString))
 				throw new Exception("Failed to compile shader\n" + ErrorString);
+
+			return this;
 		}
 
 		public override void GraphicsDispose() {

@@ -9,67 +9,44 @@ using libTech.UI;
 using libTech.Graphics;
 using OpenGL;
 using System.Numerics;
+using Matrix4 = System.Numerics.Matrix4x4;
+using libTech.Importer;
 
 namespace Game {
 	public class Game : LibTechGame {
+		Camera DefaultCam;
 		ShaderProgram DefaultShader;
-		VertexArray VertexArray;
-		Texture Tex;
+
+		Model SampleModel;
 
 		public override void Load() {
-			ShaderStage DefaultVert = new ShaderStage(ShaderType.VertexShader);
-			DefaultVert.SetSourceFile("content/shaders/default.vert");
-			DefaultVert.Compile();
+			DefaultCam = new Camera();
+			DefaultCam.Position = new Vector3(0, 0, 800);
+			DefaultCam.SetPerspective(Engine.Width, Engine.Height, 3.141592653f / 3);
+			DefaultCam.LookAt(new Vector3(0, Engine.Height / 4, 0), Vector3.UnitY);
 
-			ShaderStage DefaultFrag = new ShaderStage(ShaderType.FragmentShader);
-			DefaultFrag.SetSourceFile("content/shaders/default.frag");
-			DefaultFrag.Compile();
-
-			DefaultShader = new ShaderProgram();
-			DefaultShader.AttachShader(DefaultVert);
-			DefaultShader.AttachShader(DefaultFrag);
-			DefaultShader.Link();
-
-			Image Img = Image.FromFile("content/textures/test.png");
-			Tex = new Texture(Img.Width, Img.Height);
-			Tex.SubImage2D(Img);
-
-			BufferObject VertexBuffer = new BufferObject();
-			VertexBuffer.SetData(new Vector3[] { new Vector3(0, 0.5f, 0), new Vector3(0.5f, -0.5f, 0), new Vector3(-0.5f, -0.5f, 0) });
-
-			BufferObject ColorBuffer = new BufferObject();
-			ColorBuffer.SetData(new Vector3[] { new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1) });
-
-			BufferObject UVBuffer = new BufferObject();
-			UVBuffer.SetData(new Vector2[] { new Vector2(0.5f, 1), new Vector2(1, 0), new Vector2(0, 0) });
-
-			VertexArray = new VertexArray();
-
-			uint PosAttrib = (uint)DefaultShader.GetAttribLocation("Pos");
-			VertexArray.AttribFormat(PosAttrib);
-			VertexArray.AttribBinding(PosAttrib, VertexArray.BindVertexBuffer(VertexBuffer));
-
-			uint ClrAttrib = (uint)DefaultShader.GetAttribLocation("Clr");
-			VertexArray.AttribFormat(ClrAttrib);
-			VertexArray.AttribBinding(ClrAttrib, VertexArray.BindVertexBuffer(ColorBuffer));
-
-			uint UVAttrib = (uint)DefaultShader.GetAttribLocation("UV");
-			VertexArray.AttribFormat(UVAttrib, Size: 2);
-			VertexArray.AttribBinding(UVAttrib, VertexArray.BindVertexBuffer(UVBuffer, Stride: 2 * sizeof(float)));
+			DefaultShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default.frag"));
+			DefaultShader.UpdateCamera(DefaultCam);
+			
+			//SampleModel = Importers.Load<Model>("content/models/corsa.fbx");
+			SampleModel = Importers.Load<Model>("content/models/skull.obj");
+			SampleModel.Scale = new Vector3(300);
+			SampleModel.Position = new Vector3(0, -100, 0);
+			SampleModel.ShaderProgram = DefaultShader;
+			SampleModel.Meshes[0].Material.Diffuse = new Texture(Image.FromFile("content/textures/difuso_flip_oscuro.jpg"));
 		}
 
 		public override void Update(float Dt) {
+			SampleModel.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, -Engine.TimeSinceStart);
 		}
 
 		public override void Draw(float Dt) {
-			Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			SampleModel.Draw();
 
-			Tex.BindTextureUnit();
-			DefaultShader.Bind();
-
-
-
-			VertexArray.Draw(0, 3);
+			Gl.DepthMask(false);
+			SampleModel.DrawTransparent();
+			Gl.DepthMask(true);
 		}
 	}
 }

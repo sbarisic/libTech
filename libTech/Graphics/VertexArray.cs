@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenGL;
+using System.Numerics;
 
 namespace libTech.Graphics {
 	public class VertexArray : GraphicsObject {
 		public PrimitiveType PrimitiveType;
 
+		BufferObject ElementBuffer;
 		List<BufferObject> BufferObjects;
 		int FreeBindingIndex = 0;
 
@@ -28,11 +30,23 @@ namespace libTech.Graphics {
 		}
 
 		public void Draw(int First, int Count) {
+			if (ElementBuffer != null)
+				throw new Exception("Use DrawElements instead");
+
 			Bind();
-
-			// TODO: Elements
-
 			Gl.DrawArrays(PrimitiveType, First, Count);
+			Unbind();
+		}
+
+		public void DrawElements(int Offset = 0, int Count = -1, DrawElementsType ElementType = DrawElementsType.UnsignedShort) {
+			if (ElementBuffer == null)
+				throw new Exception("Use Draw instead");
+
+			if (Count == -1)
+				Count = ElementBuffer.ElementCount;
+
+			Bind();
+			Gl.DrawElements(PrimitiveType, Count, ElementType, (IntPtr)Offset);
 			Unbind();
 		}
 
@@ -50,6 +64,7 @@ namespace libTech.Graphics {
 		}
 
 		public void BindElementBuffer(BufferObject Obj) {
+			ElementBuffer = Obj;
 			BufferObjects.Add(Obj);
 
 			if (Obj != null)
@@ -74,6 +89,10 @@ namespace libTech.Graphics {
 
 		public override void GraphicsDispose() {
 			Gl.DeleteVertexArrays(new uint[] { ID });
+		}
+
+		public static void VertexAttrib(uint Attrib, Vector4 Vec) {
+			Gl.VertexAttrib4(Attrib, Vec.X, Vec.Y, Vec.Z, Vec.W);
 		}
 	}
 }

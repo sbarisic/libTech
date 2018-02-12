@@ -46,6 +46,10 @@ namespace libTech.Importer {
 
 			throw new Exception("Could not find importer for \"" + FilePath + "\"");
 		}
+
+		public static T Load<T>(string FilePath) {
+			return Get<T>(FilePath).Load(FilePath);
+		}
 	}
 
 	public abstract class Importer {
@@ -53,14 +57,10 @@ namespace libTech.Importer {
 			return CanLoadExt(Path.GetExtension(FilePath));
 		}
 
-		public virtual bool CanLoadExt(string Extension) {
-			throw new NotImplementedException();
-		}
+		public abstract bool CanLoadExt(string Extension);
 	}
 
 	public abstract class Importer<T> : Importer {
-		public virtual T Load(string FilePath) {
-			throw new NotImplementedException();
-		}
+		public abstract T Load(string FilePath);
 	}
 }

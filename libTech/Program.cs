@@ -13,7 +13,6 @@ using System.IO;
 
 using NuklearDotNet;
 using System.Runtime.InteropServices;
-using libTech.Renderer;
 using libTech.UI;
 
 using Glfw3;
@@ -23,14 +22,32 @@ using System.Diagnostics;
 using Khronos;
 
 using libTech.Graphics;
+using glTFLoader;
+
+using Matrix4 = System.Numerics.Matrix4x4;
 
 namespace libTech {
 	public unsafe static class Engine {
 		internal static Glfw.Window Window;
+		internal static RenderDevice RenderDevice;
 
 		static int FPS;
 
 		public static LibTechGame Game;
+		public static int Width { get; private set; }
+		public static int Height { get; private set; }
+		public static int MouseX { get; private set; }
+		public static int MouseY { get; private set; }
+
+		static string[] DragDropPaths;
+		public static event Action<string[]> OnDragDrop;
+
+		static Stopwatch SWatch = Stopwatch.StartNew();
+		public static float TimeSinceStart {
+			get {
+				return SWatch.ElapsedMilliseconds / 1000.0f;
+			}
+		}
 
 		static void Main(string[] args) {
 			CVar.InitMode = true;
@@ -81,11 +98,8 @@ namespace libTech {
 			float Dt = Target;
 
 			while (!Glfw.WindowShouldClose(Window)) {
-				Glfw.PollEvents();
-				Game.Update(Dt);
-
-				Game.Draw(Dt);
-				Glfw.SwapBuffers(Window);
+				Update(Dt);
+				Draw(Dt);
 
 				// Cap at Target framerate
 				while ((float)SWatch.ElapsedMilliseconds / 1000 < Target)
@@ -97,6 +111,31 @@ namespace libTech {
 			}
 
 			Environment.Exit(0);
+		}
+
+		static void Update(float Dt) {
+			Glfw.PollEvents();
+			if (DragDropPaths != null) {
+				OnDragDrop?.Invoke(DragDropPaths);
+				DragDropPaths = null;
+			}
+
+			Game.Update(Dt);
+		}
+
+		static void Draw(float Dt) {
+			Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			Gl.Enable(EnableCap.DepthTest);
+			Gl.Disable(EnableCap.CullFace);
+
+			Game.Draw(Dt);
+
+			Gl.Disable(EnableCap.DepthTest);
+			NuklearAPI.Frame(() => {
+				GConsole.NuklearDraw(10, 10);
+			});
+
+			Glfw.SwapBuffers(Window);
 		}
 
 		static void FatalError(string Msg) {
@@ -119,8 +158,12 @@ namespace libTech {
 			if (!Glfw.Init())
 				FatalError("Could not initialize GLFW");
 
-			int W = CVar.GetInt("width", 800);
-			int H = CVar.GetInt("height", 600);
+			Glfw.SetErrorCallback((Err, Msg) => {
+				FatalError("GLFW({0}) {1}", Err, Msg);
+			});
+
+			Width = CVar.GetInt("width", 800);
+			Height = CVar.GetInt("height", 600);
 
 			Glfw.WindowHint(Glfw.Hint.Resizable, CVar.GetBool("resizable"));
 
@@ -139,9 +182,9 @@ namespace libTech {
 #endif
 
 			GConsole.WriteLine("Creating window");
-			Window = Glfw.CreateWindow(W, H, "libTech");
+			Window = Glfw.CreateWindow(Width, Height, "libTech");
 			if (!Window)
-				FatalError("Could not create window({0}x{1})", W, H);
+				FatalError("Could not create window({0}x{1})", Width, Height);
 
 			Glfw.MakeContextCurrent(Window);
 
@@ -175,7 +218,15 @@ namespace libTech {
 			GConsole.WriteLine("OpenGL {0}", Gl.GetString(StringName.Version));
 			GConsole.WriteLine("GLSL {0}", Gl.GetString(StringName.ShadingLanguageVersion));
 
-			Gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			Gl.ClearColor(69 / 255.0f, 112 / 255.0f, 56 / 255.0f, 1.0f);
+
+			Gl.Enable(EnableCap.Blend);
+
+			Gl.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
+			Gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+			//Gl.BlendEquation(BlendEquationMode.FuncAdd);
+			//Gl.BlendFunc(BlendingFactor.One, BlendingFactor.One);
 		}
 
 		static void LoadContent() {
@@ -197,73 +248,169 @@ namespace libTech {
 			Game = (LibTechGame)Activator.CreateInstance(GameImplementations[0]);
 			Game.Load();
 
-			/*base.OnLoadingContent();
+			ShaderProgram GUIShader = new ShaderProgram();
+			GUIShader.AttachShader(new ShaderStage(ShaderType.VertexShader).SetSourceFile("content/shaders/gui.vert").Compile());
+			GUIShader.AttachShader(new ShaderStage(ShaderType.FragmentShader).SetSourceFile("content/shaders/gui.frag").Compile());
+			GUIShader.Link();
 
-			IUltravioletPlatform Platform = Ultraviolet.GetPlatform();
-			IUltravioletWindow Window = Platform.Windows.GetPrimary();
-
-			ScreenService.Init(Ultraviolet.GetUI());
-
-			if (Window != null) {
-				Window.Caption = "libTech";
-				Window.ClientSize = new Size2(CVar.GetInt("width", 800), CVar.GetInt("height", 600));
-				Window.SetWindowedClientSizeCentered(Window.ClientSize);
-			}
-
-			IUltravioletInput Input = Ultraviolet.GetInput();
-			MouseDevice Mouse = Input.GetMouse();
-			KeyboardDevice Keyboard = Input.GetKeyboard();
-
-			Mouse.Moved += (IUltravioletWindow W, MouseDevice Dev, int X, int Y, int DX, int DY) => {
-				RenderDevice.OnMouseMove(X, Y);
-			};
-
-			Mouse.WheelScrolled += (W, Dev, X, Y) => {
-				RenderDevice.OnScroll(X, Y);
-			};
-
-			Mouse.ButtonPressed += (W, Dev, Button) => {
-				Point2 Pos = Dev.Position;
-				if (Button == MouseButton.Left || Button == MouseButton.Middle || Button == MouseButton.Right)
-					RenderDevice.OnMouseButton((NuklearEvent.MouseButton)(Button - 1), Pos.X, Pos.Y, true);
-			};
-
-			Mouse.ButtonReleased += (W, Dev, Button) => {
-				Point2 Pos = Dev.Position;
-				if (Button == MouseButton.Left || Button == MouseButton.Middle || Button == MouseButton.Right)
-					RenderDevice.OnMouseButton((NuklearEvent.MouseButton)(Button - 1), Pos.X, Pos.Y, false);
-			};
-
-			Keyboard.KeyPressed += (W, Dev, Key, Ctrl, Alt, Shift, Repeat) => {
-				if (Key == Key.F1) {
-					GConsole.Open = true;
-					NuklearAPI.QueueForceUpdate();
+			RenderDevice = new RenderDevice(GUIShader, Width, Height);
+			NuklearAPI.Init(RenderDevice);
+			NuklearAPI.SetClipboardCallback((Txt) => {
+				if (string.IsNullOrEmpty(Txt))
 					return;
+
+				Glfw.SetClipboardString(Window, Txt);
+			}, () => {
+				string Str = Glfw.GetClipboardString(Window);
+				if (Str == null)
+					Str = "";
+
+				return Str;
+			});
+
+			Glfw.SetCursorPosCallback(Window, (Wnd, X, Y) => {
+				MouseX = (int)X;
+				MouseY = (int)Y;
+				RenderDevice.OnMouseMove((int)X, (int)Y);
+			});
+
+			Glfw.SetMouseButtonCallback(Window, (Wnd, Button, State, Mods) => {
+				NuklearEvent.MouseButton NkButton;
+				bool IsDown = State == Glfw.InputState.Press ? true : false;
+
+				if (!(State == Glfw.InputState.Press || State == Glfw.InputState.Release))
+					return;
+
+				if (Button == Glfw.MouseButton.ButtonLeft)
+					NkButton = NuklearEvent.MouseButton.Left;
+				else if (Button == Glfw.MouseButton.ButtonMiddle)
+					NkButton = NuklearEvent.MouseButton.Middle;
+				else if (Button == Glfw.MouseButton.ButtonRight)
+					NkButton = NuklearEvent.MouseButton.Right;
+				else
+					return;
+
+				RenderDevice.OnMouseButton(NkButton, MouseX, MouseY, IsDown);
+			});
+
+			Glfw.SetScrollCallback(Window, (Wnd, X, Y) => {
+				RenderDevice.OnScroll((float)X, (float)Y);
+			});
+
+			Glfw.SetCharCallback(Window, (Wnd, Chr) => {
+				RenderDevice.OnText(((char)Chr).ToString());
+			});
+
+			Glfw.SetKeyCallback(Window, (Wnd, KCode, SCode, State, Mods) => {
+				if (KCode == Glfw.KeyCode.F1 && State == Glfw.InputState.Press)
+					GConsole.Open = true;
+
+				NkKeys K = ConvertToNkKey(KCode, Mods);
+
+				if (K != NkKeys.None) {
+					RenderDevice.OnKey(K, State == Glfw.InputState.Press);
+					if (State == Glfw.InputState.Repeat)
+						RenderDevice.OnKey(K, true);
 				}
+			});
 
-				NkKeys K = Key.ToNkKeys();
-				if (K != (NkKeys)(-1))
-					RenderDevice.OnKey(K, true);
-			};
+			Glfw.SetDropCallback(Window, (Wnd, Cnt, Paths) => {
+				DragDropPaths = Paths;
+			});
+		}
 
-			Keyboard.KeyReleased += (W, Dev, Key) => {
-				NkKeys K = Key.ToNkKeys();
-				if (K != (NkKeys)(-1))
-					RenderDevice.OnKey(K, false);
-			};
+		static NkKeys ConvertToNkKey(Glfw.KeyCode KCode, Glfw.KeyMods Mods) {
+			switch (KCode) {
+				case Glfw.KeyCode.RightShift:
+				case Glfw.KeyCode.LeftShift:
+					return NkKeys.Shift;
 
-			Keyboard.TextEditing += (W, Dev) => {
-				Console.WriteLine("Text editing");
-			};
+				case Glfw.KeyCode.LeftControl:
+				case Glfw.KeyCode.RightControl:
+					return NkKeys.Ctrl;
 
-			StringBuilder TextInputBuffer = new StringBuilder();
+				case Glfw.KeyCode.Delete:
+					return NkKeys.Del;
 
-			Keyboard.TextInput += (W, Dev) => {
-				Dev.GetTextInput(TextInputBuffer);
-				RenderDevice.OnText(TextInputBuffer.ToString());
-			};
+				case Glfw.KeyCode.Enter:
+				case Glfw.KeyCode.NumpadEnter:
+					return NkKeys.Enter;
 
-			NuklearAPI.Init(RenderDevice);*/
+				case Glfw.KeyCode.Tab:
+					return NkKeys.Tab;
+
+				case Glfw.KeyCode.Backspace:
+					return NkKeys.Backspace;
+
+				case Glfw.KeyCode.Up:
+					return NkKeys.Up;
+
+				case Glfw.KeyCode.Down:
+					return NkKeys.Down;
+
+				case Glfw.KeyCode.Left:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextWordLeft;
+					return NkKeys.Left;
+
+				case Glfw.KeyCode.Right:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextWordRight;
+					return NkKeys.Right;
+
+				case Glfw.KeyCode.Home:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextStart;
+					return NkKeys.LineStart;
+
+				case Glfw.KeyCode.End:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextEnd;
+					return NkKeys.LineEnd;
+
+				case Glfw.KeyCode.PageUp:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.ScrollStart;
+					return NkKeys.ScrollUp;
+
+				case Glfw.KeyCode.PageDown:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.ScrollEnd;
+					return NkKeys.ScrollDown;
+
+				case Glfw.KeyCode.A:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextSelectAll;
+					return NkKeys.None;
+
+				case Glfw.KeyCode.Z:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextUndo;
+					return NkKeys.None;
+
+				case Glfw.KeyCode.Y:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.TextRedo;
+					return NkKeys.None;
+
+				case Glfw.KeyCode.C:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.Copy;
+					return NkKeys.None;
+
+				case Glfw.KeyCode.V:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.Paste;
+					return NkKeys.None;
+
+				case Glfw.KeyCode.X:
+					if (Mods == Glfw.KeyMods.Control)
+						return NkKeys.Cut;
+					return NkKeys.None;
+
+				default:
+					return NkKeys.None;
+			}
 		}
 	}
 }
