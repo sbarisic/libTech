@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libTech", "libTech\libTech.csproj", "{A0C03244-D714-4BFE-8A14-23D809D9211A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2} = {33567D87-968A-4BC3-AAED-52DEB31E61A2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{20891CE8-ACEE-465C-A537-994C84641A16}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,10 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{83AC2525-9901-4475-9688-6989B6CC894A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2} = {33567D87-968A-4BC3-AAED-52DEB31E61A2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "basegame", "basegame", "{0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{97C3DC85-9495-4F66-9409-F95F4BC4EFBC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libNative", "libNative\libNative.vcxproj", "{33567D87-968A-4BC3-AAED-52DEB31E61A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +38,10 @@ Global
 		{83AC2525-9901-4475-9688-6989B6CC894A}.Debug|x64.Build.0 = Debug|x64
 		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|x64.ActiveCfg = Release|x64
 		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|x64.Build.0 = Release|x64
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Debug|x64.ActiveCfg = Debug|x64
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Debug|x64.Build.0 = Debug|x64
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Release|x64.ActiveCfg = Release|x64
+		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,7 +22,5 @@ void main() {
 	frag_UV = UV;
 
 	mat4 MVP = Project * View * Model;
-	//mat4 MVP = Model * View * Project;
-
 	gl_Position = MVP * vec4(Pos, 1.0);
 }

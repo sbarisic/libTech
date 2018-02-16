@@ -23,8 +23,10 @@ namespace libTech.Graphics {
 		}
 
 		public void SetData<T>(T[] Data, BufferUsage Usage = BufferUsage.DynamicDraw) where T : struct {
-			ElementCount = Data.Length;
+			if (Data == null)
+				return;
 
+			ElementCount = Data.Length;
 			GCHandle PinHandle = GCHandle.Alloc(Data, GCHandleType.Pinned);
 			SetData((uint)(Marshal.SizeOf<T>() * Data.Length), PinHandle.AddrOfPinnedObject(), Usage);
 			PinHandle.Free();

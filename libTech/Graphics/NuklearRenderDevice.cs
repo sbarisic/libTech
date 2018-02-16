@@ -27,7 +27,7 @@ namespace libTech.Graphics {
 			Shader = ShaderProg;
 			GUICam = new Camera();
 			GUICam.SetOrthogonal(0, Height, Width, 0);
-			GUICam.Position = new Vector3(Width / 2.0f, Height / 2.0f, 0);
+			GUICam.Position = new Vector3(0, 0, 0);
 
 			VertexArray = new VertexArray();
 
@@ -79,8 +79,10 @@ namespace libTech.Graphics {
 		}
 
 		public override void Render(NkHandle Userdata, Texture Texture, NkRect ClipRect, uint Offset, uint Count) {
+			Camera.ActiveCamera = GUICam;
+
 			Texture.BindTextureUnit();
-			Shader.UpdateCamera(GUICam);
+			//Shader.UpdateCamera(GUICam);
 			Shader.SetModelMatrix(Matrix4.Identity);
 			Shader.Bind();
 

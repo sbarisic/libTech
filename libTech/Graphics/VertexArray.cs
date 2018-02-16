@@ -14,6 +14,12 @@ namespace libTech.Graphics {
 		List<BufferObject> BufferObjects;
 		int FreeBindingIndex = 0;
 
+		public bool HasElementBuffer {
+			get {
+				return ElementBuffer != null;
+			}
+		}
+
 		public VertexArray() {
 			ID = Gl.CreateVertexArray();
 
@@ -30,9 +36,6 @@ namespace libTech.Graphics {
 		}
 
 		public void Draw(int First, int Count) {
-			if (ElementBuffer != null)
-				throw new Exception("Use DrawElements instead");
-
 			Bind();
 			Gl.DrawArrays(PrimitiveType, First, Count);
 			Unbind();
@@ -65,10 +68,11 @@ namespace libTech.Graphics {
 
 		public void BindElementBuffer(BufferObject Obj) {
 			ElementBuffer = Obj;
-			BufferObjects.Add(Obj);
 
 			if (Obj != null)
 				Gl.VertexArrayElementBuffer(ID, Obj.ID);
+			else
+				Gl.VertexArrayElementBuffer(ID, 0);
 		}
 
 		public void AttribEnable(uint AttribIdx, bool Enable = true) {

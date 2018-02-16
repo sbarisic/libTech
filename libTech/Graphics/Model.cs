@@ -35,7 +35,7 @@ namespace libTech.Graphics {
 		}
 
 		void DrawMesh(Mesh Msh) {
-			ShaderProgram.SetModelMatrix(Camera.CreateModel(Vector3.Zero, Position, Scale, Rotation) * Msh.Matrix);
+			ShaderProgram.SetModelMatrix(Camera.CreateModel(Position, Scale, Rotation) * Msh.Matrix);
 			Msh.Draw();
 		}
 

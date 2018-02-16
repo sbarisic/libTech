@@ -4,8 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
+
 namespace libTech {
 	public static class Utils {
+		public static Vector3 XYZ(this Vector4 V) {
+			return new Vector3(V.X, V.Y, V.Z);
+		}
+
 		/*public static NkKeys ToNkKeys(this Key K) {
 			if (K == Key.None)
 				return NkKeys.None;

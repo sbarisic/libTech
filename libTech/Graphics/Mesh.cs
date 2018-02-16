@@ -4,56 +4,84 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using Matrix4 = System.Numerics.Matrix4x4;
+using OpenGL;
 
 namespace libTech.Graphics {
 	public class Mesh {
 		const int VERTEX_ATTRIB = 0;
 		const int COLOR_ATTRIB = 1;
 		const int UV_ATTRIB = 2;
-
+		
 		VertexArray VAO;
 		BufferObject VertBuffer;
 		BufferObject ColorBuffer;
 		BufferObject UVBuffer;
 		BufferObject ElementBuffer;
+		BufferUsage Usage;
 
-		public Matrix4x4 Matrix;
+		public Matrix4 Matrix;
 		public Material Material;
+		public bool Wireframe;
 
-		public Mesh() {
+		public PrimitiveType PrimitiveType {
+			get {
+				return VAO.PrimitiveType;
+			}
+
+			set {
+				VAO.PrimitiveType = value;
+			}
+		}
+
+		public Mesh(BufferUsage Usage = BufferUsage.StaticDraw) {
 			VAO = new VertexArray();
-			Matrix = Matrix4x4.Identity;
+			Matrix = Matrix4.Identity;
+			Material = Material.Default;
+
+			Wireframe = false;
+			this.Usage = Usage;
 		}
 
 		public void SetVertices(Vector3[] Verts) {
-			VertBuffer = new BufferObject();
-			VertBuffer.SetData(Verts);
+			if (VertBuffer == null) {
+				VAO.AttribFormat(VERTEX_ATTRIB);
+				VAO.AttribBinding(VERTEX_ATTRIB, VAO.BindVertexBuffer(VertBuffer = new BufferObject()));
+			}
 
-			VAO.AttribFormat(VERTEX_ATTRIB);
-			VAO.AttribBinding(VERTEX_ATTRIB, VAO.BindVertexBuffer(VertBuffer));
+			VertBuffer.SetData(Verts, Usage: Usage);
+			VAO.AttribEnable(VERTEX_ATTRIB, Verts != null);
 		}
 
 		public void SetColors(Vector4[] Colors) {
-			ColorBuffer = new BufferObject();
-			ColorBuffer.SetData(Colors);
+			if (ColorBuffer == null) {
+				VAO.AttribFormat(COLOR_ATTRIB, Size: 4);
+				VAO.AttribBinding(COLOR_ATTRIB, VAO.BindVertexBuffer(ColorBuffer = new BufferObject(), Stride: 4 * sizeof(float)));
+			}
 
-			VAO.AttribFormat(COLOR_ATTRIB, Size: 4);
-			VAO.AttribBinding(COLOR_ATTRIB, VAO.BindVertexBuffer(ColorBuffer, Stride: 4 * sizeof(float)));
+			ColorBuffer.SetData(Colors, Usage: Usage);
+			VAO.AttribEnable(COLOR_ATTRIB, Colors != null);
 		}
 
 		public void SetUVs(Vector2[] UVs) {
-			UVBuffer = new BufferObject();
-			UVBuffer.SetData(UVs);
+			if (UVBuffer == null) {
+				VAO.AttribFormat(UV_ATTRIB, Size: 2);
+				VAO.AttribBinding(UV_ATTRIB, VAO.BindVertexBuffer(UVBuffer = new BufferObject(), Stride: 2 * sizeof(float)));
+			}
 
-			VAO.AttribFormat(UV_ATTRIB, Size: 2);
-			VAO.AttribBinding(UV_ATTRIB, VAO.BindVertexBuffer(UVBuffer, Stride: 2 * sizeof(float)));
+			UVBuffer.SetData(UVs, Usage: Usage);
+			VAO.AttribEnable(UV_ATTRIB, UVs != null);
 		}
 
 		public void SetElements(uint[] Elements) {
-			ElementBuffer = new BufferObject();
-			ElementBuffer.SetData(Elements);
-
-			VAO.BindElementBuffer(ElementBuffer);
+			if (ElementBuffer == null)
+				ElementBuffer = new BufferObject();
+			
+			if (Elements != null) {
+				VAO.BindElementBuffer(ElementBuffer);
+				ElementBuffer.SetData(Elements, Usage: Usage);
+			} else
+				VAO.BindElementBuffer(null);
 		}
 
 		public void Draw() {
@@ -62,11 +90,17 @@ namespace libTech.Graphics {
 
 			Material.Bind();
 
-			if (ElementBuffer == null)
+			if (Wireframe)
+				Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+
+			if (!VAO.HasElementBuffer)
 				VAO.Draw(0, VertBuffer.ElementCount);
 			else
-				VAO.DrawElements(ElementType: OpenGL.DrawElementsType.UnsignedInt);
-			
+				VAO.DrawElements(ElementType: DrawElementsType.UnsignedInt);
+
+			if (Wireframe)
+				Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
 			Material.Unbind();
 		}
 	}

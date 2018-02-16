@@ -36,8 +36,15 @@ namespace libTech {
 		public static LibTechGame Game;
 		public static int Width { get; private set; }
 		public static int Height { get; private set; }
-		public static int MouseX { get; private set; }
-		public static int MouseY { get; private set; }
+
+		public static Vector2 WindowSize {
+			get {
+				return new Vector2(Width, Height);
+			}
+		}
+
+		public static Vector2 MousePos { get; private set; }
+		public static Vector2 MouseDelta { get; private set; }
 
 		static string[] DragDropPaths;
 		public static event Action<string[]> OnDragDrop;
@@ -115,6 +122,13 @@ namespace libTech {
 
 		static void Update(float Dt) {
 			Glfw.PollEvents();
+
+			Glfw.GetCursorPos(Window, out double CurX, out double CurY);
+			Vector2 CurMousePos = new Vector2((float)CurX, (float)CurY);
+
+			MouseDelta = CurMousePos - MousePos;
+			MousePos = CurMousePos;
+
 			if (DragDropPaths != null) {
 				OnDragDrop?.Invoke(DragDropPaths);
 				DragDropPaths = null;
@@ -126,10 +140,12 @@ namespace libTech {
 		static void Draw(float Dt) {
 			Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			Gl.Enable(EnableCap.DepthTest);
-			Gl.Disable(EnableCap.CullFace);
+			Gl.Enable(EnableCap.CullFace);
+			Gl.CullFace(CullFaceMode.Back);
 
 			Game.Draw(Dt);
 
+			Gl.Disable(EnableCap.CullFace);
 			Gl.Disable(EnableCap.DepthTest);
 			NuklearAPI.Frame(() => {
 				GConsole.NuklearDraw(10, 10);
@@ -269,8 +285,6 @@ namespace libTech {
 			});
 
 			Glfw.SetCursorPosCallback(Window, (Wnd, X, Y) => {
-				MouseX = (int)X;
-				MouseY = (int)Y;
 				RenderDevice.OnMouseMove((int)X, (int)Y);
 			});
 
@@ -290,7 +304,7 @@ namespace libTech {
 				else
 					return;
 
-				RenderDevice.OnMouseButton(NkButton, MouseX, MouseY, IsDown);
+				RenderDevice.OnMouseButton(NkButton, (int)MousePos.X, (int)MousePos.Y, IsDown);
 			});
 
 			Glfw.SetScrollCallback(Window, (Wnd, X, Y) => {
@@ -318,7 +332,15 @@ namespace libTech {
 				DragDropPaths = Paths;
 			});
 		}
-
+		
+		public static bool GetMouseButton(Glfw.MouseButton Btn) {
+			return Glfw.GetMouseButton(Window, Btn);
+		}
+		
+		public static bool GetKey(Glfw.KeyCode Key) {
+			return Glfw.GetKey(Window, (int)Key);
+		}
+		
 		static NkKeys ConvertToNkKey(Glfw.KeyCode KCode, Glfw.KeyMods Mods) {
 			switch (KCode) {
 				case Glfw.KeyCode.RightShift:

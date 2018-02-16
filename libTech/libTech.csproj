@@ -71,6 +71,9 @@
     <Reference Include="glTFLoader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\glTF2Loader.1.0.0\lib\net452\glTFLoader.dll</HintPath>
     </Reference>
+    <Reference Include="libTechGeometry">
+      <HintPath>..\..\libTechGeometry\bin_dbg\libTechGeometry.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -97,8 +100,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\dlls\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>..\dlls\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.4.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -115,6 +118,7 @@
     <Compile Include="CVar.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\GraphicsObject.cs" />
+    <Compile Include="Graphics\Immediate.cs" />
     <Compile Include="Graphics\Material.cs" />
     <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Graphics\Model.cs" />
@@ -126,6 +130,8 @@
     <Compile Include="Importer\Importer_Assimp.cs" />
     <Compile Include="Importer\Importer_GLTF.cs" />
     <Compile Include="LibTechGame.cs" />
+    <Compile Include="native\libNative\Gizmo.cs" />
+    <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\WinAPI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -150,6 +156,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\skull.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\default_notex.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\gui.vert">

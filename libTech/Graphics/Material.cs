@@ -7,8 +7,9 @@ using System.Numerics;
 
 namespace libTech.Graphics {
 	public class Material {
-		public Vector4 DiffuseColor;
+		public static readonly Material Default = new Material();
 
+		public Vector4 DiffuseColor;
 		public Texture Diffuse;
 
 		public bool IsTransparent;

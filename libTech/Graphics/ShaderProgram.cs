@@ -66,7 +66,18 @@ namespace libTech.Graphics {
 				throw new Exception("Failed to link program\n" + ErrorString);
 		}
 
+		/*void UpdateCamera(Camera C) {
+			UniformMatrix4f("View", C.View);
+			UniformMatrix4f("Project", C.Projection);
+		}*/
+
 		public override void Bind() {
+			if (Camera.ActiveCamera == null)
+				throw new Exception("No active camera");
+
+			UniformMatrix4f("View", Camera.ActiveCamera.View);
+			UniformMatrix4f("Project", Camera.ActiveCamera.Projection);
+
 			Gl.UseProgram(ID);
 		}
 
@@ -91,11 +102,6 @@ namespace libTech.Graphics {
 
 		public void UniformMatrix4f(string Uniform, Matrix4 M, bool Transpose = false) {
 			Gl.ProgramUniformMatrix4f(ID, GetUniformLocation(Uniform), 1, Transpose, ref M);
-		}
-
-		public void UpdateCamera(Camera C) {
-			UniformMatrix4f("View", C.View);
-			UniformMatrix4f("Project", C.Projection);
 		}
 
 		public void SetModelMatrix(Matrix4 M) {
