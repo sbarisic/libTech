@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenGL;
 using System.IO;
+using Vector2 = System.Numerics.Vector2;
 using Matrix4 = System.Numerics.Matrix4x4;
 
 namespace libTech.Graphics {
@@ -75,6 +76,7 @@ namespace libTech.Graphics {
 			if (Camera.ActiveCamera == null)
 				throw new Exception("No active camera");
 
+			Uniform2f("Viewport", Camera.ActiveCamera.ViewportSize);
 			UniformMatrix4f("View", Camera.ActiveCamera.View);
 			UniformMatrix4f("Project", Camera.ActiveCamera.Projection);
 
@@ -102,6 +104,10 @@ namespace libTech.Graphics {
 
 		public void UniformMatrix4f(string Uniform, Matrix4 M, bool Transpose = false) {
 			Gl.ProgramUniformMatrix4f(ID, GetUniformLocation(Uniform), 1, Transpose, ref M);
+		}
+
+		public void Uniform2f<T>(string Uniform, T Val) where T : struct {
+			Gl.ProgramUniform2f(ID, GetUniformLocation(Uniform), 1, ref Val);
 		}
 
 		public void SetModelMatrix(Matrix4 M) {

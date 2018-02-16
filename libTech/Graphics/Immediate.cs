@@ -11,11 +11,25 @@ namespace libTech.Graphics {
 	public static class Immediate {
 		static Mesh M;
 
-		public static ShaderProgram Shader;
+		public static ShaderProgram TriangleShader;
+		public static ShaderProgram PointShader;
+		public static ShaderProgram LineShader;
+
 		public static Matrix4x4 Matrix = Matrix4x4.Identity;
 
 		static Immediate() {
-			TinyGizmo.OnRender = (Verts, Inds) => Triangles(Verts.Select((V) => V.Position).ToArray(), Verts.Select((V) => V.Color).ToArray(), Indice: Inds);
+			TinyGizmo.OnRender = (PrimType, Verts) => {
+				Vector3[] Positions = Verts.Select((V) => V.Position.XYZ()).ToArray();
+				Vector4[] Colors = Verts.Select((V) => V.Color).ToArray();
+
+				if (PrimType == Im3dPrimitiveType.Triangles)
+					Triangles(Positions, Colors);
+				else if (PrimType == Im3dPrimitiveType.Lines)
+					Lines(Positions, Colors, Verts.Select((V) => V.Position.W).ToArray());
+				else
+					Points(Positions, Colors, Verts.Select((V) => V.Position.W).ToArray());
+			};
+
 			TinyGizmo.GizmoInit();
 		}
 
@@ -31,7 +45,7 @@ namespace libTech.Graphics {
 			M.SetElements(Indice);
 		}
 
-		static void DrawMesh(PrimitiveType PType) {
+		static void DrawMesh(PrimitiveType PType, ShaderProgram Shader) {
 			if (Shader == null)
 				throw new Exception("No shader bound for immediate mode drawing");
 
@@ -43,9 +57,26 @@ namespace libTech.Graphics {
 			Shader.Unbind();
 		}
 
-		public static void Lines(Vector3[] Position, Vector4[] Color = null, Vector2[] UV = null, uint[] Indice = null) {
-			UpdateMesh(Position, Color, UV, Indice);
-			DrawMesh(PrimitiveType.Lines);
+		public static void Points(Vector3[] Position, Vector4[] Color = null, float[] Size = null, uint[] Indice = null) {
+			if (Size == null) {
+				Size = new float[Position.Length];
+				for (int i = 0; i < Size.Length; i++)
+					Size[i] = 2;
+			}
+
+			UpdateMesh(Position, Color, Size.Select((S) => new Vector2(S)).ToArray(), Indice);
+			DrawMesh(PrimitiveType.Points, PointShader);
+		}
+
+		public static void Lines(Vector3[] Position, Vector4[] Color = null, float[] Size = null, uint[] Indice = null) {
+			if (Size == null) {
+				Size = new float[Position.Length];
+				for (int i = 0; i < Size.Length; i++)
+					Size[i] = 2;
+			}
+
+			UpdateMesh(Position, Color, Size.Select((S) => new Vector2(S)).ToArray(), Indice);
+			DrawMesh(PrimitiveType.Lines, LineShader);
 		}
 
 		public static void Line(Vector3 A, Vector3 B, Vector4 Color) {
@@ -66,28 +97,27 @@ namespace libTech.Graphics {
 
 		public static void Triangles(Vector3[] Position, Vector4[] Color = null, Vector2[] UV = null, uint[] Indice = null) {
 			UpdateMesh(Position, Color, UV, Indice);
-			DrawMesh(PrimitiveType.Triangles);
+			DrawMesh(PrimitiveType.Triangles, TriangleShader);
 		}
 
 		public static void GizmoInput(Vector2 Cursor, bool Left, bool Translate, bool Rotate, bool Scale, bool Local, bool Ctrl) {
-			TinyGizmo.GizmoInput(Cursor, Left, Translate, Rotate, Scale, Local, Ctrl);
+			Cursor = ((Cursor / Camera.ActiveCamera.ViewportSize) * new Vector2(2) - Vector2.One) * new Vector2(1, -1);
+
+			Vector3 RayDir = new Vector3(Cursor.X / Camera.ActiveCamera.Projection.M11, Cursor.Y / Camera.ActiveCamera.Projection.M22, -1);
+			RayDir = Vector3.Normalize(RayDir);
+			RayDir = Vector4.Transform(new Vector4(RayDir, 0), Camera.ActiveCamera.World).XYZ();
+
+			TinyGizmo.GizmoInput(RayDir, Left, Translate, Rotate, Scale, Local, Ctrl);
 		}
 
-		/*public static void GizmoBegin(Camera DefaultCam, Vector3 Snapping, float ScreenScale = 25) {
-			TinyGizmo.GizmoBegin(Engine.WindowSize, DefaultCam.Near, DefaultCam.Far, DefaultCam.VerticalFOV, DefaultCam.Position, DefaultCam.Rotation, ScreenScale, Snapping);
-		}
+		public static bool Gizmo(/*string Name,*/float Dt, ref Vector3 Pos, ref Quaternion Rot, ref Vector3 Scale, Vector3? Snapping = null, float ScreenScale = 25) {
+			Camera Cam = Camera.ActiveCamera;
+			TinyGizmo.GizmoBegin(Dt, Engine.WindowSize, Cam.Near, Cam.Far, Cam.VerticalFOV, Cam.Position, Cam.WorldForwardNormal, ScreenScale, Snapping ?? Vector3.Zero);
 
-		public static bool Gizmo(string Name, ref Vector3 Pos, ref Quaternion Rot, ref Vector3 Scale) {
-			return TinyGizmo.Gizmo(Name, ref Pos, ref Rot, ref Scale);
-		}
+			Matrix3x3 RotMat = Matrix4x4.CreateFromQuaternion(Rot);
+			bool Ret = TinyGizmo.Gizmo("GizmoName", ref Pos, ref RotMat, ref Scale);
+			Rot = Quaternion.CreateFromRotationMatrix(RotMat);
 
-		public static void GizmoEnd() {
-			TinyGizmo.GizmoEnd();
-		}*/
-
-		public static bool Gizmo(/*string Name,*/ ref Vector3 Pos, ref Quaternion Rot, ref Vector3 Scale, Camera Cam, Vector3? Snapping = null, float ScreenScale = 25) {
-			TinyGizmo.GizmoBegin(Engine.WindowSize, Cam.Near, Cam.Far, Cam.VerticalFOV, Cam.Position, Cam.Rotation, ScreenScale, Snapping ?? Vector3.Zero);
-			bool Ret = TinyGizmo.Gizmo("GizmoName", ref Pos, ref Rot, ref Scale);
 			TinyGizmo.GizmoEnd();
 			return Ret;
 		}

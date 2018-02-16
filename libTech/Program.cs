@@ -237,6 +237,8 @@ namespace libTech {
 			Gl.ClearColor(69 / 255.0f, 112 / 255.0f, 56 / 255.0f, 1.0f);
 
 			Gl.Enable(EnableCap.Blend);
+			//Gl.VERTEX_PROGRAM_POINT_SIZE;
+			Gl.Enable((EnableCap)Gl.VERTEX_PROGRAM_POINT_SIZE);
 
 			Gl.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
 			Gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);

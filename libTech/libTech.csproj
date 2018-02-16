@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>libTech</RootNamespace>
     <AssemblyName>libTech</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -96,10 +96,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dlls\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.4.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -130,7 +126,7 @@
     <Compile Include="Importer\Importer_Assimp.cs" />
     <Compile Include="Importer\Importer_GLTF.cs" />
     <Compile Include="LibTechGame.cs" />
-    <Compile Include="native\libNative\Gizmo.cs" />
+    <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\WinAPI.cs" />
     <Compile Include="Program.cs" />
@@ -139,6 +135,7 @@
     <Compile Include="Graphics\NuklearRenderDevice.cs" />
     <Compile Include="UI\Screen.cs" />
     <Compile Include="UI\ScreenService.cs" />
+    <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +153,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\skull.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\line.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\line.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\line.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\point.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\point.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\default_notex.frag">

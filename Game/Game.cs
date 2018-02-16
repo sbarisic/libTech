@@ -20,7 +20,6 @@ using System.Diagnostics;
 namespace Game {
 	public unsafe class Game : LibTechGame {
 		Camera DefaultCam;
-		ShaderProgram DefaultShader, NoTexShader;
 		Model SampleModel;
 
 		public override void Load() {
@@ -28,11 +27,18 @@ namespace Game {
 			DefaultCam.Position = new Vector3(0, 10, 100);
 			DefaultCam.SetPerspective(Engine.Width, Engine.Height, 90 * 3.1415926535f / 180);
 
-			DefaultShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+			ShaderProgram DefaultShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default.frag"));
 
-			NoTexShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+			ShaderProgram NoTexShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_notex.frag"));
+
+			ShaderProgram PointShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+
+			ShaderProgram LineShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
 
 			SampleModel = Importers.Load<Model>("content/models/skull.obj");
 			SampleModel.Scale = new Vector3(50);
@@ -40,22 +46,11 @@ namespace Game {
 			SampleModel.ShaderProgram = DefaultShader;
 			SampleModel.Meshes[0].Material.Diffuse = new Texture(Image.FromFile("content/textures/difuso_flip_oscuro.jpg"));
 
-			Immediate.Shader = NoTexShader;
+			Immediate.TriangleShader = NoTexShader;
+			Immediate.LineShader = LineShader;
+			Immediate.PointShader = PointShader;
 		}
-
-		/*Mesh ToGfxMesh(GeometryMesh Msh, bool Trans = false) {
-			Mesh M = new Mesh();
-			M.SetElements(Msh.Indices);
-			M.SetVertices(Msh.Vertices.Select((V) => V.Position).ToArray());
-			M.SetColors(Msh.Vertices.Select((V) => V.Color).ToArray());
-
-			if (Trans) {
-				M.Material = new Material();
-				M.Material.IsTransparent = true;
-			}
-			return M;
-		}*/
-
+		
 		float MX;
 		float MY;
 
@@ -123,7 +118,7 @@ namespace Game {
 				Engine.GetKey(Glfw3.Glfw.KeyCode.R), Engine.GetKey(Glfw3.Glfw.KeyCode.Y), Engine.GetKey(Glfw3.Glfw.KeyCode.L), Engine.GetKey(Glfw3.Glfw.KeyCode.LeftShift));
 
 			Gl.Disable(EnableCap.DepthTest);
-			if (Immediate.Gizmo(ref Pos, ref Rot, ref Scale, DefaultCam, new Vector3(10, (45.0f / 2) * (float)Math.PI / 180, 10))) {
+			if (Immediate.Gizmo(Dt, ref Pos, ref Rot, ref Scale, new Vector3(10, (45.0f / 2) * (float)Math.PI / 180, 10))) {
 				SampleModel.Position = Pos;
 				SampleModel.Rotation = Rot;
 				SampleModel.Scale = Scale;

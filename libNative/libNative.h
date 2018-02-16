@@ -7,4 +7,6 @@
 #define EXPORT __declspec(dllexport)
 #define C_EXPORT extern "C" EXPORT
 
+#define CST(to, a) *(to*)&a
+
 //void libNative_assert(bool Cond, const char* file, const char* line);

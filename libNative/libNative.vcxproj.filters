@@ -18,7 +18,13 @@
     <ClInclude Include="libNative.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tiny-gizmo.hpp">
+    <ClInclude Include="im3d_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="im3d_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="im3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -26,7 +32,7 @@
     <ClCompile Include="libNative.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tiny-gizmo.cpp">
+    <ClCompile Include="im3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

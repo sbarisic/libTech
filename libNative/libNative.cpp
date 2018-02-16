@@ -1,77 +1,61 @@
 #include "libNative.h"
-#include "tiny-gizmo.hpp"
+//#include "tiny-gizmo.hpp"
+#include "im3d.h"
 
 #include <stdexcept>
 
-using namespace tinygizmo;
-using namespace minalg;
+//using namespace tinygizmo;
+//using namespace minalg;
 
-gizmo_application_state gizmo_app_state;
-gizmo_context gizmo_ctx;
-
-typedef struct {
-public: float X, Y;
-} V2;
-
-typedef struct {
-public: float X, Y, Z;
-} V3;
-
-typedef struct {
-public: float X, Y, Z, W;
-} Quat, V4;
-
-typedef void(*RenderFunc)(void* Vertices, uint32_t VerticesCount, void* Indices, uint32_t IndicesCount);
+typedef void(*RenderFunc)(int PrimitiveType, void* Vertices, uint32_t VerticesCount);
 RenderFunc Render;
+Im3d::Vec3 Snap;
+
+Im3d::AppData& Dta = Im3d::GetAppData();
+Im3d::Context& Ctx = Im3d::GetContext();
+
+void DoRender(const Im3d::DrawList& R) {
+	Render((int)R.m_primType, (void*)R.m_vertexData, R.m_vertexCount);
+}
 
 C_EXPORT void GizmoInit(RenderFunc F) {
 	Render = F;
-
-	gizmo_ctx.render = [&](const geometry_mesh& R) {
-		Render((void*)&R.vertices[0], (uint32_t)R.vertices.size(), (void*)&R.triangles[0], (uint32_t)R.triangles.size() * 3);
-	};
+	Dta.drawCallback = &DoRender;
+	Dta.m_worldUp = Im3d::Vec3(0, 1, 0);
+	Dta.m_projOrtho = false;
 }
 
-C_EXPORT void GizmoBegin(V2 ViewSize, float ClipNear, float ClipFar, float YFov, V3 CamPos, Quat CamRot, float ScreenSpaceScale, V3 Snapping) {
-	gizmo_app_state.viewport_size = float2(ViewSize.X, ViewSize.Y);
-	gizmo_app_state.cam.near_clip = ClipNear;
-	gizmo_app_state.cam.far_clip = ClipFar;
-	gizmo_app_state.cam.yfov = YFov;
+C_EXPORT void GizmoBegin(float Dt, Im3d::Vec2 ViewSize, float ClipNear, float ClipFar, float YFov, Im3d::Vec3 CamPos, Im3d::Vec3 CamDir, float ScreenSpaceScale, Im3d::Vec3 Snapping) {
+	Dta.m_deltaTime = Dt;
+	Dta.m_viewportSize = ViewSize;
+	Dta.m_viewOrigin = CamPos;
+	Dta.m_viewDirection = CamDir;
+	Dta.m_projScaleY = tanf(YFov * 0.5f) * 2.0f;
+	Dta.m_cursorRayOrigin = Dta.m_viewOrigin;
+	Snap = Snapping;
 
-	gizmo_app_state.cam.position = float3(CamPos.X, CamPos.Y, CamPos.Z);
-	gizmo_app_state.cam.orientation = float4(CamRot.X, CamRot.Y, CamRot.Z, CamRot.W);
-	gizmo_app_state.screenspace_scale = ScreenSpaceScale;
-	gizmo_app_state.snap_translation = Snapping.X;
-	gizmo_app_state.snap_rotation = Snapping.Y;
-	gizmo_app_state.snap_scale = Snapping.Z;
-
-	gizmo_ctx.update(gizmo_app_state);
+	Im3d::NewFrame();
 }
 
-C_EXPORT void GizmoInput(V2 Cursor, bool Left, bool Translate, bool Rotate, bool Scale, bool Local, bool Ctrl) {
-	gizmo_app_state.mouse_left = Left;
-	gizmo_app_state.hotkey_translate = Translate;
-	gizmo_app_state.hotkey_rotate = Rotate;
-	gizmo_app_state.hotkey_scale = Scale;
-	gizmo_app_state.hotkey_local = Local;
-	gizmo_app_state.hotkey_ctrl = Ctrl;
-	gizmo_app_state.cursor.x = Cursor.X;
-	gizmo_app_state.cursor.y = Cursor.Y;
+C_EXPORT void GizmoInput(Im3d::Vec3 RayDir, bool Left, bool Translate, bool Rotate, bool Scale, bool Local, bool Ctrl) {
+	Dta.m_cursorRayDirection = CST(Im3d::Vec3, RayDir);
+
+	Dta.m_keyDown[Im3d::Mouse_Left] = Left;
+	Dta.m_keyDown[Im3d::Key_L] = Local;
+	Dta.m_keyDown[Im3d::Key_T] = Translate;
+	Dta.m_keyDown[Im3d::Key_R] = Rotate;
+	Dta.m_keyDown[Im3d::Key_S] = Scale;
+
+	Dta.m_snapTranslation = Ctrl ? Snap.x : 0;
+	Dta.m_snapRotation = Ctrl ? Snap.y : 0;
+	Dta.m_snapScale = Ctrl ? Snap.z : 0;
 }
 
-C_EXPORT bool Gizmo(const char* Name, V3* Position, Quat* Rotation, V3* Scale) {
-	rigid_transform T;
-	T.position = { Position->X, Position->Y, Position->Z };
-	T.orientation = { Rotation->X, Rotation->Y, Rotation->Z, Rotation->W };
-	T.scale = { Scale->X, Scale->Y, Scale->Z };
-	bool Ret = transform_gizmo(std::string(Name), gizmo_ctx, T);
-
-	*Position = V3{ T.position.x, T.position.y, T.position.z };
-	*Rotation = Quat{ T.orientation.x, T.orientation.y, T.orientation.z, T.orientation.w };
-	*Scale = V3{ T.scale.x, T.scale.y, T.scale.z };
-	return Ret;
+C_EXPORT bool Gizmo(const char* Name, float* Position, float* Rotation, float* Scale) {
+	return Im3d::Gizmo(Name, Position, Rotation, Scale);
 }
 
 C_EXPORT void GizmoEnd() {
-	gizmo_ctx.draw();
+	//gizmo_ctx.draw();
+	Im3d::Draw();
 }
