@@ -21,14 +21,9 @@ namespace libTech.Graphics {
 		VertexArray VertexArray;
 		BufferObject Vertices, Colors, UVs, Elements;
 		ShaderProgram Shader;
-		Camera GUICam;
 
 		public RenderDevice(ShaderProgram ShaderProg, int Width, int Height) {
 			Shader = ShaderProg;
-			GUICam = new Camera();
-			GUICam.SetOrthogonal(0, Height, Width, 0);
-			GUICam.Position = new Vector3(0, 0, 0);
-
 			VertexArray = new VertexArray();
 
 			Elements = new BufferObject();
@@ -79,7 +74,7 @@ namespace libTech.Graphics {
 		}
 
 		public override void Render(NkHandle Userdata, Texture Texture, NkRect ClipRect, uint Offset, uint Count) {
-			Camera.ActiveCamera = GUICam;
+			Camera.ActiveCamera = Camera.GUICamera;
 
 			Texture.BindTextureUnit();
 			//Shader.UpdateCamera(GUICam);
@@ -87,7 +82,7 @@ namespace libTech.Graphics {
 			Shader.Bind();
 
 			Gl.Enable(EnableCap.ScissorTest);
-			Gl.Scissor((int)ClipRect.X, (int)GUICam.ViewportSize.Y - (int)ClipRect.Y - (int)ClipRect.H, (int)ClipRect.W, (int)ClipRect.H);
+			Gl.Scissor((int)ClipRect.X, (int)Camera.GUICamera.ViewportSize.Y - (int)ClipRect.Y - (int)ClipRect.H, (int)ClipRect.W, (int)ClipRect.H);
 
 			VertexArray.DrawElements((int)(Offset * sizeof(ushort)), (int)Count);
 

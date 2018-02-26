@@ -12,6 +12,22 @@ namespace libTech {
 			return new Vector3(V.X, V.Y, V.Z);
 		}
 
+		public static float ToRad(this float Deg) {
+			return Deg * (float)Math.PI / 180;
+		}
+
+		public static float Clamp(this float Val, float Min, float Max) {
+			if (Val < Min)
+				return Min;
+			if (Val > Max)
+				return Max;
+			return Val;
+		}
+
+		public static string NormalizeFilePath(this string Str) {
+			return Str.Replace('\\', '/');
+		}
+
 		/*public static NkKeys ToNkKeys(this Key K) {
 			if (K == Key.None)
 				return NkKeys.None;

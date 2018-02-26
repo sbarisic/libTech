@@ -60,12 +60,12 @@ namespace libTech {
 			CVar.InitMode = true;
 			CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init, (This, Old, New) => This.Value = Path.GetFullPath((string)New));
 
-			CVar.Register("width", 800, CVarType.Archive);
-			CVar.Register("height", 600, CVarType.Archive);
+			CVar.Register("width", 1366, CVarType.Archive);
+			CVar.Register("height", 768, CVarType.Archive);
 			CVar.Register("borderless", false, CVarType.Archive);
 			CVar.Register("resizable", false, CVarType.Archive);
 			CVar.Register("gl_doublebuffer", true, CVarType.Archive);
-			CVar.Register("gl_samples", 0, CVarType.Archive);
+			CVar.Register("gl_samples", 8, CVarType.Archive);
 
 			CVar.Register("gl_forwardcompat", true, CVarType.Archive | CVarType.Init | CVarType.Unsafe);
 			CVar.Register("gl_major", 4, CVarType.Archive | CVarType.Init | CVarType.Unsafe);
@@ -95,6 +95,7 @@ namespace libTech {
 			foreach (var CVar in CVar.GetAll())
 				GConsole.WriteLine(CVar);
 
+			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
 
 			CreateContext();
@@ -145,8 +146,11 @@ namespace libTech {
 
 			Game.Draw(Dt);
 
-			Gl.Disable(EnableCap.CullFace);
 			Gl.Disable(EnableCap.DepthTest);
+			Camera.ActiveCamera = Camera.GUICamera;
+
+			Game.DrawGUI(Dt);
+
 			NuklearAPI.Frame(() => {
 				GConsole.NuklearDraw(10, 10);
 			});
@@ -228,6 +232,9 @@ namespace libTech {
 				if ((Severity == Gl.DebugSeverity.Medium || Severity == Gl.DebugSeverity.High) && Debugger.IsAttached)
 					Debugger.Break();
 			}, IntPtr.Zero);
+
+			Gl.Enable((EnableCap)Gl.DEBUG_OUTPUT);
+			Gl.Enable((EnableCap)Gl.DEBUG_OUTPUT_SYNCHRONOUS);
 #endif
 
 			GConsole.WriteLine("{0}, {1}", Gl.GetString(StringName.Vendor), Gl.GetString(StringName.Renderer));
@@ -236,6 +243,8 @@ namespace libTech {
 
 			Gl.ClearColor(69 / 255.0f, 112 / 255.0f, 56 / 255.0f, 1.0f);
 
+			// Fuck the police
+			Gl.Enable((EnableCap)Gl.DEPTH_CLAMP);
 			Gl.Enable(EnableCap.Blend);
 			//Gl.VERTEX_PROGRAM_POINT_SIZE;
 			Gl.Enable((EnableCap)Gl.VERTEX_PROGRAM_POINT_SIZE);
@@ -334,15 +343,25 @@ namespace libTech {
 				DragDropPaths = Paths;
 			});
 		}
-		
+
+		static Glfw.CursorMode LastCursorMode;
+		public static void CaptureMouse(bool Capture) {
+			Glfw.CursorMode M = Capture ? Glfw.CursorMode.Disabled : Glfw.CursorMode.Normal;
+
+			if (LastCursorMode != M) {
+				LastCursorMode = M;
+				Glfw.SetInputMode(Window, Glfw.InputMode.Cursor, M);
+			}
+		}
+
 		public static bool GetMouseButton(Glfw.MouseButton Btn) {
 			return Glfw.GetMouseButton(Window, Btn);
 		}
-		
+
 		public static bool GetKey(Glfw.KeyCode Key) {
 			return Glfw.GetKey(Window, (int)Key);
 		}
-		
+
 		static NkKeys ConvertToNkKey(Glfw.KeyCode KCode, Glfw.KeyMods Mods) {
 			switch (KCode) {
 				case Glfw.KeyCode.RightShift:

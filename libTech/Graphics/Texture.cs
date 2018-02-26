@@ -11,21 +11,25 @@ using GLPixelFormat = OpenGL.PixelFormat;
 using IPixFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace libTech.Graphics {
-	public class Texture : GraphicsObject {
+	public unsafe class Texture : GraphicsObject {
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+
 		public Texture(int W, int H, TextureTarget Target = TextureTarget.Texture2d) {
 			ID = Gl.CreateTexture(Target);
 
 			SetWrap();
 			SetFilter();
+			SetMaxAnisotropy();
 			Storage2D(W, H);
 		}
 
-		public Texture(Image FromImage) : this(FromImage.Width, FromImage.Height) {
-			SubImage2D(FromImage);
-		}
-
-		public void TextureParam(TextureParameterName ParamName, int Val) {
-			Gl.TextureParameter(ID, ParamName, Val);
+		public void TextureParam(TextureParameterName ParamName, object Val) {
+			if (Val is int)
+				Gl.TextureParameter(ID, ParamName, (int)Val);
+			else if (Val is float)
+				Gl.TextureParameter(ID, ParamName, (float)Val);
+			else throw new NotImplementedException();
 		}
 
 		public void SetWrap(int Val = Gl.CLAMP_TO_EDGE) {
@@ -39,7 +43,14 @@ namespace libTech.Graphics {
 			TextureParam(TextureParameterName.TextureMagFilter, Mag);
 		}
 
-		public void Storage2D(int W, int H, int Levels = 1, InternalFormat IntFormat = InternalFormat.Rgba8) {
+		public void SetMaxAnisotropy() {
+			Gl.Get(Gl.MAX_TEXTURE_MAX_ANISOTROPY, out float Max);
+			TextureParam((TextureParameterName)Gl.TEXTURE_MAX_ANISOTROPY, Max);
+		}
+
+		public void Storage2D(int W, int H, int Levels = 6, InternalFormat IntFormat = InternalFormat.Rgba8) {
+			Width = W;
+			Height = H;
 			Gl.TextureStorage2D(ID, Levels, IntFormat, W, H);
 		}
 

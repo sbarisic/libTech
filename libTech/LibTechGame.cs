@@ -14,5 +14,6 @@ namespace libTech {
 
 		public abstract void Update(float Dt);
 		public abstract void Draw(float Dt);
+		public abstract void DrawGUI(float Dt);
 	}
 }

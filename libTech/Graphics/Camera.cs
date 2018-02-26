@@ -10,12 +10,13 @@ using System.Numerics;
 
 namespace libTech.Graphics {
 	public class Camera {
-		public static float VerticalFOVFromHorizontal(float FOV, float Width, float Height) {
-			//return 2 * atanf(tanf(XFov / 2) * (ViewSize.Y / ViewSize.X));
-			return 2 * (float)Math.Atan(Math.Tan(FOV / 2) * (Height / Width));
-		}
-
 		public static Camera ActiveCamera;
+
+		public static Camera GUICamera { get; private set; } = Create(() => {
+			Camera C = new Camera();
+			C.SetOrthogonal(0, Engine.Height, Engine.Width, 0);
+			return C;
+		});
 
 		public float Near { get; private set; }
 		public float Far { get; private set; }
@@ -25,70 +26,14 @@ namespace libTech.Graphics {
 		public Matrix4x4 Projection { get; private set; }
 
 		Matrix4x4 _View;
-		public Matrix4x4 View {
-			get {
-				Update();
-				return _View;
-			}
-			private set {
-				_View = value;
-			}
-		}
-
 		Matrix4x4 _World;
-		public Matrix4x4 World {
-			get {
-				Update();
-				return _World;
-			}
-			private set {
-				_World = value;
-			}
-		}
-
 		Vector3 _Position;
-		public Vector3 Position {
-			get {
-				return _Position;
-			}
-			set {
-				Dirty = true;
-				_Position = value;
-			}
-		}
-
-		/*Vector3 _Offset;
-		public Vector3 Center {
-			get {
-				return _Offset;
-			}
-			set {
-				Dirty = true;
-				_Offset = value;
-			}
-		}*/
-
-		/*Vector3 _Scale;
-		public Vector3 Scale {
-			get {
-				return _Scale;
-			}
-			set {
-				Dirty = true;
-				_Scale = value;
-			}
-		}*/
-
 		Quaternion _Rotation;
-		public Quaternion Rotation {
-			get {
-				return _Rotation;
-			}
-			set {
-				Dirty = true;
-				_Rotation = value;
-			}
-		}
+
+		public Matrix4x4 View { get { Refresh(); return _View; } private set { _View = value; } }
+		public Matrix4x4 World { get { Refresh(); return _World; } private set { _World = value; } }
+		public Vector3 Position { get { return _Position; } set { Dirty = true; _Position = value; } }
+		public Quaternion Rotation { get { return _Rotation; } set { Dirty = true; _Rotation = value; } }
 
 		bool Dirty;
 		public Vector2 ViewportSize { get; private set; }
@@ -97,18 +42,21 @@ namespace libTech.Graphics {
 		public Vector3 RightNormal { get { return Vector3.UnitX; } }
 		public Vector3 UpNormal { get { return Vector3.UnitY; } }
 
-		public Vector3 WorldForwardNormal { get { return Vector3.Normalize(Vector4.Transform(new Vector4(ForwardNormal, 0), World).XYZ()); } }
-		public Vector3 WorldRightNormal { get { return Vector3.Normalize(Vector4.Transform(new Vector4(RightNormal, 0), World).XYZ()); } }
-		public Vector3 WorldUpNormal { get { return Vector3.Normalize(Vector4.Transform(new Vector4(UpNormal, 0), World).XYZ()); } }
+		public Vector3 WorldForwardNormal { get; private set; }
+		public Vector3 WorldRightNormal { get; private set; }
+		public Vector3 WorldUpNormal { get; private set; }
+
+		public bool MouseMovement;
+		float Yaw, Pitch;
+		public Vector3 CameraUpNormal;
 
 		public Camera() {
 			View = Matrix4x4.Identity;
 			Projection = Matrix4x4.Identity;
-
-			//Center = new Vector3(0, 0, 0);
 			Position = new Vector3(0, 0, 0);
-			//Scale = new Vector3(1, 1, 1);
 			Rotation = Quaternion.CreateFromYawPitchRoll(0, 0, 0);
+			MouseMovement = false;
+			CameraUpNormal = UpNormal;
 		}
 
 		public void SetOrthogonal(float Left, float Bottom, float Right, float Top, float NearPlane = 1, float FarPlane = 10000, bool PreserveCenter = false) {
@@ -120,43 +68,52 @@ namespace libTech.Graphics {
 
 			this.Near = NearPlane;
 			this.Far = FarPlane;
-
-			/*if (!PreserveCenter)
-				Center = new Vector3(ViewportSize / 2, 0);*/
 		}
 
 		public void SetPerspective(float Width, float Height, float HFOV = 1.5708f, float NearPlane = 1, float FarPlane = 7500, bool PreserveCenter = false) {
 			HorizontalFOV = HFOV;
 			Projection = Matrix4x4.CreatePerspectiveFieldOfView(VerticalFOV = VerticalFOVFromHorizontal(HFOV, Width, Height), Width / Height, NearPlane, FarPlane);
-			//Projection = Matrix4x4.CreatePerspective(Width, Height, NearPlane, FarPlane);
-
 			ViewportSize = new Vector2(Width, Height);
 
 			this.Near = NearPlane;
 			this.Far = FarPlane;
-
-			/*if (!PreserveCenter)
-				Center = new Vector3(Width / 2, Height / 2, 0);*/
 		}
 
-		/*public void LookAt(Vector3 Pos, Vector3 UpVector) {
-			Matrix4x4.Decompose(Matrix4x4.CreateLookAt(Position, Pos, UpVector), out Vector3 S, out Quaternion LookAtRotation, out Vector3 T);
-			Rotation = LookAtRotation;
-		}
-
-		public void LookAt(Vector3 Pos) {
-			LookAt(Pos, Vector3.UnitY);
-		}*/
-
-		void Update() {
+		void Refresh() {
 			if (!Dirty)
 				return;
 			Dirty = false;
 
 			World = CreateModel(Position, Vector3.One, Rotation);
+			WorldForwardNormal = Vector3.Normalize(Vector4.Transform(new Vector4(ForwardNormal, 0), World).XYZ());
+			WorldRightNormal = Vector3.Normalize(Vector4.Transform(new Vector4(RightNormal, 0), World).XYZ());
+			WorldUpNormal = Vector3.Normalize(Vector4.Transform(new Vector4(UpNormal, 0), World).XYZ());
 
 			Matrix4x4.Invert(World, out Matrix4x4 ViewMat);
 			View = ViewMat;
+		}
+
+		public void Update(Vector2 MouseDelta) {
+			const float MouseScale = 1.0f / 5f;
+			
+			if (MouseMovement && (MouseDelta.X != 0 || MouseDelta.Y != 0)) {
+				Yaw -= MouseDelta.X * MouseScale;
+				Pitch -= MouseDelta.Y * MouseScale;
+
+				Pitch = Pitch.Clamp(-90, 90);
+
+				//Matrix4x4 Rot = Matrix4x4.CreateRotationX(-MouseDelta.Y * MouseScale) * Matrix4x4.CreateRotationY(-MouseDelta.X * MouseScale);
+				Rotation = Quaternion.CreateFromYawPitchRoll(Yaw * (float)Math.PI / 180, Pitch * (float)Math.PI / 180, 0);
+				// TODO: Take into account the camera up normal
+			}
+		}
+
+		public static Camera Create(Func<Camera> C) {
+			return C();
+		}
+
+		public static float VerticalFOVFromHorizontal(float FOV, float Width, float Height) {
+			return 2 * (float)Math.Atan(Math.Tan(FOV / 2) * (Height / Width));
 		}
 
 		public static Matrix4x4 CreateModel(Vector3 Position, Vector3 Scale, Quaternion Rotation) {

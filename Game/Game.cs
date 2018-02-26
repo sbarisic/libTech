@@ -21,14 +21,19 @@ namespace Game {
 	public unsafe class Game : LibTechGame {
 		Camera DefaultCam;
 		Model SampleModel;
+		Texture CrosshairTex;
+		ShaderProgram DefaultShader;
 
 		public override void Load() {
 			DefaultCam = new Camera();
 			DefaultCam.Position = new Vector3(0, 10, 100);
 			DefaultCam.SetPerspective(Engine.Width, Engine.Height, 90 * 3.1415926535f / 180);
+			DefaultCam.MouseMovement = true;
 
-			ShaderProgram DefaultShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default.frag"));
+			CrosshairTex = Importers.Load<Texture>("content/textures/crosshair_default.png");
+
+			DefaultShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+			   new ShaderStage(ShaderType.FragmentShader, "content/shaders/default.frag"));
 
 			ShaderProgram NoTexShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_notex.frag"));
@@ -40,22 +45,22 @@ namespace Game {
 				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
 
-			SampleModel = Importers.Load<Model>("content/models/skull.obj");
-			SampleModel.Scale = new Vector3(50);
+			SampleModel = Importers.Load<Model>("content/models/sandbox.obj");
+			SampleModel.Scale = new Vector3(0.3f);
 			SampleModel.Position = new Vector3(0, 0, 0);
 			SampleModel.ShaderProgram = DefaultShader;
-			SampleModel.Meshes[0].Material.Diffuse = new Texture(Image.FromFile("content/textures/difuso_flip_oscuro.jpg"));
+			//SampleModel.Meshes[0].Material.Diffuse = Importers.Load<Texture>("content/textures/difuso_flip_oscuro.jpg");
 
 			Immediate.TriangleShader = NoTexShader;
 			Immediate.LineShader = LineShader;
 			Immediate.PointShader = PointShader;
 		}
-		
-		float MX;
-		float MY;
 
 		public override void Update(float Dt) {
 			if (!GConsole.Open) {
+				Engine.CaptureMouse(true);
+				DefaultCam.Update(Engine.MouseDelta);
+
 				const float Scale = 50;
 
 				if (Engine.GetKey(Glfw3.Glfw.KeyCode.W))
@@ -75,36 +80,12 @@ namespace Game {
 
 				if (Engine.GetKey(Glfw3.Glfw.KeyCode.LeftControl))
 					DefaultCam.Position -= DefaultCam.WorldUpNormal * Dt * Scale;
-
-				//MX = -Engine.MousePos.X;
-				//MY = -Engine.MousePos.Y;
-				//const float MouseScale = 1.0f / 250;
-				const float MouseScale = 1;
-
-				float MouseVal = 1;
-				if (Engine.GetKey(Glfw3.Glfw.KeyCode.Left))
-					MX += MouseVal * Dt;
-				if (Engine.GetKey(Glfw3.Glfw.KeyCode.Right))
-					MX += -MouseVal * Dt;
-				if (Engine.GetKey(Glfw3.Glfw.KeyCode.Up))
-					MY += MouseVal * Dt;
-				if (Engine.GetKey(Glfw3.Glfw.KeyCode.Down))
-					MY += -MouseVal * Dt;
-
-				Matrix4 Rot = Matrix4.CreateRotationX(MY * MouseScale) * Matrix4.CreateRotationY(MX * MouseScale);
-				DefaultCam.Rotation = Quaternion.CreateFromRotationMatrix(Rot);
-			}
+			} else
+				Engine.CaptureMouse(false);
 		}
-
-		Vector3 Pos = Vector3.Zero;
-		Vector3 Scale = new Vector3(50);
-		Quaternion Rot = Quaternion.Identity;
 
 		public override void Draw(float Dt) {
 			Camera.ActiveCamera = DefaultCam;
-
-			SampleModel.Meshes[0].Material.DiffuseColor = new Vector4(1, 1, 1, 1);
-			SampleModel.Meshes[0].Wireframe = false;
 			SampleModel.Draw();
 
 			Gl.Disable(EnableCap.CullFace);
@@ -112,17 +93,23 @@ namespace Game {
 			SampleModel.DrawTransparent();
 			Gl.DepthMask(true);
 
-			Immediate.Axes(Vector3.Zero, 100);
+			/*Immediate.Axes(Vector3.Zero, 100);
 			Immediate.Line(Vector3.Zero, SampleModel.Position, Vector4.One);
-			Immediate.GizmoInput(Engine.MousePos, Engine.GetMouseButton(Glfw3.Glfw.MouseButton.ButtonLeft), Engine.GetKey(Glfw3.Glfw.KeyCode.T),
+			Immediate.GizmoInput(Engine.WindowSize / 2, Engine.GetMouseButton(Glfw3.Glfw.MouseButton.ButtonLeft), Engine.GetKey(Glfw3.Glfw.KeyCode.T),
 				Engine.GetKey(Glfw3.Glfw.KeyCode.R), Engine.GetKey(Glfw3.Glfw.KeyCode.Y), Engine.GetKey(Glfw3.Glfw.KeyCode.L), Engine.GetKey(Glfw3.Glfw.KeyCode.LeftShift));
 
 			Gl.Disable(EnableCap.DepthTest);
-			if (Immediate.Gizmo(Dt, ref Pos, ref Rot, ref Scale, new Vector3(10, (45.0f / 2) * (float)Math.PI / 180, 10))) {
-				SampleModel.Position = Pos;
-				SampleModel.Rotation = Rot;
-				SampleModel.Scale = Scale;
-			}
+			if (Immediate.Gizmo(Dt, ref SampleModel.Position, ref SampleModel.Rotation, ref SampleModel.Scale, new Vector3(10, (45.0f / 2) * (float)Math.PI / 180, 10))) {
+			}*/
+		}
+
+		public override void DrawGUI(float Dt) {
+			ShaderProgram PrevTriangleShader = Immediate.TriangleShader;
+			Immediate.TriangleShader = DefaultShader;
+
+			Immediate.Texture2D(Engine.WindowSize / 2, CrosshairTex, true);
+
+			Immediate.TriangleShader = PrevTriangleShader;
 		}
 	}
 }

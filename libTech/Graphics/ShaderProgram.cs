@@ -76,6 +76,25 @@ namespace libTech.Graphics {
 			if (Camera.ActiveCamera == null)
 				throw new Exception("No active camera");
 
+			bool Dirty = false;
+			bool Errors = false;
+
+			foreach (var SS in ShaderStages) {
+				if (SS.WatchHandle) {
+					SS.WatchHandle.Reset();
+					Dirty = true;
+
+					if (!SS.Compile(out string Err)) {
+						Errors = true;
+						GConsole.WriteLine(Err);
+					}
+				}
+			}
+
+			if (Dirty && !Errors)
+				Link();
+
+			SetModelMatrix(Matrix4.Identity);
 			Uniform2f("Viewport", Camera.ActiveCamera.ViewportSize);
 			UniformMatrix4f("View", Camera.ActiveCamera.View);
 			UniformMatrix4f("Project", Camera.ActiveCamera.Projection);
@@ -124,9 +143,12 @@ namespace libTech.Graphics {
 	}
 
 	public class ShaderStage : GraphicsObject {
+		public FileWatchHandle WatchHandle;
+
 		string Source;
 		string SrcFile;
 		ShaderType ShaderType;
+
 
 		public ShaderStage(ShaderType T) {
 			ID = Gl.CreateShader(T);
@@ -141,14 +163,14 @@ namespace libTech.Graphics {
 		public ShaderStage SetSourceCode(string Code) {
 			Source = Code;
 			SrcFile = null;
-
+			WatchHandle = null;
 			return this;
 		}
 
 		public ShaderStage SetSourceFile(string FilePath) {
-			Source = File.ReadAllText(FilePath);
+			Source = null;
 			SrcFile = Path.GetFullPath(FilePath);
-
+			WatchHandle = FileWatcher.Watch(FilePath);
 			return this;
 		}
 
@@ -156,6 +178,19 @@ namespace libTech.Graphics {
 #if DEBUG
 			SetLabel(ObjectIdentifier.Shader, ToString());
 #endif
+
+			// TODO: Find something better
+			if (SrcFile != null) {
+				bool Succeeded = false;
+
+				while (!Succeeded) {
+					try {
+						Source = File.ReadAllText(SrcFile);
+						Succeeded = true;
+					} catch (Exception) {
+					}
+				}
+			}
 
 			Gl.ShaderSource(ID, new string[] { Source });
 			Gl.CompileShader(ID);

@@ -62,9 +62,15 @@ namespace libTech.Importer {
 				Mat.DiffuseColor = new Vector4(M.ColorDiffuse.R, M.ColorDiffuse.G, M.ColorDiffuse.B, M.ColorDiffuse.A);
 
 			if (M.HasTextureDiffuse) {
-				string TexName = "content/textures/" + Path.GetFileNameWithoutExtension(M.TextureDiffuse.FilePath) + ".png";
-				if (File.Exists(TexName))
-					Mat.Diffuse = new Texture(Image.FromFile(TexName));
+				string TexName = "content/textures/" + M.TextureDiffuse.FilePath;
+
+				if (File.Exists(TexName)) {
+					Mat.Diffuse = Importers.Load<Texture>(TexName);
+					Mat.Diffuse.SetWrap(OpenGL.Gl.REPEAT);
+					Mat.Diffuse.SetFilter(OpenGL.Gl.LINEAR_MIPMAP_LINEAR, OpenGL.Gl.NEAREST);
+					Mat.Diffuse.GenerateMipmap();
+				} else
+					GConsole.WriteLine("Unknown texture: {0}", TexName);
 			}
 
 			return Mat;

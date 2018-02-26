@@ -8,7 +8,7 @@ using libTech.libNative;
 using PrimitiveType = OpenGL.PrimitiveType;
 
 namespace libTech.Graphics {
-	public static class Immediate {
+	public static partial class Immediate {
 		static Mesh M;
 
 		public static ShaderProgram TriangleShader;
@@ -33,12 +33,13 @@ namespace libTech.Graphics {
 			TinyGizmo.GizmoInit();
 		}
 
-		static void UpdateMesh(Vector3[] Position, Vector4[] Color, Vector2[] UV, uint[] Indice) {
-			if (M == null) {
-				M = new Mesh(OpenGL.BufferUsage.DynamicDraw);
-				M.Material = new Material();
-			}
+		static void UpdateMesh(Vector3[] Position, Vector4[] Color, Vector2[] UV, uint[] Indice, Texture Tex = null) {
+			if (M == null)
+				M = new Mesh(OpenGL.BufferUsage.DynamicDraw) {
+					Material = new Material()
+				};
 
+			M.Material.Diffuse = Tex;
 			M.SetVertices(Position);
 			M.SetColors(Color);
 			M.SetUVs(UV);
@@ -95,8 +96,8 @@ namespace libTech.Graphics {
 			});
 		}
 
-		public static void Triangles(Vector3[] Position, Vector4[] Color = null, Vector2[] UV = null, uint[] Indice = null) {
-			UpdateMesh(Position, Color, UV, Indice);
+		public static void Triangles(Vector3[] Position, Vector4[] Color = null, Vector2[] UV = null, uint[] Indice = null, Texture Tex = null) {
+			UpdateMesh(Position, Color, UV, Indice, Tex);
 			DrawMesh(PrimitiveType.Triangles, TriangleShader);
 		}
 
@@ -120,6 +121,27 @@ namespace libTech.Graphics {
 
 			TinyGizmo.GizmoEnd();
 			return Ret;
+		}
+	}
+
+	public static partial class Immediate {
+		public static void Texture2D(Vector2 Pos, Texture Tex, bool PositionIsCenter = false) {
+			if (PositionIsCenter)
+				Pos -= new Vector2(Tex.Width / 2, Tex.Height / 2);
+
+			Triangles(new Vector3[] {
+				new Vector3(Pos.X, Pos.Y, 0),
+				new Vector3(Pos.X, Pos.Y + Tex.Height, 0),
+				new Vector3(Pos.X + Tex.Width, Pos.Y + Tex.Height, 0),
+				new Vector3(Pos.X + Tex.Width, Pos.Y, 0),
+			}, UV: new Vector2[] {
+				new Vector2(0, 0),
+				new Vector2(0, 1),
+				new Vector2(1, 1),
+				new Vector2(1, 0)
+			}, Indice: new uint[] {
+				0, 1, 2, 0, 2, 3
+			}, Tex: Tex);
 		}
 	}
 }
