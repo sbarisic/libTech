@@ -10,6 +10,7 @@
 *.sln.docstates
 
 bin_dbg/
+libTech/content/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
