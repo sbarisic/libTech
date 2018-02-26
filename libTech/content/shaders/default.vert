@@ -6,6 +6,7 @@ layout (location = 2) in vec2 UV;
 
 layout (location = 0) out vec4 frag_Color;
 layout (location = 1) out vec2 frag_UV;
+layout (location = 2) out vec3 frag_ViewPosition;
 
 uniform mat4 Model;
 uniform mat4 View;
@@ -20,7 +21,11 @@ out gl_PerVertex {
 void main() {
 	frag_Color = Clr;
 	frag_UV = UV;
-
-	mat4 MVP = Project * View * Model;
-	gl_Position = MVP * vec4(Pos, 1.0);
+	
+	mat4 MV = View * Model;
+	
+	vec4 ModelPos = MV * vec4(Pos, 1.0);
+	frag_ViewPosition = -ModelPos.xyz;
+	
+	gl_Position = Project * ModelPos;
 }
