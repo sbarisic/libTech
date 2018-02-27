@@ -12,9 +12,7 @@ layout (location = 3) in mat4 NormalMatrix;
 out vec4 OutColor;
 
 vec3 normals(vec3 pos) {
-	vec3 fdx = dFdx(pos);
-	vec3 fdy = dFdy(pos);
-	return normalize(cross(fdx, fdy));
+	return normalize(cross(dFdx(pos), dFdy(pos)));
 }
 
 void main() {

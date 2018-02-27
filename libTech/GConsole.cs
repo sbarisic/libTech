@@ -28,7 +28,10 @@ namespace libTech {
 		static Stack<NkColor> LineColors = new Stack<NkColor>();
 		static int MaxLineLen;
 
+		static Dictionary<string, Action> Commands;
+
 		static GConsole() {
+			Commands = new Dictionary<string, Action>();
 			Clear(true);
 		}
 
@@ -95,16 +98,26 @@ namespace libTech {
 			WriteLine(string.Format(Fmt, Args));
 		}
 
+		public static void RegisterCommand(string Name, Action A) {
+			Commands.Add(Name, A);
+		}
+
 		public static void SendInput(string Line) {
 			Line = Line.Trim();
 			if (Line.Length <= 0)
 				return;
+
+			WriteLine(">> " + Line);
 
 			if (Line.ToLower() == "clear") {
 				Clear();
 				return;
 			} else if (Line.ToLower() == "terminate")
 				Environment.Exit(0);
+			else if (Commands.ContainsKey(Line.ToLower())) {
+				Commands[Line.ToLower()]();
+				return;
+			}
 
 			PushColor(255, 127, 127);
 			WriteLine("Unknown command '{0}'", Line);

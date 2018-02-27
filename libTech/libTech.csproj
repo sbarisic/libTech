@@ -128,8 +128,10 @@
     <Compile Include="Importer\Importer_Assimp.cs" />
     <Compile Include="Importer\Importer_GLTF.cs" />
     <Compile Include="LibTechGame.cs" />
+    <Compile Include="MSDFFont.cs" />
     <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
+    <Compile Include="native\Msdfgen.cs" />
     <Compile Include="native\WinAPI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -142,6 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="content\fonts\Hack.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\gltf\skull\AUTHOR">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -161,6 +166,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\skull.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\msdf.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\line.geom">
@@ -352,6 +360,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\grills_nm.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\msdf_test.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\nieb\complex\door_rail.png">
@@ -624,7 +635,13 @@
     <Content Include="content\textures\tread_nm.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="freetype.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ico.ico" />
+    <Content Include="Msdfgen.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="native\glfw3_64\glfw3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

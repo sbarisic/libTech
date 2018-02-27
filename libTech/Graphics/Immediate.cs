@@ -50,10 +50,9 @@ namespace libTech.Graphics {
 			if (Shader == null)
 				throw new Exception("No shader bound for immediate mode drawing");
 
-			Shader.SetModelMatrix(Matrix);
-
-			M.PrimitiveType = PType;
 			Shader.Bind();
+			Shader.SetModelMatrix(Matrix);
+			M.PrimitiveType = PType;
 			M.Draw();
 			Shader.Unbind();
 		}
@@ -122,18 +121,33 @@ namespace libTech.Graphics {
 			TinyGizmo.GizmoEnd();
 			return Ret;
 		}
+
+		public static void UseShaders(Action A) {
+			ShaderProgram OldTriangle = TriangleShader;
+			ShaderProgram OldPoint = PointShader;
+			ShaderProgram OldLine = LineShader;
+
+			A();
+
+			TriangleShader = OldTriangle;
+			PointShader = OldPoint;
+			LineShader = OldLine;
+		}
 	}
 
 	public static partial class Immediate {
-		public static void Texture2D(Vector2 Pos, Texture Tex, bool PositionIsCenter = false) {
+		public static void Texture2D(Vector2 Pos, Texture Tex, bool PositionIsCenter = false, Vector2? Scale = null) {
+			if (Scale == null)
+				Scale = Vector2.One;
+
 			if (PositionIsCenter)
 				Pos -= new Vector2(Tex.Width / 2, Tex.Height / 2);
 
 			Triangles(new Vector3[] {
 				new Vector3(Pos.X, Pos.Y, 0),
-				new Vector3(Pos.X, Pos.Y + Tex.Height, 0),
-				new Vector3(Pos.X + Tex.Width, Pos.Y + Tex.Height, 0),
-				new Vector3(Pos.X + Tex.Width, Pos.Y, 0),
+				new Vector3(Pos.X, Pos.Y + Tex.Height * Scale.Value.Y, 0),
+				new Vector3(Pos.X + Tex.Width * Scale.Value.X, Pos.Y + Tex.Height * Scale.Value.Y, 0),
+				new Vector3(Pos.X + Tex.Width * Scale.Value.X, Pos.Y, 0),
 			}, UV: new Vector2[] {
 				new Vector2(0, 0),
 				new Vector2(0, 1),

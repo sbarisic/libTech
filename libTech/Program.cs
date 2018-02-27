@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Numerics;
 using CARP;
 using System.IO;
+using System.Drawing;
 
 using NuklearDotNet;
 using System.Runtime.InteropServices;
@@ -27,6 +28,11 @@ using glTFLoader;
 using Matrix4 = System.Numerics.Matrix4x4;
 
 namespace libTech {
+	[StructLayout(LayoutKind.Sequential)]
+	struct FloatRGB {
+		public float R, G, B;
+	}
+
 	public unsafe static class Engine {
 		internal static Glfw.Window Window;
 		internal static RenderDevice RenderDevice;
@@ -139,6 +145,9 @@ namespace libTech {
 		}
 
 		static void Draw(float Dt) {
+			Gl.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
+			Gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
 			Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			Gl.Enable(EnableCap.DepthTest);
 			Gl.Enable(EnableCap.CullFace);

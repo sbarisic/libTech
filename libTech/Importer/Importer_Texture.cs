@@ -30,10 +30,7 @@ namespace libTech.Importer {
 		}
 
 		public override Texture Load(string FilePath) {
-			Image Img = Image.FromFile(FilePath);
-			Texture Tex = new Texture(Img.Width, Img.Height);
-			Tex.SubImage2D(Img);
-			return Tex;
+			return Texture.FromImage(Image.FromFile(FilePath));
 		}
 	}
 }

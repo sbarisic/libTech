@@ -11,9 +11,10 @@ using GLPixelFormat = OpenGL.PixelFormat;
 using IPixFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace libTech.Graphics {
-	public unsafe class Texture : GraphicsObject {
+	public unsafe partial class Texture : GraphicsObject {
 		public int Width { get; private set; }
 		public int Height { get; private set; }
+		public int MipLevels { get; private set; }
 
 		public Texture(int W, int H, TextureTarget Target = TextureTarget.Texture2d) {
 			ID = Gl.CreateTexture(Target);
@@ -51,6 +52,7 @@ namespace libTech.Graphics {
 		public void Storage2D(int W, int H, int Levels = 6, InternalFormat IntFormat = InternalFormat.Rgba8) {
 			Width = W;
 			Height = H;
+			MipLevels = Levels;
 			Gl.TextureStorage2D(ID, Levels, IntFormat, W, H);
 		}
 
@@ -71,6 +73,9 @@ namespace libTech.Graphics {
 				SubImage2D(Data.Scan0, X, Y, W, H, GLPixelFormat.Bgra);
 				Bmp.UnlockBits(Data);
 			}
+
+			if (MipLevels > 1)
+				GenerateMipmap();
 		}
 
 		public void BindTextureUnit(uint Unit = 0) {
@@ -87,6 +92,16 @@ namespace libTech.Graphics {
 
 		public override void GraphicsDispose() {
 			Gl.DeleteTextures(new uint[] { ID });
+		}
+	}
+
+	// Texture atlas stuff
+
+	public unsafe partial class Texture {
+		public static Texture FromImage(Image Img) {
+			Texture Tex = new Texture(Img.Width, Img.Height);
+			Tex.SubImage2D(Img);
+			return Tex;
 		}
 	}
 }
