@@ -62,7 +62,8 @@ namespace libTech.Importer {
 				Mat.DiffuseColor = new Vector4(M.ColorDiffuse.R, M.ColorDiffuse.G, M.ColorDiffuse.B, M.ColorDiffuse.A);
 
 			if (M.HasTextureDiffuse) {
-				string TexName = "content/textures/" + M.TextureDiffuse.FilePath;
+				string TexName = ("content/textures/" + M.TextureDiffuse.FilePath).NormalizeFilePath();
+				Mat.Name = TexName;
 
 				if (File.Exists(TexName)) {
 					Mat.Diffuse = Importers.Load<Texture>(TexName);

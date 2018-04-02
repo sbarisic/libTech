@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using Matrix4 = System.Numerics.Matrix4x4;
+using Quaternion = System.Numerics.Quaternion;
+using Matrix4x4 = System.Numerics.Matrix4x4;
 using OpenGL;
 
 namespace libTech.Graphics {
@@ -12,7 +13,7 @@ namespace libTech.Graphics {
 		const int VERTEX_ATTRIB = 0;
 		const int COLOR_ATTRIB = 1;
 		const int UV_ATTRIB = 2;
-		
+
 		VertexArray VAO;
 		BufferObject VertBuffer;
 		BufferObject ColorBuffer;
@@ -20,9 +21,12 @@ namespace libTech.Graphics {
 		BufferObject ElementBuffer;
 		BufferUsage Usage;
 
-		public Matrix4 Matrix;
+		public Matrix4x4 Matrix;
 		public Material Material;
 		public bool Wireframe;
+		public bool Solid;
+
+		public Vector3[] Vertices { get; private set; }
 
 		public PrimitiveType PrimitiveType {
 			get {
@@ -36,14 +40,17 @@ namespace libTech.Graphics {
 
 		public Mesh(BufferUsage Usage = BufferUsage.StaticDraw) {
 			VAO = new VertexArray();
-			Matrix = Matrix4.Identity;
-			Material = Material.Default;
+			Matrix = Matrix4x4.Identity;
+			Material = new Material();
 
 			Wireframe = false;
+			Solid = true;
 			this.Usage = Usage;
 		}
 
 		public void SetVertices(Vector3[] Verts) {
+			Vertices = Verts;
+
 			if (VertBuffer == null) {
 				VAO.AttribFormat(VERTEX_ATTRIB);
 				VAO.AttribBinding(VERTEX_ATTRIB, VAO.BindVertexBuffer(VertBuffer = new BufferObject()));
@@ -76,7 +83,7 @@ namespace libTech.Graphics {
 		public void SetElements(uint[] Elements) {
 			if (ElementBuffer == null)
 				ElementBuffer = new BufferObject();
-			
+
 			if (Elements != null) {
 				VAO.BindElementBuffer(ElementBuffer);
 				ElementBuffer.SetData(Elements, Usage: Usage);
@@ -84,11 +91,12 @@ namespace libTech.Graphics {
 				VAO.BindElementBuffer(null);
 		}
 
-		public void Draw() {
+		public void Draw(Vector3 Position, Vector3 Scale, Quaternion Rotation) {
 			if (ColorBuffer == null)
 				VertexArray.VertexAttrib(COLOR_ATTRIB, Material.DiffuseColor);
 
 			Material.Bind();
+			Material.Shader.SetModelMatrix(Camera.CreateModel(Position, Scale, Rotation) * Matrix);
 
 			if (Wireframe)
 				Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);

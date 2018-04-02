@@ -46,8 +46,8 @@ namespace libTech.Graphics {
 		}
 
 		public override Texture CreateTexture(int W, int H, IntPtr Data) {
-			Texture T = new Texture(W, H);
-			T.SubImage2D(Data, 0, 0, W, H);
+			Texture T = new Texture(W, H, MipLevels: 1);
+			T.SubImage(Data, 0, 0, 0, W, H, 0);
 			return T;
 		}
 

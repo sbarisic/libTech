@@ -1,6 +1,7 @@
 ﻿using libTech.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ namespace libTech.Importer {
 			AllImporters = new List<Importer>();
 		}
 
+		[DebuggerStepThrough]
 		public static void Register(Type T) {
 			foreach (var Imp in AllImporters)
 				if (Imp.GetType() == T)
@@ -23,11 +25,13 @@ namespace libTech.Importer {
 			AllImporters.Add((Importer)Activator.CreateInstance(T));
 		}
 
+		[DebuggerStepThrough]
 		public static void RegisterAll(Assembly A) {
 			foreach (var Type in Reflect.GetAllImplementationsOf(A, typeof(Importer)))
 				Register(Type);
 		}
 
+		[DebuggerStepThrough]
 		public static IEnumerable<Importer<T>> GetAll<T>() {
 			foreach (var Imp in AllImporters) {
 				Importer<T> TImp = Imp as Importer<T>;
@@ -37,6 +41,7 @@ namespace libTech.Importer {
 			}
 		}
 
+		[DebuggerStepThrough]
 		public static Importer<T> Get<T>(string FilePath) {
 			IEnumerable<Importer<T>> Importers = GetAll<T>();
 
@@ -47,12 +52,14 @@ namespace libTech.Importer {
 			throw new Exception("Could not find importer for \"" + FilePath + "\"");
 		}
 
+		[DebuggerStepThrough]
 		public static T Load<T>(string FilePath) {
 			return Get<T>(FilePath).Load(FilePath);
 		}
 	}
 
 	public abstract class Importer {
+		[DebuggerStepThrough]
 		public virtual bool CanLoad(string FilePath) {
 			return CanLoadExt(Path.GetExtension(FilePath));
 		}

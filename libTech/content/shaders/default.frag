@@ -16,7 +16,7 @@ vec3 normals(vec3 pos) {
 }
 
 void main() {
-	vec3 LightDir = normalize(-vec3(-50, -100, 50));
+	vec3 LightDir = normalize(-vec3(50, -100, -50));
 	
 	mat4 MV = View * Model;
 	mat4 NM = inverse(MV);
@@ -25,14 +25,14 @@ void main() {
 	vec3 Norm = normalize((NM * vec4(normals(ViewPosition), 0)).xyz);
 	vec3 ViewPos = normalize((NM * vec4(ViewPosition, 0)).xyz);
 	
-	float I = max(dot(Norm, LightDir), 0.5);
+	float I = max(dot(Norm, LightDir), 0.2);
 	if (I > 0) {
 		vec3 H = normalize(LightDir + ViewPos);
 		float IntSpec = max(dot(H, Norm), 0.0);
-		I = I + (I * pow(IntSpec, 50));
+		I = I + (I * pow(IntSpec, 50) * 5);
 	}
 	
-	I = clamp(I, 0.0, 1.0);
+	//I = clamp(I, 0.0, 1.0);
 
 	vec4 TexClr = texture2D(Texture, UV);
 	OutColor = (Color * TexClr) * vec4(I, I, I, 1);

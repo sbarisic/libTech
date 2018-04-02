@@ -10,6 +10,47 @@ using Matrix4 = System.Numerics.Matrix4x4;
 
 namespace libTech.Graphics {
 	public class ShaderProgram : GraphicsObject {
+		// TODO: Lazyload
+		public static ShaderProgram Default { get; private set; }
+		public static ShaderProgram DefaultFullbright { get; private set; }
+		public static ShaderProgram Post { get; private set; }
+		public static ShaderProgram PostMultisample { get; private set; }
+		public static ShaderProgram Skybox { get; private set; }
+		public static ShaderProgram DefaultNoTex { get; private set; }
+		public static ShaderProgram Point { get; private set; }
+		public static ShaderProgram Line { get; private set; }
+		public static ShaderProgram GUI { get; private set; }
+
+		internal static void LoadDefaultShaders() {
+			Default = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default.frag"));
+
+			DefaultFullbright = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+
+			Post = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/post.frag"));
+
+			PostMultisample = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/post_multisample.frag"));
+
+			Skybox = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/skybox.frag"));
+
+			DefaultNoTex = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_notex.frag"));
+
+			Point = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+
+			Line = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+
+			GUI = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag"));
+		}
+
 		List<ShaderStage> ShaderStages;
 		Dictionary<string, int> UniformLocations;
 
@@ -129,6 +170,10 @@ namespace libTech.Graphics {
 			Gl.ProgramUniform2f(ID, GetUniformLocation(Uniform), 1, ref Val);
 		}
 
+		public void Uniform1f<T>(string Uniform, T Val) where T : struct {
+			Gl.ProgramUniform1f(ID, GetUniformLocation(Uniform), 1, ref Val);
+		}
+
 		public void SetModelMatrix(Matrix4 M) {
 			UniformMatrix4f("Model", M);
 		}
@@ -143,6 +188,8 @@ namespace libTech.Graphics {
 	}
 
 	public class ShaderStage : GraphicsObject {
+		static Dictionary<string, ShaderStage> ShaderStages = new Dictionary<string, ShaderStage>();
+
 		public FileWatchHandle WatchHandle;
 
 		string Source;

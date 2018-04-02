@@ -11,11 +11,9 @@ namespace libTech.Graphics {
 	public static partial class Immediate {
 		static Mesh M;
 
-		public static ShaderProgram TriangleShader;
-		public static ShaderProgram PointShader;
-		public static ShaderProgram LineShader;
-
-		public static Matrix4x4 Matrix = Matrix4x4.Identity;
+		public static ShaderProgram TriangleShader = ShaderProgram.DefaultNoTex;
+		public static ShaderProgram PointShader = ShaderProgram.Point;
+		public static ShaderProgram LineShader = ShaderProgram.Line;
 
 		static Immediate() {
 			TinyGizmo.OnRender = (PrimType, Verts) => {
@@ -50,11 +48,9 @@ namespace libTech.Graphics {
 			if (Shader == null)
 				throw new Exception("No shader bound for immediate mode drawing");
 
-			Shader.Bind();
-			Shader.SetModelMatrix(Matrix);
+			M.Material.Shader = Shader;
 			M.PrimitiveType = PType;
-			M.Draw();
-			Shader.Unbind();
+			M.Draw(Vector3.Zero, Vector3.One, Quaternion.Identity);
 		}
 
 		public static void Points(Vector3[] Position, Vector4[] Color = null, float[] Size = null, uint[] Indice = null) {
@@ -136,7 +132,7 @@ namespace libTech.Graphics {
 	}
 
 	public static partial class Immediate {
-		public static void Texture2D(Vector2 Pos, Texture Tex, bool PositionIsCenter = false, Vector2? Scale = null) {
+		public static void Texture2D(Vector2 Pos, Texture Tex, bool PositionIsCenter = false, Vector2? Scale = null, bool UVInvertY = false) {
 			if (Scale == null)
 				Scale = Vector2.One;
 
@@ -148,11 +144,16 @@ namespace libTech.Graphics {
 				new Vector3(Pos.X, Pos.Y + Tex.Height * Scale.Value.Y, 0),
 				new Vector3(Pos.X + Tex.Width * Scale.Value.X, Pos.Y + Tex.Height * Scale.Value.Y, 0),
 				new Vector3(Pos.X + Tex.Width * Scale.Value.X, Pos.Y, 0),
+			}, new Vector4[] {
+				Vector4.One,
+				Vector4.One,
+				Vector4.One,
+				Vector4.One
 			}, UV: new Vector2[] {
-				new Vector2(0, 0),
-				new Vector2(0, 1),
-				new Vector2(1, 1),
-				new Vector2(1, 0)
+				new Vector2(0, UVInvertY ? 1 : 0),
+				new Vector2(0, UVInvertY ? 0 : 1),
+				new Vector2(1, UVInvertY ? 0 : 1),
+				new Vector2(1, UVInvertY ? 1 : 0)
 			}, Indice: new uint[] {
 				0, 1, 2, 0, 2, 3
 			}, Tex: Tex);

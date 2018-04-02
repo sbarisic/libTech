@@ -14,7 +14,6 @@ namespace libTech.Graphics {
 		public Vector3 Position;
 		public Vector3 Scale;
 		public Quaternion Rotation;
-		public ShaderProgram ShaderProgram;
 
 		public Mesh[] Meshes {
 			get {
@@ -34,29 +33,16 @@ namespace libTech.Graphics {
 			MeshList.Add(M);
 		}
 
-		void DrawMesh(Mesh Msh) {
-			ShaderProgram.SetModelMatrix(Camera.CreateModel(Position, Scale, Rotation) * Msh.Matrix);
-			Msh.Draw();
-		}
-
 		public void Draw() {
-			ShaderProgram.Bind();
-
 			foreach (var Msh in MeshList)
 				if (!Msh.Material.IsTransparent)
-					DrawMesh(Msh);
-
-			ShaderProgram.Unbind();
+					Msh.Draw(Position, Scale, Rotation);
 		}
 
 		public void DrawTransparent() {
-			ShaderProgram.Bind();
-
 			foreach (var Msh in MeshList)
 				if (Msh.Material.IsTransparent)
-					DrawMesh(Msh);
-
-			ShaderProgram.Unbind();
+					Msh.Draw(Position, Scale, Rotation);
 		}
 	}
 }

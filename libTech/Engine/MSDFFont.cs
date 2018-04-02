@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 using System.IO;
 using OpenGL;
 using libTech.Graphics;
+using System.Runtime.InteropServices;
 
 namespace libTech {
+	[StructLayout(LayoutKind.Sequential)]
+	struct FloatRGB {
+		public float R, G, B;
+	}
+
 	public unsafe class MSDFFont {
 		static object FontLock = new object();
 		IntPtr Fnt;
@@ -115,7 +121,7 @@ namespace libTech {
 				}
 
 				Bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-				Bmp.Save("TEMP/" + (char)Unicode + ".png");
+				//Bmp.Save("TEMP/" + (char)Unicode + ".png");
 
 				char C = (char)Unicode;
 				if (!GlyphTexture.ContainsKey(C)) {

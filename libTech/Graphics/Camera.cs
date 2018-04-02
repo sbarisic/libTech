@@ -10,7 +10,10 @@ using System.Numerics;
 
 namespace libTech.Graphics {
 	public class Camera {
-		public static Camera ActiveCamera;
+		public static Camera ActiveCamera {
+			get;
+			set;
+		}
 
 		public static Camera GUICamera { get; private set; } = Create(() => {
 			Camera C = new Camera();
@@ -95,7 +98,7 @@ namespace libTech.Graphics {
 
 		public void Update(Vector2 MouseDelta) {
 			const float MouseScale = 1.0f / 5f;
-			
+
 			if (MouseMovement && (MouseDelta.X != 0 || MouseDelta.Y != 0)) {
 				Yaw -= MouseDelta.X * MouseScale;
 				Pitch -= MouseDelta.Y * MouseScale;
