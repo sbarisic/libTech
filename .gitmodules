@@ -1,9 +1,3 @@
-[submodule "submodules/Glfw.Net"]
-	path = submodules/Glfw.Net
-	url = https://github.com/Chman/Glfw.Net
 [submodule "submodules/OpenGL.Net"]
 	path = submodules/OpenGL.Net
 	url = https://github.com/luca-piccioni/OpenGL.Net
-[submodule "submodules/libTechGeometry"]
-	path = submodules/libTechGeometry
-	url = https://github.com/cartman300/libTechGeometry
