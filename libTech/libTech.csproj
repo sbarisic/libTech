@@ -68,9 +68,6 @@
     <Reference Include="BulletSharp">
       <HintPath>..\..\BulletPhysics\BulletSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Glfw.Net">
-      <HintPath>..\dlls\Glfw.Net.dll</HintPath>
-    </Reference>
     <Reference Include="libTechGeometry">
       <HintPath>..\..\libTechGeometry\bin_dbg\libTechGeometry.dll</HintPath>
     </Reference>
@@ -231,7 +228,12 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\FishGfx\FishGfx\FishGfx.csproj">
+      <Project>{9d55cabd-ba2d-4fb2-8156-82cea30b15b9}</Project>
+      <Name>FishGfx</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\NuklearDotNet\bin_dbg\Nuklear.dll">
       <Link>Nuklear.dll</Link>
