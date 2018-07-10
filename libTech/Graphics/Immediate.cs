@@ -8,6 +8,7 @@ using libTech.libNative;
 using PrimitiveType = OpenGL.PrimitiveType;
 
 namespace libTech.Graphics {
+	/*
 	public static partial class Immediate {
 		static Mesh M;
 
@@ -106,7 +107,7 @@ namespace libTech.Graphics {
 			TinyGizmo.GizmoInput(RayDir, Left, Translate, Rotate, Scale, Local, Ctrl);
 		}
 
-		public static bool Gizmo(/*string Name,*/float Dt, ref Vector3 Pos, ref Quaternion Rot, ref Vector3 Scale, Vector3? Snapping = null, float ScreenScale = 25) {
+		public static bool Gizmo(float Dt, ref Vector3 Pos, ref Quaternion Rot, ref Vector3 Scale, Vector3? Snapping = null, float ScreenScale = 25) {
 			Camera Cam = Camera.ActiveCamera;
 			TinyGizmo.GizmoBegin(Dt, Engine.WindowSize, Cam.Near, Cam.Far, Cam.VerticalFOV, Cam.Position, Cam.WorldForwardNormal, ScreenScale, Snapping ?? Vector3.Zero);
 
@@ -158,5 +159,5 @@ namespace libTech.Graphics {
 				0, 1, 2, 0, 2, 3
 			}, Tex: Tex);
 		}
-	}
+	}//*/
 }

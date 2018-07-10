@@ -111,7 +111,6 @@
     <Compile Include="Engine\Attributes.cs" />
     <Compile Include="Engine\EntityManagement.cs" />
     <Compile Include="Engine\InputManagement.cs" />
-    <Compile Include="Engine\ContextCreation.cs" />
     <Compile Include="Engine\Physics.cs" />
     <Compile Include="Entities\PhysicsEntity.cs" />
     <Compile Include="Entities\Light.cs" />
@@ -120,21 +119,9 @@
     <Compile Include="Engine\FileWatcher.cs" />
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
-    <Compile Include="Graphics\DebuggerStepTroughAttribute.cs" />
-    <Compile Include="Graphics\Framebuffer.cs" />
-    <Compile Include="Graphics\Camera.cs" />
-    <Compile Include="Graphics\GraphicsObject.cs" />
     <Compile Include="Graphics\Immediate.cs" />
-    <Compile Include="Graphics\Material.cs" />
-    <Compile Include="Graphics\Mesh.cs" />
-    <Compile Include="Graphics\Model.cs" />
-    <Compile Include="Graphics\ShaderProgram.cs" />
-    <Compile Include="Graphics\BufferObject.cs" />
-    <Compile Include="Graphics\Texture.cs" />
-    <Compile Include="Graphics\VertexArray.cs" />
     <Compile Include="Importer\Importer.cs" />
     <Compile Include="Importer\Importer_Texture.cs" />
-    <Compile Include="Importer\Importer_Assimp.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Engine\MSDFFont.cs" />
     <Compile Include="native\libNative\libNative.cs" />
@@ -144,7 +131,6 @@
     <Compile Include="Engine\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Reflect.cs" />
-    <Compile Include="Graphics\NuklearRenderDevice.cs" />
     <Compile Include="UI\Screen.cs" />
     <Compile Include="UI\ScreenService.cs" />
     <Compile Include="Utilities\Matrix3x3.cs" />

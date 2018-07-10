@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace libTech.Importer {
-	public unsafe class Importer_Texture : Importer<Texture> {
+	/*public unsafe class Importer_Texture : Importer<Texture> {
 		public override bool CanLoadExt(string Extension) {
 			switch (Extension) {
 				case ".bmp":
@@ -32,5 +32,5 @@ namespace libTech.Importer {
 		public override Texture Load(string FilePath) {
 			return Texture.FromImage(Image.FromFile(FilePath));
 		}
-	}
+	}*/
 }
