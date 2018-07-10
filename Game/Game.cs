@@ -17,9 +17,8 @@ using libTech.Entities;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
-
 		public override void Load() {
-
+			GConsole.WriteLine("Game loaded!");
 		}
 
 		public override void Update(float Dt) {

@@ -50,7 +50,6 @@ namespace libTech {
 			switch (Ext) {
 				case ".ttf":
 					lock (FontLock) {
-
 						Fnt = Msdfgen.LoadFont(Pth);
 					}
 					break;
