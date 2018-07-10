@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using libTech.Graphics;
 using BulletSharp;
 
 namespace libTech.Entities {

@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using OpenGL;
-using libTech.Graphics;
+//using OpenGL;
 using System.Runtime.InteropServices;
+
+using FishGfx.Graphics;
 
 namespace libTech {
 	[StructLayout(LayoutKind.Sequential)]
@@ -126,7 +127,8 @@ namespace libTech {
 				char C = (char)Unicode;
 				if (!GlyphTexture.ContainsKey(C)) {
 					Texture Tex = Texture.FromImage(Bmp);
-					Tex.SetFilter(Gl.LINEAR, Gl.LINEAR);
+					Tex.SetFilterSmooth();
+					//Tex.SetFilter(Gl.LINEAR, Gl.LINEAR);
 					GlyphTexture.Add(C, Tex);
 				}
 			}

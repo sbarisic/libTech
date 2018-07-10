@@ -53,14 +53,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Glfw.Net">
-      <HintPath>..\dlls\Glfw.Net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="libTechGeometry">
-      <HintPath>..\..\libTechGeometry\bin_dbg\libTechGeometry.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="OpenGL.Net-CoreProfile">
       <HintPath>..\dlls\OpenGL.Net-CoreProfile.dll</HintPath>
       <Private>False</Private>

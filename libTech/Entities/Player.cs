@@ -4,7 +4,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using libTech.Graphics;
+
+using FishGfx.Graphics;
 
 namespace libTech.Entities {
 	public class Player : Entity {
@@ -13,12 +14,12 @@ namespace libTech.Entities {
 
 		public Player() {
 			ViewCamera = new Camera();
-			ViewCamera.SetPerspective(Engine.Width, Engine.Height, 90 * 3.1415926535f / 180);
-			ViewCamera.MouseMovement = true;
+			/*ViewCamera.SetPerspective(Engine.Width, Engine.Height, 90 * 3.1415926535f / 180);
+			ViewCamera.MouseMovement = true;*/
 		}
 
 		public override void Update(float Dt) {
-			if (!GConsole.Open) {
+			/*if (!GConsole.Open) {
 				Engine.CaptureMouse(true);
 				ViewCamera.Update(Engine.MouseDelta);
 
@@ -42,7 +43,7 @@ namespace libTech.Entities {
 				if (Engine.GetKey(Glfw3.Glfw.KeyCode.LeftControl))
 					ViewCamera.Position -= ViewCamera.WorldUpNormal * Dt * Scale;
 			} else
-				Engine.CaptureMouse(false);
+				Engine.CaptureMouse(false);*/
 		}
 	}
 }
