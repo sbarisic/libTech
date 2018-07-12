@@ -13,4 +13,12 @@ namespace libTech {
 		[DllImport(DllName, CallingConvention = CConv)]
 		public static extern IntPtr WindowFromDC(IntPtr DC);
 	}*/
+
+	internal static class Kernel32 {
+		const string DllName = "kernel32";
+		const CallingConvention CConv = CallingConvention.Winapi;
+
+		[DllImport(DllName, CallingConvention = CConv)]
+		public static extern bool SetDllDirectory(string Path);
+	}
 }
