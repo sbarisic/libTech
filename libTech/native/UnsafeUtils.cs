@@ -24,6 +24,9 @@ namespace libTech {
 		}
 
 		public static T[] Fill<T>(this T[] Arr, IntPtr Memory) where T : struct {
+			if (Arr.Length == 0)
+				return Arr;
+
 			GCHandle H = GCHandle.Alloc(Arr, GCHandleType.Pinned);
 			Unsafe.CopyBlock(H.AddrOfPinnedObject().ToPointer(), Memory.ToPointer(), (uint)Arr.Length * (uint)Marshal.SizeOf<T>());
 			H.Free();

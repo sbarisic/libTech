@@ -1,17 +1,18 @@
-﻿using NuklearDotNet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Globalization;
+using System.Drawing;
+using System.Drawing.Imaging;
 /*using PhysVector3 = BEPUutilities.Vector3;
 using PhysMatrix = BEPUutilities.Matrix;
 using PhysQuat = BEPUutilities.Quaternion;*/
 
 namespace libTech {
-	public static class Utils {
+	public unsafe static class Utils {
 		/*public static Vector3 ToVec3(this PhysVector3 V) {
 			return new Vector3(V.X, V.Y, V.Z);
 		}
@@ -42,6 +43,10 @@ namespace libTech {
 			return new Quaternion(Q.X, Q.Y, Q.Z, Q.W);
 		}*/
 
+		public static Vector2 Max(this Vector2 V, Vector2 V2) {
+			return new Vector2(Math.Max(V.X, V2.X), Math.Max(V.Y, V2.Y));
+		}
+
 		public static Vector3 XYZ(this Vector4 V) {
 			return new Vector3(V.X, V.Y, V.Z);
 		}
@@ -71,45 +76,13 @@ namespace libTech {
 			return float.Parse(Str, NumberStyles.Any, CultureInfo.InvariantCulture);
 		}
 
-		/*public static NkKeys ToNkKeys(this Key K) {
-			if (K == Key.None)
-				return NkKeys.None;
-			else if (K == Key.LeftShift || K == Key.RightShift)
-				return NkKeys.Shift;
-			else if (K == Key.LeftControl || K == Key.RightControl)
-				return NkKeys.Ctrl;
-			else if (K == Key.Delete)
-				return NkKeys.Del;
-			else if (K == Key.KeypadEnter || K == Key.Return || K == Key.Return2)
-				return NkKeys.Enter;
-			else if (K == Key.Tab || K == Key.KeypadTab)
-				return NkKeys.Tab;
-			else if (K == Key.Backspace || K == Key.KeypadBackspace)
-				return NkKeys.Backspace;
-			else if (K == Key.Copy)
-				return NkKeys.Copy;
-			else if (K == Key.Cut)
-				return NkKeys.Cut;
-			else if (K == Key.Paste)
-				return NkKeys.Paste;
-			else if (K == Key.Up)
-				return NkKeys.Up;
-			else if (K == Key.Down)
-				return NkKeys.Down;
-			else if (K == Key.Left)
-				return NkKeys.Left;
-			else if (K == Key.Right)
-				return NkKeys.Right;
-			else if (K == Key.Insert)
-				return NkKeys.InserMode;
-			else if (K == Key.Home)
-				return NkKeys.TextStart;
-			else if (K == Key.End)
-				return NkKeys.TextEnd;
-			else if (K == Key.Undo)
-				return NkKeys.TextUndo;
+		public static void Copy(IntPtr source, int sourceOffset, IntPtr destination, int destinationOffset, int count) {
+			byte* src = (byte*)source + sourceOffset;
+			byte* dst = (byte*)destination + destinationOffset;
+			byte* end = dst + count;
 
-			return (NkKeys)(-1);
-		}*/
+			while (dst != end)
+				*dst++ = *src++;
+		}
 	}
 }
