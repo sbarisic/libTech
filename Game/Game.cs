@@ -4,16 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-using libTech;
-using libTech.UI;
-using OpenGL;
 using System.Numerics;
-using Matrix4 = System.Numerics.Matrix4x4;
-using libTech.Importer;
-using libTech.libNative;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using libTech;
 using libTech.Entities;
+using libTech.Importer;
+using libTech.libNative;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
