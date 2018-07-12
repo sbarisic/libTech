@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
-using Assimp;
-using Assimp.Configs;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 

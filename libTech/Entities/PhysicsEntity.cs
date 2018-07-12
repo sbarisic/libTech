@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using BulletSharp;
+//using BulletSharp;
 
 namespace libTech.Entities {
 	public abstract class PhysicsEntity : Entity {
 		//public BEPUEntity PhysEntity;
-		public RigidBody Body;
+		//public RigidBody Body;
 
 		public override Vector3 Position {
 			get {
-				return Body.WorldTransform.Translation;
+				//return Body.WorldTransform.Translation;
+				return Vector3.Zero;
 			}
 
 			set {
