@@ -11,6 +11,8 @@
 
 bin_dbg/
 libTech/content/
+build/
+build_dbg/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
