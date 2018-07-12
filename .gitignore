@@ -10,7 +10,7 @@
 *.sln.docstates
 
 bin_dbg/
-libTech/content/
+# libTech/content/
 build/
 build_dbg/
 
