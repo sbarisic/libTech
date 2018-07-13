@@ -84,5 +84,54 @@ namespace libTech {
 			while (dst != end)
 				*dst++ = *src++;
 		}
+
+		public static uint[] ToUTF8CodePoints(this string Str) {
+			byte[] Bytes = Encoding.UTF8.GetBytes(Str);
+
+			byte* Char = stackalloc byte[4];
+			uint* Unicode = (uint*)Char;
+			int CharCounter = 0;
+
+			List<uint> Unicodes = new List<uint>();
+
+			for (int i = 0; i < Bytes.Length; i++) {
+				if (Bytes[i].SingleUTF8Byte()) {
+					if (CharCounter != 0) {
+						CharCounter = 0;
+						Unicodes.Add(*Unicode);
+						*Unicode = 0;
+					}
+
+					Unicodes.Add(Bytes[i]);
+				} else {
+					if (Bytes[i].LeadingUTF8MultiByte()) {
+						if (CharCounter != 0) {
+							CharCounter = 0;
+							Unicodes.Add(*Unicode);
+							*Unicode = 0;
+						}
+					}
+
+					Char[CharCounter++] = Bytes[i];
+				}
+			}
+
+			if (CharCounter != 0) {
+				CharCounter = 0;
+				Unicodes.Add(*Unicode);
+				*Unicode = 0;
+			}
+
+			// TODO; convert to code points
+			return Unicodes.ToArray();
+		}
+
+		public static bool SingleUTF8Byte(this byte B) {
+			return B >> 7 == 0;
+		}
+
+		public static bool LeadingUTF8MultiByte(this byte B) {
+			return B >> 6 == 3;
+		}
 	}
 }

@@ -11,6 +11,8 @@ using System.Numerics;
 //using Texture = System.Drawing.Bitmap;
 using System.Drawing.Imaging;
 
+// TODO: Port to FishGfx
+
 namespace libTech {
 	[StructLayout(LayoutKind.Sequential)]
 	struct FloatRGB {
@@ -18,7 +20,7 @@ namespace libTech {
 	}
 
 	//public delegate void OnGlyphAction(Bitmap Img, float X, float Y);
-	public delegate void OnGlyphAction(char Chr, FreetypeFont.Glyph G, Vector2 Position);
+	public delegate void OnGlyphAction(uint Unicode, FreetypeFont.Glyph G, Vector2 Position);
 
 
 	public unsafe class FreetypeFont {
@@ -67,7 +69,7 @@ namespace libTech {
 		public float OffsetY { get; private set; }
 
 		Dictionary<int, Bitmap> GlyphMsdfTexture;*/
-		Dictionary<int, Glyph> GlyphTexture;
+		Dictionary<uint, Glyph> GlyphTexture;
 
 		int _FontSize;
 		public int FontSize {
@@ -88,7 +90,7 @@ namespace libTech {
 
 		public FreetypeFont(byte[] FontFile, int Size = 12) {
 			//GlyphMsdfTexture = new Dictionary<int, Bitmap>();
-			GlyphTexture = new Dictionary<int, Glyph>();
+			GlyphTexture = new Dictionary<uint, Glyph>();
 
 			/*CharWidth = 32;
 			CharHeight = 36;
@@ -122,7 +124,7 @@ namespace libTech {
 			return GetKerning(ToUnicode(CharA), ToUnicode(CharB));
 		}
 
-		public double GetKerning(int UnicodeA, int UnicodeB) {
+		public double GetKerning(uint UnicodeA, uint UnicodeB) {
 			if (Msdfgen.GetKerning(Fnt, UnicodeA, UnicodeB, out double K))
 				return K;
 
@@ -130,10 +132,10 @@ namespace libTech {
 		}
 
 		public Glyph? GetGlyph(char C) {
-			return GetGlyph((int)C);
+			return GetGlyph(ToUnicode(C));
 		}
 
-		public Glyph? GetGlyph(int Unicode) {
+		public Glyph? GetGlyph(uint Unicode) {
 			if (GlyphTexture.ContainsKey(Unicode))
 				return GlyphTexture[Unicode];
 
@@ -146,18 +148,7 @@ namespace libTech {
 					return GetGlyph(Unicode);
 				}
 
-				byte[] Data = FChar.GetBitmapBytes();
-				Bitmap Bmp = new Bitmap(FChar.Width, FChar.Height);
-
-				for (int i = 0; i < Data.Length; i++) {
-					int X = i % FChar.Width;
-					int Y = i / FChar.Width;
-
-					Bmp.SetPixel(X, Y, Color.FromArgb(Data[i], 255, 255, 255));
-				}
-
-				Bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-				GlyphTexture.Add(Unicode, new Glyph(FChar, Bmp));
+				GlyphTexture.Add(Unicode, new Glyph(FChar, FChar.GetBitmap()));
 				return GetGlyph(Unicode);
 			}
 
@@ -165,11 +156,13 @@ namespace libTech {
 		}
 
 		public void GetGlyphs(string Str, Vector2 StartPos, OnGlyphAction OnGlyph) {
-			for (int i = 0; i < Str.Length; i++) {
-				Glyph G = GetGlyph(Str[i]).Value;
-				OnGlyph(Str[i], G, StartPos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)));
+			uint[] Unicodes = Str.ToUTF8CodePoints();
+
+			foreach (var Unicode in Unicodes) {
+				Glyph G = GetGlyph(Unicode).Value;
+				OnGlyph(Unicode, G, StartPos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)));
 				StartPos += G.Advance;
-				// TODO: Kerning value?
+				// TODO: Kerning value?	
 			}
 		}
 
@@ -249,7 +242,7 @@ namespace libTech {
 			return (Texture)Bmp.Clone();
 		}*/
 
-		int ToUnicode(char C) {
+		uint ToUnicode(char C) {
 			return C;
 		}
 	}
