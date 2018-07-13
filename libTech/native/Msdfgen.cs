@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,17 +20,47 @@ namespace libTech {
 		public int AdvanceX;
 		public int AdvanceY;
 
+		public int PixelMode;
+
 		public byte[] GetBitmapBytes() {
-			return BitmapPtr.ReadArray<byte>((uint)(Width * Height));
+			int BytesPerPixel = 0;
+
+			if (PixelMode == 2) // Grey
+				BytesPerPixel = 1;
+			else if (PixelMode == 7) // BGRA
+				BytesPerPixel = 4;
+			else
+				throw new NotImplementedException();
+
+			return BitmapPtr.ReadArray<byte>((uint)(Width * Height * BytesPerPixel));
+		}
+
+		public Bitmap GetBitmap() {
+			byte[] Data = GetBitmapBytes();
+			Bitmap Bmp = new Bitmap(Width, Height);
+
+			for (int Y = 0; Y < Height; Y++)
+				for (int X = 0; X < Width; X++) {
+					int Idx = Y * Width + X;
+
+					if (PixelMode == 2)
+						Bmp.SetPixel(X, Y, Color.FromArgb(Data[Idx], 255, 255, 255));
+					else if (PixelMode == 7)
+						Bmp.SetPixel(X, Y, Color.FromArgb(Data[Idx], Data[Idx + 1], Data[Idx + 2], Data[Idx + 3]));
+					else
+						throw new NotImplementedException();
+				}
+
+			Bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
+			return Bmp;
 		}
 	}
 
 	public unsafe static class Msdfgen {
 		const string DllName = "Msdfgen";
 		const CallingConvention CConv = CallingConvention.Cdecl;
-
 		
-		public delegate void OnGlyphLoadedFunc(int Unicode, int Width, int Height, IntPtr Pixels);
+		public delegate void OnGlyphLoadedFunc(uint Unicode, int Width, int Height, IntPtr Pixels);
 
 		[DllImport(DllName, CallingConvention = CConv)]
 		public static extern IntPtr LoadFont(string Pth);
@@ -53,13 +84,13 @@ namespace libTech {
 		public static extern void GlyphLoadedCallback(OnGlyphLoadedFunc F);
 
 		[DllImport(DllName, CallingConvention = CConv)]
-		public static extern bool GetKerning(IntPtr Font, int Unicode1, int Unicode2, out double Out);
+		public static extern bool GetKerning(IntPtr Font, uint Unicode1, uint Unicode2, out double Out);
 
 		[DllImport(DllName, CallingConvention = CConv)]
-		public static extern bool LoadGlyph(IntPtr Font, int Unicode,
+		public static extern bool LoadGlyph(IntPtr Font, uint Unicode,
 			int Width = 32, int Height = 32, float AngleThreshold = 3.0f, float Range = 4.0f, float Scale = 1.0f, float TranslateX = 4.0f, float TranslateY = 4.0f);
 
 		[DllImport(DllName, CallingConvention = CConv)]
-		public static extern bool LoadGlyphNormal(IntPtr Font, int Unicode, ref FontCharacter OutChar);
+		public static extern bool LoadGlyphNormal(IntPtr Font, uint Unicode, ref FontCharacter OutChar);
 	}
 }

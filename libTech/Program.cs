@@ -9,6 +9,7 @@ using System.IO;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.ComponentModel;
 using System.Diagnostics;
 using CARP;
 
@@ -18,7 +19,7 @@ using libTech.Importer;
 
 using FishGfx.Graphics;
 using FishGfx.System;
-using System.ComponentModel;
+using libTech.Graphics;
 
 namespace libTech {
 	public unsafe static class Program {
@@ -115,19 +116,27 @@ namespace libTech {
 			Window = new RenderWindow(CVar.GetInt("width", 800), CVar.GetInt("height", 600), "libTech", CVar.GetBool("resizable"));
 			LoadGameDll(CVar.GetString("game"));
 
-			//FreetypeText.Init();
+			TextGfx Text = new TextGfx("Hello World!", new Vector2(50, 50), FishGfx.Color.White);
+
 			//FreetypeFont Font = FreetypeText.LoadFont("content/fonts/Hack.ttf");
 			//FreetypeFont Fnt = new FreetypeFont("content/fonts/gt-pressura-mono-light.ttf");
+			//FreetypeFont Fnt = new FreetypeFont("content/fonts/Hack.ttf");
+			//FreetypeFont Fnt = new FreetypeFont("content/fonts/NotoColorEmoji.ttf");
+			//FreetypeFont Fnt = new FreetypeFont("content/fonts/TwitterColorEmoji.ttf");
+			//FreetypeFont Fnt = new FreetypeFont("content/fonts/OpenSansEmoji.ttf");
+			//FreetypeFont Fnt = new FreetypeFont("content/fonts/PhantomOpenEmoji.ttf");
 
-			FreetypeFont Fnt = new FreetypeFont("content/fonts/Hack.ttf");
-			Fnt.FontSize = 24;
+			//FreetypeFont[] Fonts = Directory.GetFiles("content/fonts", "*.ttf").Select(Pth => new FreetypeFont(Pth, 32)).ToArray();
+			FreetypeFont Fnt = new FreetypeFont("content/fonts/Hack.ttf", 24);
 
 			using (Bitmap Bmp = new Bitmap(1512, 200))
-			using (Graphics Gfx = Graphics.FromImage(Bmp)) {
+			using (System.Drawing.Graphics Gfx = System.Drawing.Graphics.FromImage(Bmp)) {
 				Gfx.Clear(Color.Black);
 				Gfx.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
 
 				string Str = "The quick brown fox jumps over the lazy dog! 1234567890";
+				//string Str = "Wat 😂";
+				//string Str = Encoding.UTF8.GetString(new byte[] { 0xF0, 0x9F, 0x98, 0x82 });
 
 				Fnt.GetGlyphs(Str, new Vector2(10, 150), (Char, Glyph, Pos) => {
 					if (Glyph.Bitmap != null)
@@ -156,6 +165,8 @@ namespace libTech {
 
 			while (!Window.ShouldClose) {
 				Gfx.Clear();
+
+				Text.Draw();
 
 				Window.SwapBuffers();
 				Events.Poll();
