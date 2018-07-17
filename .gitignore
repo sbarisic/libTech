@@ -9,6 +9,7 @@
 *.userosscache
 *.sln.docstates
 
+bin/
 bin_dbg/
 # libTech/content/
 build/
