@@ -21,22 +21,16 @@ namespace libTech.GUI {
 
 		protected List<GUIControl> Children;
 
-		/*
-		public virtual Vector2 Min {
-			get;
-			protected set;
-		}
-
-		public virtual Vector2 Max {
-			get;
-			protected set;
-		}
-		*/
-
 		public GUIControl Parent;
 
-		public virtual Vector2 Position { get; set; }
-		public virtual Vector2 Size { get; set; }
+		public virtual Vector2 Position {
+			get; set;
+		}
+
+		public virtual Vector2 Size {
+			get; set;
+		}
+
 		public virtual AABB Scissor {
 			get {
 				return new AABB(GlobalPosition, Size);
@@ -46,7 +40,7 @@ namespace libTech.GUI {
 		public virtual Vector2 GlobalPosition {
 			get {
 				if (Parent != null)
-					return Parent.Position + Position;
+					return Parent.GlobalPosition + Position;
 
 				return Position;
 			}
@@ -56,11 +50,29 @@ namespace libTech.GUI {
 			Children = new List<GUIControl>();
 		}
 
-		public virtual void Render() {
+		public virtual void AutoResize(Vector2 Padding) {
+			Vector2 MaxSize = new Vector2(float.MinValue);
+
+			foreach (var Child in Children)
+				MaxSize = MaxSize.Max(Child.Position + Child.Size);
+
+			Size = MaxSize + Padding;
+		}
+
+		public virtual void Center(Vector2 Pos) {
+			//Vector2 Pos = Position - GlobalPosition;
+
+			Vector2 HalfSize = Size / 2;
+			Position = Pos - HalfSize;
+		}
+
+		public virtual void Draw() {
 			Gfx.PushScissor(Scissor);
 
-			foreach (var Ctrl in Children)
-				Ctrl.Render();
+			foreach (var Ctrl in Children) {
+				if (Scissor.Collide(Ctrl.Scissor))
+					Ctrl.Draw();
+			}
 
 			Gfx.PopScissor();
 		}
@@ -92,6 +104,11 @@ namespace libTech.GUI {
 		public virtual void AddChild(GUIControl Child) {
 			Child.Parent = this;
 			Children.Add(Child);
+		}
+
+		public T AddChild<T>(T Child) where T : GUIControl {
+			AddChild((GUIControl)Child);
+			return Child;
 		}
 
 		public virtual void RemoveChild(GUIControl Child) {
@@ -191,150 +208,6 @@ namespace libTech.GUI {
 					LeftClickStart = null;
 				}
 			}
-		}
-	}
-
-	public class Window : GUIControl {
-		readonly Vector2 Padding = new Vector2(10);
-
-		NineSlice Panel;
-
-		Vector2 ClickStart;
-		Vector2 DragStartPos;
-		Vector2 DragStartSize;
-
-		int DragID;
-
-		public override AABB Scissor {
-			get {
-				return new AABB(GlobalPosition - Padding, Size + Padding * 2);
-			}
-		}
-
-		public Window(Vector2 Pos, Vector2 Size) {
-			Position = Pos;
-			this.Size = Size;
-
-			Panel = new NineSlice(DefaultTextures.Panel, Padding.X);
-			OnDrag += Window_OnDrag;
-
-			OnPress += (K, P) => {
-				if (K == Key.MouseLeft) {
-					ClickStart = P;
-					DragStartPos = this.Position;
-					DragStartSize = this.Size;
-
-					DragID = Panel.Collides(P - Position);
-				}
-			};
-
-			OnRelease += (K, P) => {
-				if (K == Key.MouseLeft)
-					DragID = 0;
-			};
-		}
-
-		private void Window_OnDrag(Key K, Vector2 Pos) {
-			if (DragID == 1 || DragID == 2 || DragID == 3) {
-				Position = DragStartPos + (Pos - ClickStart);
-			}
-
-			if (DragID == 9) {
-				Vector2 NewSize = DragStartSize + ((Pos - ClickStart) * new Vector2(1, -1));
-
-				const float MinSize = 5;
-				if (NewSize.X >= MinSize && NewSize.Y >= MinSize) {
-					Size = NewSize;
-					Position = DragStartPos + DragStartSize.GetHeight() - NewSize.GetHeight();
-				}
-			}
-		}
-
-		public override bool IsInside(Vector2 Pos) {
-			return Panel.Collides(Pos - GlobalPosition) != 0;
-		}
-
-		public override void Render() {
-			Panel.Position = new Vector3(GlobalPosition, 0);
-			Panel.Size = Size;
-			Panel.Draw();
-
-			base.Render();
-		}
-	}
-
-	public class TextButton : GUIControl {
-		readonly Vector2 Padding = new Vector2(8);
-
-		Text Text;
-		NineSlice ButtonSkin;
-
-		public string String {
-			get {
-				return Text.String;
-			}
-			set {
-				Text.String = value;
-				Text.Refresh();
-
-				Size = this.Text.StringSize + Padding * 2;
-			}
-		}
-
-		public TextButton(FreetypeFont Font, string Text) {
-			this.Text = new Text(Font, Text);
-			String = Text;
-
-			ButtonSkin = new NineSlice(DefaultTextures.Button, 5);
-		}
-
-		public override bool IsInside(Vector2 Pos) {
-			return base.IsInside(Pos + Padding);
-		}
-
-		public override bool GetItemAt(Vector2 Pos, out GUIControl Ctrl) {
-			if (IsInside(Pos)) {
-				Ctrl = this;
-				return true;
-			}
-
-			Ctrl = null;
-			return false;
-		}
-
-		internal override void OnMousePress(Key K, Vector2 Pos) {
-			ButtonSkin.Texture = DefaultTextures.ButtonClick;
-
-			base.OnMousePress(K, Pos);
-		}
-
-		internal override void OnMouseRelease(Key K, Vector2 Pos) {
-			if (IsInside(Pos))
-				ButtonSkin.Texture = DefaultTextures.ButtonHover;
-			else
-				ButtonSkin.Texture = DefaultTextures.Button;
-
-			base.OnMouseRelease(K, Pos);
-		}
-
-		internal override void OnMouseEnter(bool Entered) {
-			if (Entered)
-				ButtonSkin.Texture = DefaultTextures.ButtonHover;
-			else
-				ButtonSkin.Texture = DefaultTextures.Button;
-
-			base.OnMouseEnter(Entered);
-		}
-
-		public override void Render() {
-			ButtonSkin.Position = new Vector3(GlobalPosition - Padding, 0);
-			ButtonSkin.Size = Size;
-			ButtonSkin.Draw();
-
-			Text.Position = new Vector3(GlobalPosition, 0);
-			Text.Draw();
-
-			base.Render();
 		}
 	}
 }

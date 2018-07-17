@@ -22,11 +22,12 @@ using FishGfx.System;
 using libTech.Graphics;
 
 namespace libTech {
-	public unsafe static class Program {
-		static RenderWindow Window;
-		static LibTechGame Game;
+	static partial class Engine {
+		public static RenderWindow Window;
+	}
 
-		static libGUI GUI;
+	unsafe static class Program {
+		static LibTechGame Game;
 
 		static void Main(string[] args) {
 			string DllDirectory = "native/x86";
@@ -115,45 +116,25 @@ namespace libTech {
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
 
-			Window = new RenderWindow(CVar.GetInt("width", 800), CVar.GetInt("height", 600), "libTech", CVar.GetBool("resizable"));
+			Engine.Window = new RenderWindow(CVar.GetInt("width", 800), CVar.GetInt("height", 600), "libTech", CVar.GetBool("resizable"));
+			Engine.Window.GetWindowSize(out int W, out int H);
+			Engine.Window.OnMouseMove += (Wnd, X, Y) => Engine.OnMouseMove(new Vector2(X, H - Y));
+			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => Engine.OnKey(Key, Scancode, Pressed, Repeat, Mods);
 			LoadGameDll(CVar.GetString("game"));
 
-			Window.GetWindowSize(out int W, out int H);
 			ShaderUniforms.Camera.SetOrthogonal(0, 0, W, H);
 
-			GUI = new libGUI();
-			Window.OnMouseMove += (Wnd, X, Y) => GUI.OnMouseMove(new Vector2(X, H - Y));
-			Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => GUI.OnKey(Key, Scancode, Pressed, Repeat, Mods);
+			float Dt = 0;
 
-			/*TextButton Btn = new TextButton(DefaultFonts.MainMenuMedium, "The quick brown fox jumps over the lazy dog");
-			Btn.OnClick += (Key, Pos) => GConsole.WriteLine("I was clicked at!");
-			Btn.Position = new Vector2(100, 100);
-			GUI.AddChild(Btn);*/
-
-			Window GUIWnd = new Window(new Vector2(100, 100), new Vector2(200, 200));
-			GUI.AddChild(GUIWnd);
-
-			TextButton Btn = new TextButton(DefaultFonts.MainMenuMedium, "Hello World!");
-			Btn.Position = new Vector2(150, 50);
-			GUIWnd.AddChild(Btn);
-
-			int Counter = 0;
-			Btn.OnClick += (K, P) => {
-				Btn.String = "Hello World " + (Counter++).ToString() + "!";
-			};
-
-			while (!Window.ShouldClose) {
+			while (!Engine.Window.ShouldClose) {
 				Gfx.Clear();
 
-				GUI.Render();
+				Game.DrawGUI(Dt);
+				Engine.DrawAllGUI();
 
-				Window.SwapBuffers();
+				Engine.Window.SwapBuffers();
 				Events.Poll();
 			}
-		}
-
-		private static void Window_OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
-			throw new NotImplementedException();
 		}
 	}
 }

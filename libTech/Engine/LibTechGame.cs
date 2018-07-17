@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using libTech;
+using libTech.Graphics;
+
 namespace libTech {
 	public abstract class LibTechGame {
 		public virtual void Load() {
@@ -12,9 +15,16 @@ namespace libTech {
 		public virtual void Unload() {
 		}
 
-		public abstract void Update(float Dt);
-		public abstract void Draw(float Dt);
-		public abstract void DrawTransparent(float Dt);
-		public abstract void DrawGUI(float Dt);
+		public virtual void Update(float Dt) {
+		}
+
+		public virtual void Draw(float Dt) {
+		}
+
+		public virtual void DrawTransparent(float Dt) {
+		}
+
+		public virtual void DrawGUI(float Dt) {
+		}
 	}
 }

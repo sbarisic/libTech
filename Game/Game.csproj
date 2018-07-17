@@ -69,6 +69,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FishGfx\FishGfx\FishGfx.csproj">
+      <Project>{9d55cabd-ba2d-4fb2-8156-82cea30b15b9}</Project>
+      <Name>FishGfx</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\libTech\libTech.csproj">
       <Project>{a0c03244-d714-4bfe-8a14-23d809d9211a}</Project>
       <Name>libTech</Name>

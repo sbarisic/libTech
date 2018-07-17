@@ -14,11 +14,11 @@ using FishGfx.Graphics;
 
 // TODO: Port to FishGfx
 
-namespace libTech {
-	[StructLayout(LayoutKind.Sequential)]
+namespace libTech.Graphics {
+	/*[StructLayout(LayoutKind.Sequential)]
 	struct FloatRGB {
 		public float R, G, B;
-	}
+	}*/
 
 	//public delegate void OnGlyphAction(Bitmap Img, float X, float Y);
 	public delegate void OnGlyphAction(uint Unicode, FreetypeFont.Glyph G, Vector2 Position);
@@ -101,7 +101,7 @@ namespace libTech {
 			}
 		}
 
-		public FreetypeFont(string Pth, int Size = 12) : this(File.ReadAllBytes(Pth), Size, Size * 16, Size * 16) {
+		public FreetypeFont(string Pth, int Size = 12) : this(File.ReadAllBytes(Pth), Size) {
 		}
 
 		public FreetypeFont(byte[] FontFile, int Size = 12, int AtlasW = 512, int AtlasH = 512) {

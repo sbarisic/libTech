@@ -43,6 +43,26 @@ namespace libTech {
 			return new Quaternion(Q.X, Q.Y, Q.Z, Q.W);
 		}*/
 
+		static Random Rnd = new Random();
+
+		public static int Random(int Inclusive, int Exclusive) {
+			return Rnd.Next(Inclusive, Exclusive);
+		}
+
+		public static float RandomFloat() {
+			return (float)Rnd.NextDouble();
+		}
+
+		public static Vector2 RandomAround(this Vector2 Center, float Radius) {
+			double Angle = Rnd.NextDouble() * 2 * Math.PI;
+			double Rad = Radius * Math.Sqrt(Rnd.NextDouble());
+			return new Vector2(Center.X + (float)(Rad * Math.Cos(Angle)), Center.Y + (float)(Rad * Math.Sin(Angle)));
+		}
+
+		public static Vector2 RandomVec2(float ScaleX = 1, float ScaleY = 1) {
+			return new Vector2(RandomFloat() * ScaleX, RandomFloat() * ScaleY);
+		}
+
 		public static Vector2 Max(this Vector2 V, Vector2 V2) {
 			return new Vector2(Math.Max(V.X, V2.X), Math.Max(V.Y, V2.Y));
 		}
@@ -87,6 +107,10 @@ namespace libTech {
 
 			while (dst != end)
 				*dst++ = *src++;
+		}
+
+		public static T Random<T>(this IEnumerable<T> Collection) {
+			return Collection.ElementAt(Random(0, Collection.Count()));
 		}
 
 		public static uint[] ToUTF8CodePoints(this string Str) {
