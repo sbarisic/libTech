@@ -26,6 +26,8 @@ namespace libTech {
 		static RenderWindow Window;
 		static LibTechGame Game;
 
+		static libGUI GUI;
+
 		static void Main(string[] args) {
 			string DllDirectory = "native/x86";
 
@@ -116,62 +118,42 @@ namespace libTech {
 			Window = new RenderWindow(CVar.GetInt("width", 800), CVar.GetInt("height", 600), "libTech", CVar.GetBool("resizable"));
 			LoadGameDll(CVar.GetString("game"));
 
-			TextGfx Text = new TextGfx("Hello World!", new Vector2(50, 50), FishGfx.Color.White);
+			Window.GetWindowSize(out int W, out int H);
+			ShaderUniforms.Camera.SetOrthogonal(0, 0, W, H);
 
-			//FreetypeFont Font = FreetypeText.LoadFont("content/fonts/Hack.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/gt-pressura-mono-light.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/Hack.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/NotoColorEmoji.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/TwitterColorEmoji.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/OpenSansEmoji.ttf");
-			//FreetypeFont Fnt = new FreetypeFont("content/fonts/PhantomOpenEmoji.ttf");
+			GUI = new libGUI();
+			Window.OnMouseMove += (Wnd, X, Y) => GUI.OnMouseMove(new Vector2(X, H - Y));
+			Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => GUI.OnKey(Key, Scancode, Pressed, Repeat, Mods);
 
-			//FreetypeFont[] Fonts = Directory.GetFiles("content/fonts", "*.ttf").Select(Pth => new FreetypeFont(Pth, 32)).ToArray();
-			FreetypeFont Fnt = new FreetypeFont("content/fonts/Hack.ttf", 24);
+			/*TextButton Btn = new TextButton(DefaultFonts.MainMenuMedium, "The quick brown fox jumps over the lazy dog");
+			Btn.OnClick += (Key, Pos) => GConsole.WriteLine("I was clicked at!");
+			Btn.Position = new Vector2(100, 100);
+			GUI.AddChild(Btn);*/
 
-			using (Bitmap Bmp = new Bitmap(1512, 200))
-			using (System.Drawing.Graphics Gfx = System.Drawing.Graphics.FromImage(Bmp)) {
-				Gfx.Clear(Color.Black);
-				Gfx.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+			Window GUIWnd = new Window(new Vector2(100, 100), new Vector2(200, 200));
+			GUI.AddChild(GUIWnd);
 
-				string Str = "The quick brown fox jumps over the lazy dog! 1234567890";
-				//string Str = "Wat 😂";
-				//string Str = Encoding.UTF8.GetString(new byte[] { 0xF0, 0x9F, 0x98, 0x82 });
+			TextButton Btn = new TextButton(DefaultFonts.MainMenuMedium, "Hello World!");
+			Btn.Position = new Vector2(150, 50);
+			GUIWnd.AddChild(Btn);
 
-				Fnt.GetGlyphs(Str, new Vector2(10, 150), (Char, Glyph, Pos) => {
-					if (Glyph.Bitmap != null)
-						Gfx.DrawImage(Glyph.Bitmap, Pos.X, Pos.Y);
-				});
-
-				Vector2 Size = Fnt.MeasureString(Str);
-				Gfx.DrawRectangle(Pens.Blue, 10, 80, Size.X, Size.Y);
-
-				Fnt.GetGlyphs(Str, new Vector2(10, 80), (Char, Glyph, Pos) => {
-					if (Glyph.Bitmap != null) {
-						Gfx.DrawRectangle(Pens.Red, Pos.X, Pos.Y, Glyph.Size.X, Glyph.Size.Y);
-						Gfx.DrawImage(Glyph.Bitmap, Pos.X, Pos.Y);
-					}
-				});
-
-				Gfx.Flush();
-				Bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-				Bmp.Save("out.png");
-			}
-
-			//Bitmap Bmp = Fnt.GetGlyphImage('H');
-			//Bmp.Save("h.png");
-
-			//libGUI GUI = new libGUI();
+			int Counter = 0;
+			Btn.OnClick += (K, P) => {
+				Btn.String = "Hello World " + (Counter++).ToString() + "!";
+			};
 
 			while (!Window.ShouldClose) {
 				Gfx.Clear();
 
-				Text.Draw();
+				GUI.Render();
 
 				Window.SwapBuffers();
 				Events.Poll();
 			}
 		}
 
+		private static void Window_OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
+			throw new NotImplementedException();
+		}
 	}
 }

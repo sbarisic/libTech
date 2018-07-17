@@ -59,7 +59,7 @@ namespace libTech {
 	public unsafe static class Msdfgen {
 		const string DllName = "Msdfgen";
 		const CallingConvention CConv = CallingConvention.Cdecl;
-		
+
 		public delegate void OnGlyphLoadedFunc(uint Unicode, int Width, int Height, IntPtr Pixels);
 
 		[DllImport(DllName, CallingConvention = CConv)]
@@ -70,7 +70,10 @@ namespace libTech {
 
 		public static IntPtr LoadFontMemory(byte[] Bytes) {
 			fixed (byte* BytesPtr = Bytes) {
-				return LoadFontMemory(new IntPtr(BytesPtr), Bytes.Length);
+				IntPtr FuckOff = Marshal.AllocHGlobal(Bytes.Length);
+				Marshal.Copy(Bytes, 0, FuckOff, Bytes.Length);
+
+				return LoadFontMemory(FuckOff, Bytes.Length);
 			}
 		}
 
@@ -80,8 +83,14 @@ namespace libTech {
 		[DllImport(DllName, CallingConvention = CConv)]
 		public static extern void DestroyFont(IntPtr Fnt);
 
-		[DllImport(DllName, CallingConvention = CConv)]
-		public static extern void GlyphLoadedCallback(OnGlyphLoadedFunc F);
+		[DllImport(DllName, CallingConvention = CConv, EntryPoint = "GlyphLoadedCallback")]
+		static extern void _GlyphLoadedCallback(OnGlyphLoadedFunc F);
+
+		public static void GlyphLoadedCallback(OnGlyphLoadedFunc F) {
+			GCHandle.Alloc(F, GCHandleType.Pinned);
+			_GlyphLoadedCallback(F);
+		}
+
 
 		[DllImport(DllName, CallingConvention = CConv)]
 		public static extern bool GetKerning(IntPtr Font, uint Unicode1, uint Unicode2, out double Out);

@@ -47,6 +47,10 @@ namespace libTech {
 			return new Vector2(Math.Max(V.X, V2.X), Math.Max(V.Y, V2.Y));
 		}
 
+		public static Vector2 Min(this Vector2 V, Vector2 V2) {
+			return new Vector2(Math.Min(V.X, V2.X), Math.Min(V.Y, V2.Y));
+		}
+
 		public static Vector3 XYZ(this Vector4 V) {
 			return new Vector3(V.X, V.Y, V.Z);
 		}

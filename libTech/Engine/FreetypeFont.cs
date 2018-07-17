@@ -10,6 +10,7 @@ using System.Numerics;
 
 //using Texture = System.Drawing.Bitmap;
 using System.Drawing.Imaging;
+using FishGfx.Graphics;
 
 // TODO: Port to FishGfx
 
@@ -30,6 +31,9 @@ namespace libTech {
 			public Bitmap Bitmap;
 			public object Userdata;
 
+			public int X;
+			public int Y;
+
 			public Vector2 Size {
 				get {
 					return new Vector2(FontChar.Width, FontChar.Height);
@@ -48,10 +52,23 @@ namespace libTech {
 				}
 			}
 
+			public void GetUV(float RootW, float RootH, out float U, out float V, out float W, out float H) {
+				W = Bitmap.Width / RootW;
+				H = Bitmap.Height / RootH;
+				U = X / RootW;
+				V = Y / RootH;
+			}
+
+			public void GetUV(Texture Root, out float U, out float V, out float W, out float H) {
+				GetUV(Root.Width, Root.Height, out U, out V, out W, out H);
+			}
+
 			internal Glyph(FontCharacter FontChar, Bitmap Bitmap) {
 				FontChar.BitmapPtr = IntPtr.Zero;
 				Userdata = null;
 
+				X = 0;
+				Y = 0;
 				this.FontChar = FontChar;
 				this.Bitmap = Bitmap;
 			}
@@ -59,20 +76,19 @@ namespace libTech {
 		}
 
 		IntPtr Fnt;
-
-		/*public int CharWidth { get; private set; }
-		public int CharHeight { get; private set; }
-		public float AngleThreshold { get; private set; }
-		public float Range { get; private set; }
-		public float Scale { get; private set; }
-		public float OffsetX { get; private set; }
-		public float OffsetY { get; private set; }
-
-		Dictionary<int, Bitmap> GlyphMsdfTexture;*/
 		Dictionary<uint, Glyph> GlyphTexture;
+		RectanglePacker Packer;
+
+		public Texture TextureAtlas;
+
+		public int LineHeight {
+			get {
+				return FontSize;
+			}
+		}
 
 		int _FontSize;
-		public int FontSize {
+		int FontSize {
 			get {
 				return _FontSize;
 			}
@@ -85,40 +101,17 @@ namespace libTech {
 			}
 		}
 
-		public FreetypeFont(string Pth, int Size = 12) : this(File.ReadAllBytes(Pth), Size) {
+		public FreetypeFont(string Pth, int Size = 12) : this(File.ReadAllBytes(Pth), Size, Size * 16, Size * 16) {
 		}
 
-		public FreetypeFont(byte[] FontFile, int Size = 12) {
-			//GlyphMsdfTexture = new Dictionary<int, Bitmap>();
+		public FreetypeFont(byte[] FontFile, int Size = 12, int AtlasW = 512, int AtlasH = 512) {
 			GlyphTexture = new Dictionary<uint, Glyph>();
-
-			/*CharWidth = 32;
-			CharHeight = 36;
-
-			AngleThreshold = 3;
-			Range = 4;
-			Scale = 1;
-			OffsetX = 6;
-			OffsetY = 10;*/
-
 			Fnt = Msdfgen.LoadFontMemory(FontFile);
 			FontSize = Size;
-			//LoadGlyphRange(33, 126);
+
+			TextureAtlas = Texture.Empty(AtlasW, AtlasH);
+			Packer = new RectanglePacker(AtlasW, AtlasH);
 		}
-
-		/*public Bitmap GetGlyphImage(char C, bool Load = true) {
-			int Unicode = C;
-
-			if (!GlyphMsdfTexture.ContainsKey(Unicode))
-				if (Load)
-					LoadGlyph(Unicode);
-				else
-					return null;
-
-			if (GlyphMsdfTexture.ContainsKey(Unicode))
-				return GlyphMsdfTexture[Unicode];
-			return null;
-		}*/
 
 		public double GetKerning(char CharA, char CharB) {
 			return GetKerning(ToUnicode(CharA), ToUnicode(CharB));
@@ -148,7 +141,15 @@ namespace libTech {
 					return GetGlyph(Unicode);
 				}
 
-				GlyphTexture.Add(Unicode, new Glyph(FChar, FChar.GetBitmap()));
+				Glyph G = new Glyph(FChar, FChar.GetBitmap());
+				if (!Packer.Pack(G.Bitmap.Width, G.Bitmap.Height, out G.X, out G.Y))
+					throw new NotImplementedException("Cannot pack glyph");
+
+				G.Bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+				TextureAtlas.SubRect2D(G.Bitmap, G.X, G.Y);
+				G.Bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+				GlyphTexture.Add(Unicode, G);
 				return GetGlyph(Unicode);
 			}
 
@@ -178,69 +179,6 @@ namespace libTech {
 
 			return Max;
 		}
-
-		/*public void GetMsdfGlyphsForString(string Str, OnGlyphAction OnGlyph) {
-			float X = -OffsetX;
-			float Y = 0;
-
-			for (int i = 0; i < Str.Length; i++) {
-				OnGlyph(GetGlyphImage(Str[i]), X, Y);
-				X += CharWidth - OffsetX - Range; // TODO: Is that right? I don't know.
-			}
-		}
-
-		public void LoadGlyphRange(int UnicodeMin, int UnicodeMax, Func<int, bool> IsValid) {
-			lock (FontLock) {
-				Msdfgen.GlyphLoadedCallback(OnGlyph);
-
-				for (int i = UnicodeMin; i < UnicodeMax + 1; i++)
-					if (IsValid(i))
-						Msdfgen.LoadGlyph(Fnt, i, CharWidth, CharHeight, AngleThreshold, Range, Scale, OffsetX, OffsetY);
-			}
-		}
-
-		public void LoadGlyphRange(int UnicodeMin, int UnicodeMax) {
-			LoadGlyphRange(UnicodeMin, UnicodeMax, ValidGlyph);
-		}
-
-		public void LoadGlyph(int Unicode) {
-			LoadGlyphRange(Unicode, Unicode);
-		}
-
-		bool ValidGlyph(int Unicode) {
-			return !(char.IsControl((char)Unicode) || char.IsWhiteSpace((char)Unicode));
-		}
-
-		void OnGlyph(int Unicode, int Width, int Height, IntPtr Data) {
-			using (Bitmap Bmp = new Bitmap(Width, Height)) {
-				FloatRGB* DataPtr = (FloatRGB*)Data;
-
-				for (int i = 0; i < Width * Height; i++) {
-					FloatRGB Clr = DataPtr[i];
-
-					int R = (int)(Clr.R * 256).Clamp(0, 255);
-					int G = (int)(Clr.G * 256).Clamp(0, 255);
-					int B = (int)(Clr.B * 256).Clamp(0, 255);
-					Bmp.SetPixel(i % Width, i / Width, Color.FromArgb(255, R, G, B));
-				}
-
-				Bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-				//Bmp.Save("TEMP/" + (char)Unicode + ".png");
-
-				char C = (char)Unicode;
-				if (!GlyphMsdfTexture.ContainsKey(C)) {
-					//Texture Tex = Texture.FromImage(Bmp);
-					//Tex.SetFilterSmooth();
-					//Tex.SetFilter(Gl.LINEAR, Gl.LINEAR);
-
-					GlyphMsdfTexture.Add(C, BmpToTex(Bmp));
-				}
-			}
-		}
-
-		Texture BmpToTex(Bitmap Bmp) {
-			return (Texture)Bmp.Clone();
-		}*/
 
 		uint ToUnicode(char C) {
 			return C;

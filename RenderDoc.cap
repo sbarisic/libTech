@@ -1,23 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<CaptureSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Options>
-    <AllowVSync>true</AllowVSync>
-    <AllowFullscreen>true</AllowFullscreen>
-    <APIValidation>false</APIValidation>
-    <CaptureCallstacks>false</CaptureCallstacks>
-    <CaptureCallstacksOnlyDraws>false</CaptureCallstacksOnlyDraws>
-    <DelayForDebugger>0</DelayForDebugger>
-    <VerifyMapWrites>false</VerifyMapWrites>
-    <HookIntoChildren>false</HookIntoChildren>
-    <RefAllResources>false</RefAllResources>
-    <SaveAllInitials>false</SaveAllInitials>
-    <CaptureAllCmdLists>false</CaptureAllCmdLists>
-    <DebugOutputMute>true</DebugOutputMute>
-  </Options>
-  <Inject>false</Inject>
-  <AutoStart>true</AutoStart>
-  <Executable>E:\Projects2018\libTech\bin_dbg\libTech.exe</Executable>
-  <WorkingDir />
-  <CmdLine />
-  <Environment />
-</CaptureSettings>
+{
+    "rdocCaptureSettings": 1,
+    "settings": {
+        "autoStart": true,
+        "commandLine": "",
+        "environment": [
+        ],
+        "executable": "E:\\Projects2018\\libTech\\build_dbg\\libTech.exe",
+        "inject": false,
+        "options": {
+            "allowFullscreen": true,
+            "allowVSync": true,
+            "apiValidation": false,
+            "captureAllCmdLists": false,
+            "captureCallstacks": false,
+            "captureCallstacksOnlyDraws": false,
+            "debugOutputMute": true,
+            "delayForDebugger": 0,
+            "hookIntoChildren": true,
+            "refAllResources": true,
+            "saveAllInitials": false,
+            "verifyMapWrites": false
+        },
+        "workingDir": ""
+    }
+}
