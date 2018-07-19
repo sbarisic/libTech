@@ -9,6 +9,8 @@ using FishGfx;
 using FishGfx.Graphics;
 
 namespace libTech.GUI {
+	public delegate void OnResizeAction(Window Wnd, Vector2 Size);
+
 	public class Window : GUIControl {
 		readonly Vector2 Padding = new Vector2(10);
 
@@ -20,8 +22,17 @@ namespace libTech.GUI {
 
 		int DragID;
 
+		public bool ResizableHorizontal;
+		public bool ResizableVertical;
 		public bool Resizable;
 		public bool Movable;
+		public Vector2 MinimumSize;
+		public Color Color {
+			get => Panel.Color;
+			set => Panel.Color = value;
+		}
+
+		public event OnResizeAction OnResize;
 
 		public override AABB Scissor {
 			get {
@@ -29,55 +40,64 @@ namespace libTech.GUI {
 			}
 		}
 
+		public override Vector2 Size {
+			get {
+				return base.Size;
+			}
+			set {
+				base.Size = value;
+				OnResize?.Invoke(this, base.Size);
+			}
+		}
+
 		public Window(Vector2 Pos, Vector2 Size) {
-			Resizable = true;
-			Movable = true;
+			ResizableHorizontal = ResizableVertical = Resizable = Movable = true;
 			Position = Pos;
+			MinimumSize = new Vector2(5, 5);
 			this.Size = Size;
 
 			Panel = new NineSlice(DefaultTextures.Panel, Padding.X);
-			OnDrag += Window_OnDrag;
+			OnMouseDrag += Window_OnDrag;
 
-			OnPress += (K, P) => {
+			OnKey += (K, P, Down) => {
 				if (K == Key.MouseLeft) {
-					ClickStart = P;
-					DragStartPos = this.Position;
-					DragStartSize = this.Size;
+					if (Down) {
+						ClickStart = P;
+						DragStartPos = this.Position;
+						DragStartSize = this.Size;
 
-					DragID = Panel.Collides(P - Position);
+						DragID = Panel.Collides(P - Position);
+					} else
+						DragID = 0;
 				}
 			};
+		}
 
-			OnRelease += (K, P) => {
-				if (K == Key.MouseLeft)
-					DragID = 0;
-			};
+		public Window() : this(Vector2.Zero, Vector2.Zero) {
 		}
 
 		private void Window_OnDrag(Key K, Vector2 Pos) {
 			if ((DragID == 1 || DragID == 2 || DragID == 3) && Movable) {
 				Position = DragStartPos + (Pos - ClickStart);
-			}
-
-			if ((DragID == 6 || DragID == 8 || DragID == 9) && Resizable) {
+			} else if ((DragID == 6 || DragID == 8 || DragID == 9) && Resizable) {
 				Vector2 MousePos;
 				Vector2 MouseClickStart;
 
-				if (DragID == 6) { // Horizontal resize
+				if (DragID == 6 && ResizableHorizontal) { // Horizontal resize
 					MousePos = Pos.GetWidth();
 					MouseClickStart = ClickStart.GetWidth();
-				} else if (DragID == 8) { // Vertical resize
+				} else if (DragID == 8 && ResizableVertical) { // Vertical resize
 					MousePos = Pos.GetHeight();
 					MouseClickStart = ClickStart.GetHeight();
-				} else { // Corner
+				} else if (ResizableHorizontal && ResizableVertical) { // Corner
 					MousePos = Pos;
 					MouseClickStart = ClickStart;
-				}
+				} else
+					return;
 
-				Vector2 NewSize = DragStartSize + ((MousePos - MouseClickStart) * new Vector2(1, -1));
+				Vector2 NewSize = (DragStartSize + ((MousePos - MouseClickStart) * new Vector2(1, -1))).Max(MinimumSize);
 
-				const float MinSize = 5;
-				if (NewSize.X >= MinSize && NewSize.Y >= MinSize) {
+				if (NewSize != Size) {
 					Size = NewSize;
 					Position = DragStartPos + DragStartSize.GetHeight() - NewSize.GetHeight();
 				}
@@ -89,7 +109,7 @@ namespace libTech.GUI {
 		}
 
 		public override void Draw() {
-			Panel.Position = new Vector3(GlobalPosition, 0);
+			Panel.Position = GlobalPosition;
 			Panel.Size = Size;
 			Panel.Draw();
 
@@ -97,7 +117,7 @@ namespace libTech.GUI {
 		}
 
 		public virtual void Close() {
-			if (Parent != null) 
+			if (Parent != null)
 				Parent.RemoveChild(this);
 		}
 	}

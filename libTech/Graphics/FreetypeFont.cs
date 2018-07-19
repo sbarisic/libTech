@@ -11,6 +11,7 @@ using System.Numerics;
 //using Texture = System.Drawing.Bitmap;
 using System.Drawing.Imaging;
 using FishGfx.Graphics;
+using FishGfx;
 
 // TODO: Port to FishGfx
 
@@ -21,7 +22,7 @@ namespace libTech.Graphics {
 	}*/
 
 	//public delegate void OnGlyphAction(Bitmap Img, float X, float Y);
-	public delegate void OnGlyphAction(uint Unicode, FreetypeFont.Glyph G, Vector2 Position);
+	public delegate void OnGlyphAction(int GlyphIdx, uint Unicode, FreetypeFont.Glyph G, Vector2 Position);
 
 
 	public unsafe class FreetypeFont {
@@ -86,6 +87,14 @@ namespace libTech.Graphics {
 				return FontSize;
 			}
 		}
+
+		public int LineSpacing {
+			get {
+				return (int)(LineHeight * LineSpacingScale);
+			}
+		}
+
+		public float LineSpacingScale = 1.2f;
 
 		int _FontSize;
 		int FontSize {
@@ -159,25 +168,39 @@ namespace libTech.Graphics {
 		public void GetGlyphs(string Str, Vector2 StartPos, OnGlyphAction OnGlyph) {
 			uint[] Unicodes = Str.ToUTF8CodePoints();
 
+			Vector2 Pos = StartPos;
+			int GlyphIdx = 0;
+
 			foreach (var Unicode in Unicodes) {
 				Glyph G = GetGlyph(Unicode).Value;
-				OnGlyph(Unicode, G, StartPos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)));
-				StartPos += G.Advance;
+
+				if (Unicode == '\n') {
+					Pos = new Vector2(StartPos.X, Pos.Y - LineSpacing);
+				} else {
+					OnGlyph(GlyphIdx, Unicode, G, Pos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)));
+					Pos += G.Advance;
+				}
+
+				GlyphIdx++;
 				// TODO: Kerning value?	
 			}
 		}
 
-		public Vector2 MeasureString(string Str) {
-			Vector2 Max = Vector2.Zero;
-			Vector2 StartPos = Vector2.Zero;
+		public Vector2 MeasureString(string Str, out Vector2 OutMin, out Vector2 OutMax) {
+			Vector2 Max = new Vector2(float.MinValue);
+			Vector2 Min = new Vector2(float.MaxValue);
 
-			for (int i = 0; i < Str.Length; i++) {
-				Glyph G = GetGlyph(Str[i]).Value;
-				Max = Max.Max(StartPos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)) + G.Size);
-				StartPos += G.Advance;
-			}
+			GetGlyphs(Str, Vector2.Zero, (GlyphIdx, Unicode, G, Pos) => {
+				Pos -= new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y));
+				Vector2 TopPos = Pos + G.Size;
 
-			return Max;
+				Max = Max.Max(Pos).Max(TopPos);
+				Min = Min.Min(Pos).Min(TopPos);
+			});
+
+			OutMin = Min;
+			OutMax = Max;
+			return Max - Min;
 		}
 
 		uint ToUnicode(char C) {

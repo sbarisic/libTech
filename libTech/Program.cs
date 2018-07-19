@@ -24,10 +24,19 @@ using libTech.Graphics;
 namespace libTech {
 	static partial class Engine {
 		public static RenderWindow Window;
+		public static libGUI GUI;
+
+		public static CVar<string> GamePath;
+		public static CVar<int> WindowWidth;
+		public static CVar<int> WindowHeight;
+		public static CVar<bool> WindowResizable;
+		public static CVar<bool> WindowBorderless;
 	}
 
 	unsafe static class Program {
 		static LibTechGame Game;
+
+		static List<string> FailedToLoadDLLs;
 
 		static void Main(string[] args) {
 			string DllDirectory = "native/x86";
@@ -38,19 +47,18 @@ namespace libTech {
 			if (!Kernel32.SetDllDirectory(DllDirectory))
 				throw new Win32Exception();
 
+			FailedToLoadDLLs = new List<string>();
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
-
 			RunGame();
 		}
 
 		static void ParseVariables() {
-			CVar.InitMode = true;
-			CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init, (This, Old, New) => This.Value = Path.GetFullPath((string)New));
+			Engine.GamePath = CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init);
 
-			CVar.Register("width", 1366, CVarType.Archive);
-			CVar.Register("height", 768, CVarType.Archive);
-			CVar.Register("borderless", false, CVarType.Archive);
-			CVar.Register("resizable", false, CVarType.Archive);
+			Engine.WindowWidth = CVar.Register("width", 1366, CVarType.Archive);
+			Engine.WindowHeight = CVar.Register("height", 768, CVarType.Archive);
+			Engine.WindowBorderless = CVar.Register("borderless", false, CVarType.Archive);
+			Engine.WindowResizable = CVar.Register("resizable", false, CVarType.Archive);
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
@@ -58,21 +66,9 @@ namespace libTech {
 					case "console":
 						GConsole.Open = true;
 						break;
-
-					default: {
-							CVar CVar = CVar.Find(Arg.Key);
-
-							if (CVar != null)
-								CVar.Value = Arg.Value.LastOrDefault();
-							else
-								CVar.Register(Arg.Key, Arg.Value.LastOrDefault());
-
-							break;
-						}
 				}
 			}
 
-			CVar.InitMode = false;
 			foreach (var CVar in CVar.GetAll())
 				GConsole.WriteLine(CVar);
 		}
@@ -84,13 +80,12 @@ namespace libTech {
 			if (File.Exists(ExpectedPath))
 				return Assembly.LoadFile(ExpectedPath);
 
-			GConsole.WriteLine("Could not find " + Path.GetFileName(ExpectedPath));
+			FailedToLoadDLLs.Add(Path.GetFileName(ExpectedPath));
 			return null;
 		}
 
 		static void LoadGameDll(string BasePath) {
-			string GameFolder = CVar.GetString("game");
-			BasePath = Path.Combine(GameFolder, "Game.dll");
+			BasePath = Path.Combine(BasePath, "Game.dll");
 
 			Assembly GameAssembly = Reflect.LoadAssembly(BasePath);
 			Type[] GameImplementations = Reflect.GetAllImplementationsOf(GameAssembly, typeof(LibTechGame)).ToArray();
@@ -116,25 +111,61 @@ namespace libTech {
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
 
-			Engine.Window = new RenderWindow(CVar.GetInt("width", 800), CVar.GetInt("height", 600), "libTech", CVar.GetBool("resizable"));
+			Engine.GUI = new libGUI();
+
+			Engine.Window = new RenderWindow(Engine.WindowWidth, Engine.WindowHeight, "libTech", Engine.WindowResizable);
 			Engine.Window.GetWindowSize(out int W, out int H);
-			Engine.Window.OnMouseMove += (Wnd, X, Y) => Engine.OnMouseMove(new Vector2(X, H - Y));
-			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => Engine.OnKey(Key, Scancode, Pressed, Repeat, Mods);
-			LoadGameDll(CVar.GetString("game"));
+			Engine.Window.OnMouseMove += OnMouseMove;
+			Engine.Window.OnKey += OnKey;
+			Engine.Window.OnChar += OnChar;
+			GConsole.Init();
+			LoadGameDll(Engine.GamePath);
+
+			GConsole.Color = FishGfx.Color.Orange;
+			foreach (var DllName in FailedToLoadDLLs)
+				GConsole.WriteLine("Failed to load '{0}'", DllName);
+			GConsole.Color = FishGfx.Color.White;
 
 			ShaderUniforms.Camera.SetOrthogonal(0, 0, W, H);
 
 			float Dt = 0;
 
+
 			while (!Engine.Window.ShouldClose) {
-				Gfx.Clear();
-
-				Game.DrawGUI(Dt);
-				Engine.DrawAllGUI();
-
-				Engine.Window.SwapBuffers();
-				Events.Poll();
+				Update(Dt);
+				Draw(Dt);
 			}
+		}
+
+		static void Update(float Dt) {
+			Events.Poll();
+
+			Game.Update(Dt);
+			GConsole.Update();
+		}
+
+		static void Draw(float Dt) {
+			Gfx.Clear();
+
+			Game.Draw(Dt);
+			Game.DrawTransparent(Dt);
+
+			Game.DrawGUI(Dt);
+			Engine.GUI.Draw();
+
+			Engine.Window.SwapBuffers();
+		}
+
+		private static void OnChar(RenderWindow Wnd, string Char, uint Unicode) {
+			Engine.GUI.SendOnChar(Char, Unicode);
+		}
+
+		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
+			Engine.GUI.SendOnKey(Key, Scancode, Pressed, Repeat, Mods);
+		}
+
+		private static void OnMouseMove(RenderWindow Wnd, float X, float Y) {
+			Engine.GUI.SendOnMouseMove(new Vector2(X, Engine.WindowHeight - Y));
 		}
 	}
 }

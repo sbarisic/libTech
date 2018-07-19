@@ -16,8 +16,6 @@ using libTech.Graphics;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
-		libGUI GUI;
-
 		static string[] QuitPrompts = new string[] {
 				"Are you this stupid?",
 				"     Really?",
@@ -37,33 +35,40 @@ namespace Game {
 				"         What?",
 			};
 
+		Window MainMenuWindow;
+
 		public override void Load() {
 			FreetypeFont MenuFont = DefaultFonts.MainMenuMedium;
-			float ButtonHeight = MenuFont.LineHeight * 2.2f;
+
 			float Padding = 5;
+			float ButtonHeight = 40;
 
-			GUI = Engine.CreateGUI();
-
-			Window MainMenuWindow = GUI.AddChild(new Window(new Vector2(100, 100), Vector2.Zero));
+			MainMenuWindow = Engine.GUI.AddChild(new Window());
 			MainMenuWindow.Resizable = false;
+			MainMenuWindow.Movable = false;
 
-			TextButton NewGame = MainMenuWindow.AddChild(new TextButton(MenuFont, "New Game"));
-			NewGame.Position = new Vector2(Padding, Padding + ButtonHeight * 3);
+			TextButton NewGame = MainMenuWindow.AddChild(new TextButton(MenuFont, "New Game", ButtonHeight));
+			NewGame.Position = new Vector2(Padding, ButtonHeight * 3 + Padding * 4);
 
-			TextButton JoinGame = MainMenuWindow.AddChild(new TextButton(MenuFont, "Join Game"));
-			JoinGame.Position = new Vector2(Padding, Padding + ButtonHeight * 2);
+			TextButton JoinGame = MainMenuWindow.AddChild(new TextButton(MenuFont, "Join Game", ButtonHeight));
+			JoinGame.Position = new Vector2(Padding, ButtonHeight * 2 + Padding * 3);
 
-			TextButton Settings = MainMenuWindow.AddChild(new TextButton(MenuFont, "Settings"));
-			Settings.Position = new Vector2(Padding, Padding + ButtonHeight * 1);
+			TextButton Settings = MainMenuWindow.AddChild(new TextButton(MenuFont, "Settings", ButtonHeight));
+			Settings.Position = new Vector2(Padding, ButtonHeight * 1 + Padding * 2);
 
-			TextButton Quit = MainMenuWindow.AddChild(new TextButton(MenuFont, "Quit"));
-			Quit.Position = new Vector2(Padding, Padding + ButtonHeight * 0);
-
-			Quit.OnClick += (K, P) => {
-				Engine.CreateYesNoPrompt(GUI, QuitPrompts.Random(), () => Environment.Exit(0)).Center((Engine.Window.GetWindowSizeVec() / 2).RandomAround(200));
+			TextButton Quit = MainMenuWindow.AddChild(new TextButton(MenuFont, "Quit", ButtonHeight));
+			Quit.Position = new Vector2(Padding, ButtonHeight * 0 + Padding);
+			Quit.OnMouseClick += (K, P) => {
+				Engine.CreateYesNoPrompt(QuitPrompts.Random(), () => Environment.Exit(0)).Center((Engine.Window.GetWindowSizeVec() / 2).RandomAround(200));
 			};
 
 			MainMenuWindow.AutoResize(new Vector2(Padding));
+			MainMenuWindow.Center(Engine.Window.GetWindowSizeVec() / 2);//*/
+
+			GConsole.Open = true;
+
+			/*for (int i = 0; i < 10; i++)
+				GConsole.WriteLine(new string(Utils.Random(10, 40).Range().Select(_ => Utils.RandomChar()).ToArray()));*/
 		}
 	}
 }

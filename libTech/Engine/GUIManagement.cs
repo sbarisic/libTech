@@ -11,16 +11,9 @@ using libTech.GUI;
 
 namespace libTech {
 	public unsafe static partial class Engine {
-		static List<libGUI> GUIs = new List<libGUI>();
-
-		public static libGUI CreateGUI() {
-			libGUI GUI = new libGUI();
-			GUIs.Add(GUI);
-			return GUI;
-		}
-
-		public static Window CreateYesNoPrompt(libGUI GUI, string Question, Action OnYes = null, Action OnNo = null) {
+		public static Window CreateYesNoPrompt(string Question, Action OnYes = null, Action OnNo = null) {
 			float Padding = 10;
+			libGUI GUI = Engine.GUI;
 
 			Label TextLabel = new Label(DefaultFonts.MainMenuMedium, Question);
 			Window Wnd = new Window(Vector2.Zero, new Vector2(TextLabel.Size.X + Padding * 2, (Question.Count(c => c == '\n') + 2) * DefaultFonts.MainMenuMedium.LineHeight * 2));
@@ -32,7 +25,7 @@ namespace libTech {
 			TextButton NoBtn = Wnd.AddChild(new TextButton(DefaultFonts.MainMenuMedium, "No"));
 			NoBtn.Position = new Vector2(Wnd.Size.X - NoBtn.Size.X - Padding, Padding);
 
-			NoBtn.OnClick += (K, P) => {
+			NoBtn.OnMouseClick += (K, P) => {
 				if (K == Key.MouseLeft) {
 					OnNo?.Invoke();
 					GUI.RemoveChild(Wnd);
@@ -42,7 +35,7 @@ namespace libTech {
 			TextButton YesBtn = Wnd.AddChild(new TextButton(DefaultFonts.MainMenuMedium, "Yes"));
 			YesBtn.Position = new Vector2(Wnd.Size.X - NoBtn.Size.X - YesBtn.Size.X - Padding * 3, Padding);
 
-			YesBtn.OnClick += (K, P) => {
+			YesBtn.OnMouseClick += (K, P) => {
 				if (K == Key.MouseLeft) {
 					OnYes?.Invoke();
 					GUI.RemoveChild(Wnd);
@@ -55,21 +48,6 @@ namespace libTech {
 			Wnd.Center(Engine.Window.GetWindowSizeVec() / 2);
 			GUI.AddChild(Wnd);
 			return Wnd;
-		}
-
-		internal static void DrawAllGUI() {
-			foreach (var GUI in GUIs)
-				GUI.Draw();
-		}
-
-		internal static void OnMouseMove(Vector2 Pos) {
-			foreach (var GUI in GUIs)
-				GUI.OnMouseMove(Pos);
-		}
-
-		internal static void OnKey(Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
-			foreach (var GUI in GUIs)
-				GUI.OnKey(Key, Scancode, Pressed, Repeat, Mods);
 		}
 	}
 }

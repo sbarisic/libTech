@@ -21,138 +21,77 @@ namespace libTech {
 	public delegate void CVarSetFunc(CVar This, object OldValue, object NewValue);
 	public delegate object CVarGetFunc(CVar This);
 
-	public class CVar {
-		public string Name;
-		public string Info;
+	public abstract class CVar {
+		object _ObjectValue;
 
-		public CVarType CVarType;
-
-		object Val;
-		object DefaultValue;
-
-		public object Value {
+		public virtual object ObjectValue {
 			get {
-				if (TriggerOnGet && OnGet != null) {
-					TriggerOnGet = false;
-					object Ret = OnGet(this);
-					TriggerOnGet = true;
-
-					return Ret;
-				}
-
-				return Val;
+				return _ObjectValue;
 			}
 
 			set {
-				if (CVarType.HasFlag(CVarType.ReadOnly)) {
-					// TODO: Cannot set read only variable
-					return;
-				}
-
-				if (CVarType.HasFlag(CVarType.Init) && !CVar.InitMode) {
-					// TODO: Trying to set variable after it has been initialized 
-					return;
-				}
-
-				object Old = Val;
-				Val = value;
-
-				if (TriggerOnSet && OnSet != null) {
-					TriggerOnSet = false;
-					OnSet(this, Old, Val);
-					TriggerOnSet = true;
-				}
+				_ObjectValue = value;
 			}
 		}
 
-		bool TriggerOnSet;
-		public CVarSetFunc OnSet;
+		public readonly string Name;
+		public readonly CVarType Type;
 
-		bool TriggerOnGet;
-		public CVarGetFunc OnGet;
-
-		public CVar(string Name, object DefaultValue, CVarType Type, CVarSetFunc OnSet = null, CVarGetFunc OnGet = null) {
-			Info = Name;
-			TriggerOnSet = true;
-			TriggerOnGet = true;
-
-			this.OnSet = OnSet;
-			this.OnGet = OnGet;
+		protected CVar(string Name, CVarType Type) {
 			this.Name = Name;
-			CVarType = Type;
-
-			Val = DefaultValue;
-			Value = Val;
-			this.DefaultValue = Value;
+			this.Type = Type;
 		}
 
-		public override string ToString() {
-			return string.Format("{0} = '{1}', default '{2}'", Name, Value ?? "null", DefaultValue ?? "null");
-		}
+		static List<CVar> CVars = new List<CVar>();
 
-		static List<CVar> CVars;
-		public static bool InitMode;
+		public static CVar<T> Register<T>(string Name, T Value, CVarType Type = CVarType.Default) {
+			if (Find(Name) != null)
+				throw new Exception("Variable already registered '" + Name + "'");
 
-		static CVar() {
-			CVars = new List<CVar>();
-			InitMode = false;
-		}
-
-		public static CVar[] GetAll() {
-			return CVars.ToArray();
+			CVar<T> CVar = new CVar<T>(Name, Value, Type);
+			CVars.Add(CVar);
+			return CVar;
 		}
 
 		public static CVar Find(string Name) {
-			foreach (var V in CVars)
-				if (V.Name == Name)
-					return V;
+			foreach (var CVar in CVars)
+				if (CVar.Name == Name)
+					return CVar;
 
 			return null;
 		}
 
-		public static CVar Register(string Name, object DefaultVal = null, CVarType Type = CVarType.Default, CVarSetFunc OnSet = null, CVarGetFunc OnGet = null) {
-			if (Find(Name) != null)
-				throw new Exception("CVar " + Name + " already registered");
-
-			CVar Var = new CVar(Name, DefaultVal, Type, OnSet, OnGet);
-			CVars.Add(Var);
-			return Var;
+		public static CVar<T> Find<T>(string Name) {
+			return (CVar<T>)Find(Name);
 		}
 
-		public static string GetString(string Name, string Default = "") {
-			CVar CVar = Find(Name);
-
-			if (CVar != null) {
-				object Val = CVar.Value;
-
-				if (Val != null)
-					return Val.ToString();
-			}
-
-			return Default;
+		public static IEnumerable<CVar> GetAll() {
+			return CVars.ToArray();
 		}
 
-		public static int GetInt(string Name, int Default = 0) {
-			string Str = GetString(Name);
-
-			if (int.TryParse(Str, out int I))
-				return I;
-
-			return Default;
+		public static IEnumerable<CVar<T>> GetAll<T>() {
+			foreach (var CVar in CVars)
+				if (CVar is CVar<T>)
+					yield return (CVar<T>)CVar;
 		}
 
-		public static bool GetBool(string Name, bool Default = false) {
-			string Str = GetString(Name).ToLower();
+		public override string ToString() {
+			return string.Format("{0} = '{1}'", Name, ObjectValue);
+		}
+	}
 
-			if (Str == "1")
-				return true;
-			else if (Str == "0")
-				return false;
+	public class CVar<T> : CVar {
+		public virtual T Value {
+			get => (T)ObjectValue;
+			set => ObjectValue = value;
+		}
 
-			if (bool.TryParse(Str, out bool B))
-				return B;
+		internal CVar(string Name, T Value, CVarType Type) : base(Name, Type) {
+			this.Value = Value;
+		}
 
-			return Default;
+		public static implicit operator T(CVar<T> CVar) {
+			return CVar.Value;
 		}
 	}
 }

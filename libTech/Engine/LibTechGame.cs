@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using libTech;
 using libTech.Graphics;
+using libTech.GUI;
 
 namespace libTech {
 	public abstract class LibTechGame {

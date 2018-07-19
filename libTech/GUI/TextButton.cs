@@ -9,26 +9,44 @@ using FishGfx;
 using FishGfx.Graphics;
 
 namespace libTech.GUI {
-	public class TextButton : GUIControl {
-		readonly Vector2 Padding = new Vector2(5);
+	// TODO: Generic button class which inherits non-generic button
+	// Generic type would be a GUIControl which represents what's inside the button
+	// Text button, image button, spinner button, video button....
 
+	public class TextButton : GUIControl {
+		Vector2 Padding = new Vector2(5);
 		Label Lbl;
 		NineSlice ButtonSkin;
 
+		Vector2 _Size;
 		public override Vector2 Size {
-			get => Lbl.Size + Padding * 2;
-			set => Lbl.Size = value - Padding * 2;
+			//get => Lbl.Size;
+			get {
+				return _Size;
+			}
+
+			set {
+				_Size = (value).Max(Lbl.Size);
+				Lbl.Center(Size / 2);
+			}
 		}
 
 		public TextButton(FreetypeFont Font, string Text) {
-			Lbl = AddChild(new Label(Font, Text));
-			Lbl.Position += Padding;
-
 			ButtonSkin = new NineSlice(DefaultTextures.Button, Padding.X);
+
+			Lbl = AddChild(new Label(Font));
+			Lbl.String = Text;
+			Size = Lbl.Size;
+
+			UseScissor = false;
+		}
+
+		public TextButton(FreetypeFont Font, string Text, float Height) : this(Font, Text) {
+			Size = new Vector2(Size.X, Height - Padding.Y * 2);
 		}
 
 		public override bool IsInside(Vector2 Pos) {
-			return base.IsInside(Pos);
+			return new AABB(GlobalPosition - Padding, Size + Padding * 2).IsInside(Pos);
 		}
 
 		public override bool GetItemAt(Vector2 Pos, out GUIControl Ctrl) {
@@ -41,32 +59,32 @@ namespace libTech.GUI {
 			return false;
 		}
 
-		internal override void OnMousePress(Key K, Vector2 Pos) {
-			ButtonSkin.Texture = DefaultTextures.ButtonClick;
+		internal override void SendOnKey(Key K, Vector2 Pos, bool Pressed) {
+			if (K == Key.MouseLeft) {
+				if (Pressed)
+					ButtonSkin.Texture = DefaultTextures.ButtonClick;
+				else {
+					if (IsInside(Pos))
+						ButtonSkin.Texture = DefaultTextures.ButtonHover;
+					else
+						ButtonSkin.Texture = DefaultTextures.Button;
+				}
+			}
 
-			base.OnMousePress(K, Pos);
+			base.SendOnKey(K, Pos, Pressed);
 		}
 
-		internal override void OnMouseRelease(Key K, Vector2 Pos) {
-			if (IsInside(Pos))
-				ButtonSkin.Texture = DefaultTextures.ButtonHover;
-			else
-				ButtonSkin.Texture = DefaultTextures.Button;
-
-			base.OnMouseRelease(K, Pos);
-		}
-
-		internal override void OnMouseEnter(bool Entered) {
+		internal override void SendOnMouseEnter(bool Entered) {
 			if (Entered)
 				ButtonSkin.Texture = DefaultTextures.ButtonHover;
 			else
 				ButtonSkin.Texture = DefaultTextures.Button;
 
-			base.OnMouseEnter(Entered);
+			base.SendOnMouseEnter(Entered);
 		}
 
 		public override void Draw() {
-			ButtonSkin.Position = new Vector3(GlobalPosition, 0);
+			ButtonSkin.Position = GlobalPosition;
 			ButtonSkin.Size = Size;
 			ButtonSkin.Draw();
 

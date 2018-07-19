@@ -10,15 +10,20 @@ using FishGfx.Graphics;
 using libTech.Graphics;
 
 namespace libTech.GUI {
+	public delegate void OnMouseEnterAction(bool Entered);
 	public delegate void OnMouseAction(Key K, Vector2 Pos);
-	public delegate void OnMouseDrag(Key K, Vector2 Pos);
+	public delegate void OnMouseDragAction(Key K, Vector2 Pos);
+	public delegate void OnCharAction(string Char, uint Unicode);
+	public delegate void OnKeyAction(Key K, Vector2 Pos, bool Pressed);
 
 	public class GUIControl {
-		public event OnMouseAction OnClick;
-		public event OnMouseAction OnPress;
-		public event OnMouseAction OnRelease;
-		public event OnMouseDrag OnDrag;
+		public event OnMouseEnterAction OnMouseEnter;
+		public event OnMouseAction OnMouseClick;
+		public event OnMouseDragAction OnMouseDrag;
+		public event OnCharAction OnChar;
+		public event OnKeyAction OnKey;
 
+		protected bool UseScissor = true;
 		protected List<GUIControl> Children;
 
 		public GUIControl Parent;
@@ -67,14 +72,16 @@ namespace libTech.GUI {
 		}
 
 		public virtual void Draw() {
-			Gfx.PushScissor(Scissor);
+			if (UseScissor)
+				Gfx.PushScissor(Scissor);
 
 			foreach (var Ctrl in Children) {
 				if (Scissor.Collide(Ctrl.Scissor))
 					Ctrl.Draw();
 			}
 
-			Gfx.PopScissor();
+			if (UseScissor)
+				Gfx.PopScissor();
 		}
 
 		public virtual bool BringToFront(GUIControl Ctrl, bool Recursive = true) {
@@ -102,8 +109,12 @@ namespace libTech.GUI {
 		}
 
 		public virtual void AddChild(GUIControl Child) {
-			Child.Parent = this;
-			Children.Add(Child);
+			if (Children.Contains(Child)) {
+				BringToFront(Child);
+			} else {
+				Child.Parent = this;
+				Children.Add(Child);
+			}
 		}
 
 		public T AddChild<T>(T Child) where T : GUIControl {
@@ -112,8 +123,16 @@ namespace libTech.GUI {
 		}
 
 		public virtual void RemoveChild(GUIControl Child) {
-			Children.Remove(Child);
-			Child.Parent = null;
+			if (Children.Contains(Child)) {
+				Children.Remove(Child);
+				Child.Parent = null;
+			}
+		}
+
+		public virtual void RemoveAllChildren() {
+			GUIControl[] ChildrenArray = Children.ToArray();
+			foreach (var Child in ChildrenArray)
+				RemoveChild(Child);
 		}
 
 		public virtual bool IsInside(Vector2 Pos) {
@@ -134,31 +153,31 @@ namespace libTech.GUI {
 			return false;
 		}
 
-		internal virtual void OnMouseDrag(Key K, Vector2 Pos) {
-			OnDrag?.Invoke(K, Pos);
+		internal virtual void SendOnMouseDrag(Key K, Vector2 Pos) {
+			OnMouseDrag?.Invoke(K, Pos);
 		}
 
-		internal virtual void OnMouseEnter(bool Entered) {
+		internal virtual void SendOnMouseEnter(bool Entered) {
+			OnMouseEnter?.Invoke(Entered);
 		}
 
-		internal virtual void OnMousePress(Key K, Vector2 Pos) {
-			OnPress?.Invoke(K, Pos);
+		internal virtual void SendOnKey(Key K, Vector2 Pos, bool Pressed) {
+			OnKey?.Invoke(K, Pos, Pressed);
 		}
 
-		internal virtual void OnMouseRelease(Key K, Vector2 Pos) {
-			OnRelease?.Invoke(K, Pos);
+		internal virtual void SendOnMouseClick(Key K, Vector2 Pos) {
+			OnMouseClick?.Invoke(K, Pos);
 		}
 
-		internal virtual void OnMouseClick(Key K, Vector2 Pos) {
-			OnClick?.Invoke(K, Pos);
+		internal virtual void SendOnChar(string Char, uint Unicode) {
+			OnChar?.Invoke(Char, Unicode);
 		}
 	}
 
 	public class libGUI : GUIControl {
 		GUIControl CurrentlyHovered;
-
 		GUIControl LeftClickStart;
-
+		GUIControl SelectedControl;
 		Vector2 MousePos;
 
 		public libGUI() {
@@ -166,48 +185,60 @@ namespace libTech.GUI {
 			Size = new Vector2(float.PositiveInfinity);
 		}
 
-		public void OnMouseMove(Vector2 Pos) {
+		public void SendOnMouseMove(Vector2 Pos) {
 			MousePos = Pos;
 
 			if (LeftClickStart != null)
-				LeftClickStart.OnMouseDrag(Key.MouseLeft, Pos);
+				LeftClickStart.SendOnMouseDrag(Key.MouseLeft, Pos);
 
 			if (GetItemAt(Pos, out GUIControl Ctrl)) {
 				if (CurrentlyHovered == Ctrl)
 					return;
 
-				CurrentlyHovered?.OnMouseEnter(false);
-				Ctrl.OnMouseEnter(true);
+				CurrentlyHovered?.SendOnMouseEnter(false);
+				Ctrl.SendOnMouseEnter(true);
 				CurrentlyHovered = Ctrl;
 				return;
 			}
 
-			CurrentlyHovered?.OnMouseEnter(false);
+			CurrentlyHovered?.SendOnMouseEnter(false);
 			CurrentlyHovered = null;
 		}
 
-		public void OnKey(Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
+		public void SendOnKey(Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			//Console.WriteLine("{0} x {1} : {2} - {3}", MousePos.X, MousePos.Y, Key, Pressed);
 
 			if (Key == Key.MouseLeft) {
 				if (Pressed) {
 					LeftClickStart = GetItemAt(MousePos, out GUIControl Ctrl) ? Ctrl : null;
+					SelectedControl = LeftClickStart;
 
 					if (LeftClickStart != null)
 						BringToFront(LeftClickStart);
 
-					LeftClickStart?.OnMousePress(Key, MousePos);
+					LeftClickStart?.SendOnKey(Key, MousePos, true);
 				} else {
 					if (GetItemAt(MousePos, out GUIControl Ctrl)) {
-						LeftClickStart?.OnMouseRelease(Key, MousePos);
+						LeftClickStart?.SendOnKey(Key, MousePos, false);
 
 						if (Ctrl == LeftClickStart)
-							Ctrl.OnMouseClick(Key, MousePos);
+							Ctrl.SendOnMouseClick(Key, MousePos);
 					}
 
 					LeftClickStart = null;
 				}
+
+				return;
 			}
+
+			SelectedControl?.SendOnKey(Key, MousePos, Pressed);
+		}
+
+		internal override void SendOnChar(string Char, uint Unicode) {
+			if (SelectedControl != null)
+				SelectedControl.SendOnChar(Char, Unicode);
+
+			base.SendOnChar(Char, Unicode);
 		}
 	}
 }

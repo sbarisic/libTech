@@ -14,7 +14,7 @@ namespace libTech.Graphics {
 		public Texture Texture;
 
 		public Quaternion Rotation;
-		public Vector3 Position;
+		public Vector2 Position;
 
 		Vector2 _Size;
 		public Vector2 Size {
@@ -44,6 +44,18 @@ namespace libTech.Graphics {
 			}
 		}
 
+		Color _Color;
+		public Color Color {
+			get {
+				return _Color;
+			}
+			set {
+				_Color = value;
+				Dirty = true;
+			}
+		}
+
+
 		Mesh2D Mesh;
 		bool Dirty;
 
@@ -52,8 +64,9 @@ namespace libTech.Graphics {
 		public NineSlice(Texture NineSlice, float Border) {
 			this.Border = Border;
 
+			Color = Color.White;
 			Rotation = Quaternion.Identity;
-			Position = Vector3.Zero;
+			Position = Vector2.Zero;
 			Size = new Vector2(50, 50);
 
 			Texture = NineSlice;
@@ -75,7 +88,7 @@ namespace libTech.Graphics {
 			//Console.WriteLine("{0} - {1} .. {2}", ID, Pos, Pos + Size);
 
 			Boxes.Add(new Tuple<int, AABB>(ID, new AABB(Pos, Size)));
-			return Vertex2.CreateQuad(Pos, Size, UV, UVSize);
+			return Vertex2.CreateQuad(Pos, Size, UV, UVSize, Color);
 		}
 
 		void Refresh() {
@@ -116,7 +129,7 @@ namespace libTech.Graphics {
 				Refresh();
 			}
 
-			ShaderUniforms.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+			ShaderUniforms.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position, 0).Round());
 
 			DefaultShaders.Text2D.Bind();
 			Texture.BindTextureUnit();

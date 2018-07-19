@@ -34,6 +34,7 @@ namespace libTech.Graphics {
 	public static class DefaultTextures {
 		static DefaultTextures() {
 			Panel = Texture.FromFile("content/textures/gui/panel.png");
+			PanelTransparent = Texture.FromFile("content/textures/gui/panel_transparent.png");
 
 			Button = Texture.FromFile("content/textures/gui/button.png");
 			ButtonHover = Texture.FromFile("content/textures/gui/button_hover.png");
@@ -41,6 +42,7 @@ namespace libTech.Graphics {
 		}
 
 		public static Texture Panel;
+		public static Texture PanelTransparent;
 		public static Texture Button;
 		public static Texture ButtonHover;
 		public static Texture ButtonClick;

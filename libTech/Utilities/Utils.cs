@@ -45,6 +45,22 @@ namespace libTech {
 
 		static Random Rnd = new Random();
 
+		public static char RandomChar() {
+			return (char)Random(33, 127);
+		}
+
+		public static byte RandomByte() {
+			return (byte)Rnd.Next(256);
+		}
+
+		public static FishGfx.Color RandomColor() {
+			return new FishGfx.Color(RandomByte(), RandomByte(), RandomByte());
+		}
+
+		public static string RandomString(int MinInclusiveLen, int MaxExclusiveLen) {
+			return new string(Random(MinInclusiveLen, MaxExclusiveLen).Range().Select(_ => RandomChar()).ToArray());
+		}
+
 		public static int Random(int Inclusive, int Exclusive) {
 			return Rnd.Next(Inclusive, Exclusive);
 		}
@@ -61,18 +77,6 @@ namespace libTech {
 
 		public static Vector2 RandomVec2(float ScaleX = 1, float ScaleY = 1) {
 			return new Vector2(RandomFloat() * ScaleX, RandomFloat() * ScaleY);
-		}
-
-		public static Vector2 Max(this Vector2 V, Vector2 V2) {
-			return new Vector2(Math.Max(V.X, V2.X), Math.Max(V.Y, V2.Y));
-		}
-
-		public static Vector2 Min(this Vector2 V, Vector2 V2) {
-			return new Vector2(Math.Min(V.X, V2.X), Math.Min(V.Y, V2.Y));
-		}
-
-		public static Vector3 XYZ(this Vector4 V) {
-			return new Vector3(V.X, V.Y, V.Z);
 		}
 
 		public static float ToRad(this float Deg) {

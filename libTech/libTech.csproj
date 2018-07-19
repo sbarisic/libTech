@@ -94,6 +94,7 @@
     <Compile Include="Engine\FileWatcher.cs" />
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
+    <Compile Include="GUI\InputBox.cs" />
     <Compile Include="GUI\Label.cs" />
     <Compile Include="GUI\libGUI.cs" />
     <Compile Include="GUI\TextButton.cs" />
@@ -256,6 +257,12 @@
     <Content Include="content\textures\base\base2_normal.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="content\textures\gui\debug_thin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\debug.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="content\textures\gui\crosshair_default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -266,6 +273,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\gui\panel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\panel_transparent.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\msdf_test.png">
