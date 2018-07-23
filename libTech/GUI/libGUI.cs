@@ -172,6 +172,17 @@ namespace libTech.GUI {
 		internal virtual void SendOnChar(string Char, uint Unicode) {
 			OnChar?.Invoke(Char, Unicode);
 		}
+
+		internal virtual void SendOnPaste(string String) {
+		}
+
+		internal virtual string SendOnCopy() {
+			return null;
+		}
+
+		internal virtual string SendOnCut() {
+			return null;
+		}
 	}
 
 	public class libGUI : GUIControl {
@@ -205,16 +216,40 @@ namespace libTech.GUI {
 			CurrentlyHovered = null;
 		}
 
+		public void Select(GUIControl Ctrl) {
+			if (Ctrl != null)
+				BringToFront(Ctrl);
+			SelectedControl = Ctrl;
+		}
+
 		public void SendOnKey(Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			//Console.WriteLine("{0} x {1} : {2} - {3}", MousePos.X, MousePos.Y, Key, Pressed);
+
+			if (Key == Key.V && Mods == KeyMods.Control && Pressed) {
+				SelectedControl?.SendOnPaste(Engine.Window.ClipboardString);
+				return;
+			}
+
+			if (Key == Key.C && Mods == KeyMods.Control && Pressed) {
+				string CopyString = SelectedControl?.SendOnCopy();
+				if (CopyString != null)
+					Engine.Window.ClipboardString = CopyString;
+
+				return;
+			}
+
+			if (Key == Key.X && Mods == KeyMods.Control && Pressed) {
+				string CopyString = SelectedControl?.SendOnCut();
+				if (CopyString != null)
+					Engine.Window.ClipboardString = CopyString;
+
+				return;
+			}
 
 			if (Key == Key.MouseLeft) {
 				if (Pressed) {
 					LeftClickStart = GetItemAt(MousePos, out GUIControl Ctrl) ? Ctrl : null;
-					SelectedControl = LeftClickStart;
-
-					if (LeftClickStart != null)
-						BringToFront(LeftClickStart);
+					Select(LeftClickStart);
 
 					LeftClickStart?.SendOnKey(Key, MousePos, true);
 				} else {
@@ -235,8 +270,10 @@ namespace libTech.GUI {
 		}
 
 		internal override void SendOnChar(string Char, uint Unicode) {
-			if (SelectedControl != null)
+			if (SelectedControl != null) {
 				SelectedControl.SendOnChar(Char, Unicode);
+				return;
+			}
 
 			base.SendOnChar(Char, Unicode);
 		}

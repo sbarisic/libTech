@@ -45,7 +45,7 @@ namespace libTech {
 			//Wnd.AutoResize(new Vector2(Padding));
 
 			//Wnd.Center(Engine.Window.GetWindowSizeVec() / 2);
-			Wnd.Center(Engine.Window.GetWindowSizeVec() / 2);
+			Wnd.Center(Engine.Window.WindowSize / 2);
 			GUI.AddChild(Wnd);
 			return Wnd;
 		}

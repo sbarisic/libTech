@@ -37,9 +37,7 @@ namespace Game {
 
 		Window MainMenuWindow;
 
-		public override void Load() {
-			FreetypeFont MenuFont = DefaultFonts.MainMenuMedium;
-
+		void SpawnMainMenu(FreetypeFont MenuFont) {
 			float Padding = 5;
 			float ButtonHeight = 40;
 
@@ -59,16 +57,16 @@ namespace Game {
 			TextButton Quit = MainMenuWindow.AddChild(new TextButton(MenuFont, "Quit", ButtonHeight));
 			Quit.Position = new Vector2(Padding, ButtonHeight * 0 + Padding);
 			Quit.OnMouseClick += (K, P) => {
-				Engine.CreateYesNoPrompt(QuitPrompts.Random(), () => Environment.Exit(0)).Center((Engine.Window.GetWindowSizeVec() / 2).RandomAround(200));
+				Engine.CreateYesNoPrompt(QuitPrompts.Random(), () => Environment.Exit(0)).Center((Engine.Window.WindowSize / 2).RandomAround(200));
 			};
 
 			MainMenuWindow.AutoResize(new Vector2(Padding));
-			MainMenuWindow.Center(Engine.Window.GetWindowSizeVec() / 2);//*/
+			MainMenuWindow.Center(Engine.Window.WindowSize / 2);
+		}
 
-			GConsole.Open = true;
+		public override void Load() {
+			//SpawnMainMenu(DefaultFonts.MainMenuMedium);
 
-			/*for (int i = 0; i < 10; i++)
-				GConsole.WriteLine(new string(Utils.Random(10, 40).Range().Select(_ => Utils.RandomChar()).ToArray()));*/
 		}
 	}
 }

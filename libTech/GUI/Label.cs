@@ -54,6 +54,10 @@ namespace libTech.GUI {
 			DrawRegion = AABB.Empty;
 		}
 
+		internal override string SendOnCopy() {
+			return String;
+		}
+
 		public virtual void Clear() {
 			String = "";
 			Text.ClearColors();

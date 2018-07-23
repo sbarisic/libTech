@@ -26,11 +26,11 @@ namespace libTech {
 		public static RenderWindow Window;
 		public static libGUI GUI;
 
-		public static CVar<string> GamePath;
-		public static CVar<int> WindowWidth;
-		public static CVar<int> WindowHeight;
-		public static CVar<bool> WindowResizable;
-		public static CVar<bool> WindowBorderless;
+		public static ConVar<string> GamePath;
+		public static ConVar<int> WindowWidth;
+		public static ConVar<int> WindowHeight;
+		public static ConVar<bool> WindowResizable;
+		public static ConVar<bool> WindowBorderless;
 	}
 
 	unsafe static class Program {
@@ -52,13 +52,17 @@ namespace libTech {
 			RunGame();
 		}
 
-		static void ParseVariables() {
-			Engine.GamePath = CVar.Register("game", "basegame", CVarType.Replicated | CVarType.Init);
+		static void InitConsole() {
+			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
 
-			Engine.WindowWidth = CVar.Register("width", 1366, CVarType.Archive);
-			Engine.WindowHeight = CVar.Register("height", 768, CVarType.Archive);
-			Engine.WindowBorderless = CVar.Register("borderless", false, CVarType.Archive);
-			Engine.WindowResizable = CVar.Register("resizable", false, CVarType.Archive);
+			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
+			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
+
+			//Engine.WindowWidth = CVar.Register("width", 800, CVarType.Archive);
+			//Engine.WindowHeight = CVar.Register("height", 600, CVarType.Archive);
+
+			Engine.WindowBorderless = ConVar.Register("borderless", false, ConVarType.Archive);
+			Engine.WindowResizable = ConVar.Register("resizable", true, ConVarType.Archive);
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
@@ -69,8 +73,11 @@ namespace libTech {
 				}
 			}
 
-			foreach (var CVar in CVar.GetAll())
+			foreach (var CVar in ConVar.GetAll())
 				GConsole.WriteLine(CVar);
+
+			ConCmd.Register("exit", (Argv) => Environment.Exit(0));
+			GConsole.RegisterAlias("quit", "exit");
 		}
 
 		static Assembly TryLoadAssembly(string AssemblyName, string BasePath) {
@@ -106,7 +113,7 @@ namespace libTech {
 		}
 
 		static void RunGame() {
-			ParseVariables();
+			InitConsole();
 
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
@@ -114,7 +121,6 @@ namespace libTech {
 			Engine.GUI = new libGUI();
 
 			Engine.Window = new RenderWindow(Engine.WindowWidth, Engine.WindowHeight, "libTech", Engine.WindowResizable);
-			Engine.Window.GetWindowSize(out int W, out int H);
 			Engine.Window.OnMouseMove += OnMouseMove;
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += OnChar;
@@ -126,7 +132,7 @@ namespace libTech {
 				GConsole.WriteLine("Failed to load '{0}'", DllName);
 			GConsole.Color = FishGfx.Color.White;
 
-			ShaderUniforms.Camera.SetOrthogonal(0, 0, W, H);
+			ShaderUniforms.Camera.SetOrthogonal(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
 			float Dt = 0;
 
@@ -161,6 +167,11 @@ namespace libTech {
 		}
 
 		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
+			if (Key == Key.F1 && Pressed) {
+				GConsole.Open = !GConsole.Open;
+				return;
+			}
+
 			Engine.GUI.SendOnKey(Key, Scancode, Pressed, Repeat, Mods);
 		}
 

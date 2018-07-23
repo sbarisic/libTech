@@ -45,6 +45,21 @@ namespace libTech {
 
 		static Random Rnd = new Random();
 
+		public static IEnumerable<string[]> Split(this string[] Array, string Separator) {
+			List<string> Previous = new List<string>();
+
+			foreach (var Item in Array) {
+				if (Item != Separator)
+					Previous.Add(Item);
+				else {
+					yield return Previous.ToArray();
+					Previous.Clear();
+				}
+			}
+
+			yield return Previous.ToArray();
+		}
+
 		public static char RandomChar() {
 			return (char)Random(33, 127);
 		}
