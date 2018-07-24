@@ -9,11 +9,41 @@ using FishGfx.Graphics;
 namespace libTech.Graphics {
 	public static class DefaultShaders {
 		static DefaultShaders() {
-			Text2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+			// 2D
+
+			DefaultTextureColor = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright_color.frag"));
+
+			DefaultColor = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+
+			Line2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line2d.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+
+			Point2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point2d.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+
+			// 3D
+
+			Line3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line3d.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+
+
+			Point3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point3d.vert"),
+				new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
 		}
 
-		public static ShaderProgram Text2D;
+		public static ShaderProgram DefaultTextureColor;
+		public static ShaderProgram DefaultColor;
+		public static ShaderProgram Line2D;
+		public static ShaderProgram Point2D;
+
+		public static ShaderProgram Line3D;
+		public static ShaderProgram Point3D;
 	}
 
 	public static class DefaultFonts {

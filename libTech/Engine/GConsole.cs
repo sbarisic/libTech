@@ -10,8 +10,6 @@ using FishGfx.Graphics;
 using FishGfx;
 
 namespace libTech {
-	// TODO
-
 	public static class GConsole {
 		public static bool Open = false;
 		public static Color Color = Color.White;
@@ -165,6 +163,10 @@ namespace libTech {
 			ConCmd.Register("eval", (Argv) => {
 				SendInputQuiet(string.Join("", Argv.Skip(1)));
 			});
+
+			ConCmd.Register("mousepos", (Argv) => {
+				GConsole.WriteLine((Engine.Window.WindowSize.GetHeight() - Engine.Window.MousePos).Abs());
+			});
 		}
 
 		public static void RegisterAlias(string Alias, string Command) {
@@ -293,7 +295,7 @@ namespace libTech {
 					} else if (Argv.Length == 3 && Argv[1] == "=" && ConVar.TryFind(Argv[0], out Var)) {
 						Var.StringValue = Argv[2];
 
-						if (Echo)
+						if (Echo && Argv.Length != 3)
 							WriteLine(Var);
 					} else if (Argv.Length > 0 && ConCmd.TryFind(Argv[0], out ConCmd Cmd)) {
 						Cmd.Command(Argv);
@@ -313,14 +315,16 @@ namespace libTech {
 			//Line = Line.Replace("=", " = ").Replace(";", " ; ").Replace("\r", "").Replace("\n", "");
 			bool InsideQuote = false;
 
+			const string Symbols = "+-=;";
+
 			char LastChr = (char)0;
 			foreach (var Chr in Line) {
-				if (Chr == ' ' && !InsideQuote) {
+				if (!InsideQuote && Chr == ' ') {
 					if (ParseBuilder.Length > 0) {
 						yield return ParseBuilder.ToString();
 						ParseBuilder.Length = 0;
 					}
-				} else if ((Chr == '=' || Chr == ';' || Chr == '+' || Chr == '-') && !InsideQuote) {
+				} else if (!InsideQuote && Symbols.Contains(Chr)) {
 					if (ParseBuilder.Length > 0) {
 						yield return ParseBuilder.ToString();
 						ParseBuilder.Length = 0;

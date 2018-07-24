@@ -65,7 +65,7 @@ namespace Game {
 		}
 
 		public override void Load() {
-			//SpawnMainMenu(DefaultFonts.MainMenuMedium);
+			SpawnMainMenu(DefaultFonts.MainMenuMedium);
 
 		}
 	}

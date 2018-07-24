@@ -26,6 +26,9 @@ namespace libTech {
 		public static RenderWindow Window;
 		public static libGUI GUI;
 
+		public static Camera Camera3D;
+		public static Camera Camera2D;
+
 		public static ConVar<string> GamePath;
 		public static ConVar<int> WindowWidth;
 		public static ConVar<int> WindowHeight;
@@ -53,7 +56,8 @@ namespace libTech {
 		}
 
 		static void InitConsole() {
-			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
+			//Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
+			Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
 			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
 			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
@@ -62,13 +66,21 @@ namespace libTech {
 			//Engine.WindowHeight = CVar.Register("height", 600, CVarType.Archive);
 
 			Engine.WindowBorderless = ConVar.Register("borderless", false, ConVarType.Archive);
-			Engine.WindowResizable = ConVar.Register("resizable", true, ConVarType.Archive);
+			Engine.WindowResizable = ConVar.Register("resizable", false, ConVarType.Archive);
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
 				switch (Arg.Key) {
 					case "console":
 						GConsole.Open = true;
+						break;
+
+					case "game":
+						Engine.GamePath.Value = Arg.Value.Last();
+						break;
+
+					default:
+						GConsole.Error("Invalid switch '{0}' with value '{1}'", Arg.Key, Arg.Value);
 						break;
 				}
 			}
@@ -132,11 +144,22 @@ namespace libTech {
 				GConsole.WriteLine("Failed to load '{0}'", DllName);
 			GConsole.Color = FishGfx.Color.White;
 
-			ShaderUniforms.Camera.SetOrthogonal(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight);
+			// Graphics init
+			Gfx.Line2D = DefaultShaders.Line2D;
+			Gfx.Point2D = DefaultShaders.Point2D;
+
+			Gfx.Line3D = DefaultShaders.Line3D;
+			Gfx.Point3D = DefaultShaders.Point3D;
+			Gfx.Default2D = DefaultShaders.DefaultColor;
+
+			// Camera init
+			Engine.Camera2D = new Camera();
+			Engine.Camera2D.SetOrthogonal(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight);
+
+			Engine.Camera3D = new Camera();
+			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
 			float Dt = 0;
-
-
 			while (!Engine.Window.ShouldClose) {
 				Update(Dt);
 				Draw(Dt);
@@ -153,9 +176,11 @@ namespace libTech {
 		static void Draw(float Dt) {
 			Gfx.Clear();
 
+			ShaderUniforms.Camera = Engine.Camera3D;
 			Game.Draw(Dt);
 			Game.DrawTransparent(Dt);
 
+			ShaderUniforms.Camera = Engine.Camera2D;
 			Game.DrawGUI(Dt);
 			Engine.GUI.Draw();
 

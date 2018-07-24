@@ -1,16 +1,21 @@
 ﻿#version 450
 
-#define AA 3.0
+//#define Thickness 8.0
+uniform float Thickness;
 
 uniform sampler2D Texture;
 
-layout (location = 0) in vec4 Color;
-layout (location = 1) in float Size;
-layout (location = 2) in float EdgeDistance;
+layout (location = 0) in vec4 Clr;
+
+#define EdgeDistance 0.0
+#define Size 1.0
 
 layout (location = 0) out vec4 OutColor;
 
 void main() {
-	float D = smoothstep(1.0, 1.0 - (AA / Size), abs(EdgeDistance) / Size);
-	OutColor = Color * D;
+	//float D = smoothstep(1.0, 1.0 - (Thickness / Size), abs(EdgeDistance) / Size);
+
+	//OutColor = Clr * D;
+	//OutColor = vec4(1.0, 1.0, 1.0, 1.0);
+	OutColor = Clr;
 }

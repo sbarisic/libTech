@@ -1,13 +1,13 @@
 ﻿#version 450
 
-#define AA 2.0
+//#define Thickness 8.0
+uniform float Thickness;
 
 layout (location = 0) in vec3 Pos;
 layout (location = 1) in vec4 Clr;
 layout (location = 2) in vec2 UV;
 
-layout (location = 0) out vec4 frag_Color;
-layout (location = 1) out float frag_Size;
+layout (location = 0) out vec4 geom_Clr;
 
 uniform mat4 Model;
 uniform mat4 View;
@@ -20,9 +20,7 @@ out gl_PerVertex {
 };
 
 void main() {
-	frag_Color = Clr * vec4(1, 1, 1, smoothstep(0.0, 1.0, UV.x / AA));
-	frag_Size = max(UV.x, AA);
-	gl_PointSize = max(UV.x, AA);
+	geom_Clr = Clr;
 
 	mat4 MVP = Project * View * Model;
 	gl_Position = MVP * vec4(Pos, 1.0);
