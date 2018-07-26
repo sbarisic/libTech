@@ -51,6 +51,12 @@ namespace libTech {
 				throw new Win32Exception();
 
 			FailedToLoadDLLs = new List<string>();
+
+			AppDomain.CurrentDomain.UnhandledException += (S, E) => {
+				if (!Debugger.IsAttached)
+					File.AppendAllText("exceptions.txt", (E.ExceptionObject ?? "Unknown Exception").ToString());
+			};
+
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
 			RunGame();
 		}
@@ -137,7 +143,6 @@ namespace libTech {
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += OnChar;
 			GConsole.Init();
-			LoadGameDll(Engine.GamePath);
 
 			GConsole.Color = FishGfx.Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)
@@ -147,10 +152,11 @@ namespace libTech {
 			// Graphics init
 			Gfx.Line2D = DefaultShaders.Line2D;
 			Gfx.Point2D = DefaultShaders.Point2D;
+			Gfx.Default2D = DefaultShaders.DefaultColor2D;
 
 			Gfx.Line3D = DefaultShaders.Line3D;
 			Gfx.Point3D = DefaultShaders.Point3D;
-			Gfx.Default2D = DefaultShaders.DefaultColor;
+			Gfx.Default3D = DefaultShaders.DefaultColor3D;
 
 			// Camera init
 			Engine.Camera2D = new Camera();
@@ -159,10 +165,13 @@ namespace libTech {
 			Engine.Camera3D = new Camera();
 			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
+			LoadGameDll(Engine.GamePath);
+
 			float Dt = 0;
 			while (!Engine.Window.ShouldClose) {
 				Update(Dt);
 				Draw(Dt);
+				Thread.Sleep(0);
 			}
 		}
 

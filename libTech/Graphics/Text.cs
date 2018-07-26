@@ -150,11 +150,11 @@ namespace libTech.Graphics {
 
 			ShaderUniforms.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position - Offset, 0).Round());
 
-			DefaultShaders.DefaultTextureColor.Bind();
+			DefaultShaders.DefaultTextureColor2D.Bind();
 			Font.TextureAtlas.BindTextureUnit();
 			Mesh.Draw();
 			Font.TextureAtlas.UnbindTextureUnit();
-			DefaultShaders.DefaultTextureColor.Unbind();
+			DefaultShaders.DefaultTextureColor2D.Unbind();
 		}
 	}
 }

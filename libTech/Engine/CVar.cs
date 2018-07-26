@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using libTech.Reflection;
 
@@ -126,9 +127,23 @@ namespace libTech {
 	}
 
 	public class ConVar<T> : ConVar {
+		public bool Threaded = false;
+
 		public virtual T Value {
-			get => (T)ObjectValue;
-			set => ObjectValue = value;
+			get {
+				if (Threaded)
+					lock (this)
+						return (T)ObjectValue;
+
+				return (T)ObjectValue;
+			}
+			set {
+				if (Threaded)
+					lock (this)
+						ObjectValue = value;
+				else
+					ObjectValue = value;
+			}
 		}
 
 		public override string StringValue {

@@ -18,11 +18,27 @@ using FishGfx;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
 using FishGfx.RealSense;
+using System.Threading;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
+		static float NearClip = 0.0001f;
+
 		Window MainMenuWindow;
 		int BtnNum;
+
+		ShaderProgram LegShader;
+
+		ConVar<int> Sparse;
+		ConVar<float> LegLength;
+		ConVar<float> LegWidth;
+		Mesh3D VertsMesh;
+
+		Vertex3[] PointCloudVerts;
+		Vertex3[] ProcessedVerts = new Vertex3[] { new Vertex3() };
+		int ProcessedCount;
+
+		object VertsMeshLock = new object();
 
 		void AddButton(string Name, Action OnClick) {
 			if (MainMenuWindow == null) {
@@ -46,37 +62,93 @@ namespace Game {
 
 		public override void Load() {
 			AddButton("Exit", () => Engine.CreateYesNoPrompt("Exit Program?", () => Environment.Exit(0)).Center((Engine.Window.WindowSize / 2)));
-			AddButton("Camera Stop", RealSenseCamera.Stop);
-			AddButton("Camera Start", RealSenseCamera.Start);
+			AddButton("Stop", RealSenseCamera.Stop);
+			AddButton("Start", RealSenseCamera.Start);
+
+			Engine.Camera3D.SetPerspective(Engine.Window.WindowSize, (90.0f).ToRad(), NearClip, 100);
+
+			LegShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/leg.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/leg.frag"));
+
+			VertsMesh = new Mesh3D();
+			VertsMesh.PrimitiveType = PrimitiveType.Points;
+			VertsMesh.SetVertices(new Vertex3());
+
+			// Variables
+			Sparse = ConVar.Register(nameof(Sparse).ToLower(), 3);
+			//Sparse.Threaded = true;
+
+			LegLength = ConVar.Register(nameof(LegLength).ToLower(), 1.0f);
+			LegWidth = ConVar.Register(nameof(LegWidth).ToLower(), 0.5f);
+
+			Thread PollingThread = new Thread(() => {
+				while (true) {
+					RealSenseCamera.PollForFrames(OnPointCloud: OnPointCloud);
+					Thread.Sleep(0);
+				}
+			});
+			PollingThread.IsBackground = true;
+			PollingThread.Start();
+
+			Engine.Camera3D.Position = new Vector3(0, 0, -1);
+			Engine.Camera3D.LookAt(Vector3.Zero);
+			Engine.Camera3D.Position = new Vector3(0, 0, -NearClip);
 		}
 
 		public override void Draw(float Dt) {
+			ShaderUniforms.Camera = Engine.Camera3D;
 			ShaderUniforms.Model = Matrix4x4.Identity;
 			Gfx.EnableDepthDest(false);
 			Gfx.EnableCullFace(false);
 
-			ShaderUniforms.Camera = Engine.Camera2D;
-			Draw2D();
+			ShaderUniforms.Model = Matrix4x4.CreateRotationZ((float)-Math.PI);
 
-			ShaderUniforms.Camera = Engine.Camera3D;
-			Draw3D();
+			lock (VertsMeshLock)
+				VertsMesh.SetVertices(ProcessedCount, ProcessedVerts);
 
+			LegShader.Bind();
+			VertsMesh.Draw();
+			LegShader.Unbind();
 		}
 
-		void Draw2D() {
-			Gfx.Point(new Vertex2(200, 400));
+		Vertex3[] OnPointCloud(int Count, Vertex3[] Verts, FrameData[] Frames) {
+			if (Verts == null && Frames == null) {
+				if (PointCloudVerts == null || PointCloudVerts.Length < Count) {
+					PointCloudVerts = new Vertex3[Count];
+					ProcessedVerts = new Vertex3[Count];
+				}
 
-			Gfx.Point(new Vertex2(400, 400));
+				return PointCloudVerts;
+			}
 
-			Gfx.Point(new Vertex2(600, 400));
-		}
+			lock (VertsMeshLock) {
+				ProcessedCount = 0;
 
-		void Draw3D() {
-			/*Gfx.Point(new Vertex3(-0.5f, 0, -1));
+				Parallel.For(0, Count, (i) => {
+					if (Verts[i].Position.Z == 0)
+						return;
 
-			Gfx.Point(new Vertex3(0, 0, -2));
+					int SparseValue = Sparse.Value;
+					if (SparseValue != 0) {
+						if (((int)(Verts[i].Position.X * 1000)) % SparseValue != 0)
+							return;
 
-			Gfx.Point(new Vertex3(0.5f, 0, -3));*/
+						if (((int)(Verts[i].Position.Y * 1000)) % SparseValue != 0)
+							return;
+					}
+
+					float LegWidthHalf = LegWidth.Value / 2;
+					if (Verts[i].Position.X < -LegWidthHalf || Verts[i].Position.X > LegWidthHalf)
+						return;
+
+					if (Verts[i].Position.LengthSquared() < (LegLength.Value * LegLength.Value)) {
+						ProcessedVerts[ProcessedCount] = new Vertex3(Verts[i], Frames[1].GetPixel(Verts[i].UV, false));
+						Interlocked.Add(ref ProcessedCount, 1);
+					}
+				});
+			}
+
+			return null;
 		}
 	}
 }

@@ -11,10 +11,10 @@ namespace libTech.Graphics {
 		static DefaultShaders() {
 			// 2D
 
-			DefaultTextureColor = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+			DefaultTextureColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright_color.frag"));
 
-			DefaultColor = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+			DefaultColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
 
 			Line2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line2d.vert"),
@@ -35,15 +35,19 @@ namespace libTech.Graphics {
 			Point3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point3d.vert"),
 				new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
 				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+
+			DefaultColor3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
 		}
 
-		public static ShaderProgram DefaultTextureColor;
-		public static ShaderProgram DefaultColor;
+		public static ShaderProgram DefaultTextureColor2D;
+		public static ShaderProgram DefaultColor2D;
 		public static ShaderProgram Line2D;
 		public static ShaderProgram Point2D;
 
 		public static ShaderProgram Line3D;
 		public static ShaderProgram Point3D;
+		public static ShaderProgram DefaultColor3D;
 	}
 
 	public static class DefaultFonts {
