@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 410
 
 uniform sampler2D Texture;
 uniform mat4 Model;

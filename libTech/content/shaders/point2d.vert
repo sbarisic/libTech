@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 410
 
 //#define Thickness 8.0
 uniform float Thickness;
@@ -12,12 +12,6 @@ layout (location = 0) out vec4 geom_Clr;
 uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Project;
-
-out gl_PerVertex {
-	vec4 gl_Position;
-	float gl_PointSize;
-	float gl_ClipDistance[];
-};
 
 void main() {
 	geom_Clr = Clr;

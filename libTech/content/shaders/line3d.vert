@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 410
 
 #define AA 3.0
 
@@ -12,12 +12,6 @@ layout (location = 1) out float geom_Size;
 uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Project;
-
-out gl_PerVertex {
-	vec4 gl_Position;
-	float gl_PointSize;
-	float gl_ClipDistance[];
-};
 
 void main() {
 	geom_Color = Clr * vec4(1, 1, 1, smoothstep(0.0, 1.0, UV.x / AA));

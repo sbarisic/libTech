@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 410
 
 uniform vec2 Viewport;
 //uniform float Thickness;

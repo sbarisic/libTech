@@ -1,4 +1,4 @@
-﻿#version 450
+﻿#version 410
 
 //#define Thickness 8.0
 uniform float Thickness;
