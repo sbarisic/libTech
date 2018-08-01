@@ -11,33 +11,46 @@ namespace libTech.Graphics {
 		static DefaultShaders() {
 			// 2D
 
-			DefaultTextureColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright_color.frag"));
+			Engine.LogFatal(() => {
+				DefaultTextureColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright_color.frag"));
+			});
 
-			DefaultColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+			Engine.LogFatal(() => {
+				DefaultColor2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default2d.vert"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+			});
 
-			Line2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line2d.vert"),
-				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+			Engine.LogFatal(() => {
+				Line2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line2d.vert"),
+					new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+			});
 
-			Point2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point2d.vert"),
-				new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+			Engine.LogFatal(() => {
+				Point2D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point2d.vert"),
+					new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+			});
 
 			// 3D
 
-			Line3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line3d.vert"),
-				new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+			Engine.LogFatal(() => {
+				Line3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/line3d.vert"),
+					new ShaderStage(ShaderType.GeometryShader, "content/shaders/line.geom"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/line.frag"));
+			});
 
+			Engine.LogFatal(() => {
+				Point3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point3d.vert"),
+					new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
+			});
 
-			Point3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/point3d.vert"),
-				new ShaderStage(ShaderType.GeometryShader, "content/shaders/point.geom"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/point.frag"));
-
-			DefaultColor3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+			Engine.LogFatal(() => {
+				DefaultColor3D = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"),
+					new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_fullbright.frag"));
+			});
 		}
 
 		public static ShaderProgram DefaultTextureColor2D;
@@ -67,12 +80,11 @@ namespace libTech.Graphics {
 
 	public static class DefaultTextures {
 		static DefaultTextures() {
-			Panel = Texture.FromFile("content/textures/gui/panel.png");
-			PanelTransparent = Texture.FromFile("content/textures/gui/panel_transparent.png");
-
-			Button = Texture.FromFile("content/textures/gui/button.png");
-			ButtonHover = Texture.FromFile("content/textures/gui/button_hover.png");
-			ButtonClick = Texture.FromFile("content/textures/gui/button_click.png");
+			Engine.LogFatal(() => Panel = Texture.FromFile("content/textures/gui/panel.png"));
+			Engine.LogFatal(() => PanelTransparent = Texture.FromFile("content/textures/gui/panel_transparent.png"));
+			Engine.LogFatal(() => Button = Texture.FromFile("content/textures/gui/button.png"));
+			Engine.LogFatal(() => ButtonHover = Texture.FromFile("content/textures/gui/button_hover.png"));
+			Engine.LogFatal(() => ButtonClick = Texture.FromFile("content/textures/gui/button_click.png"));
 		}
 
 		public static Texture Panel;

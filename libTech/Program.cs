@@ -34,6 +34,34 @@ namespace libTech {
 		public static ConVar<int> WindowHeight;
 		public static ConVar<bool> WindowResizable;
 		public static ConVar<bool> WindowBorderless;
+
+		public static void LogFatal(string Msg) {
+			Console.WriteLine(Msg);
+			File.AppendAllText("exceptions.txt", Msg + "\n\n");
+		}
+
+		public static void LogFatal(string Fmt, params object[] Args) {
+			LogFatal(string.Format(Fmt, Args));
+		}
+
+		public static void LogFatal(Exception E) {
+			LogFatal(E?.ToString() ?? "Unknown Exception Logged");
+		}
+
+		public static bool LogFatal(Action A) {
+			if (Debugger.IsAttached)
+				A();
+			else {
+				try {
+					A();
+				} catch (Exception E) {
+					LogFatal(E);
+					return true;
+				}
+			}
+
+			return false;
+		}
 	}
 
 	unsafe static class Program {
@@ -54,11 +82,17 @@ namespace libTech {
 
 			AppDomain.CurrentDomain.UnhandledException += (S, E) => {
 				if (!Debugger.IsAttached)
-					File.AppendAllText("exceptions.txt", (E.ExceptionObject ?? "Unknown Exception").ToString());
+					Engine.LogFatal((E.ExceptionObject ?? "Unknown unhandled exception object").ToString());
 			};
 
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
-			RunGame();
+			
+			if (Engine.LogFatal(RunGame)) {
+				Console.WriteLine("\n\nENGINE TERMINATED UNEXPECTEDLY");
+
+				while (true)
+					Thread.Sleep(10);
+			}
 		}
 
 		static void InitConsole() {
@@ -204,6 +238,10 @@ namespace libTech {
 			if (Key == Key.F1 && Pressed) {
 				GConsole.Open = !GConsole.Open;
 				return;
+			} else if (Key == Key.F3 && Pressed) {
+				Engine.Window.ShowCursor = false;
+			} else if (Key == Key.F2 && Pressed) {
+				Engine.Window.ShowCursor = true;
 			}
 
 			Engine.GUI.SendOnKey(Key, Scancode, Pressed, Repeat, Mods);

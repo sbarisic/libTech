@@ -32,6 +32,10 @@ namespace Game {
 		ConVar<int> Sparse;
 		ConVar<float> LegLength;
 		ConVar<float> LegWidth;
+		ConVar<float> PickDistance;
+		ConVar<float> PickSize;
+		ConVar<int> PickSampleNum;
+
 		Mesh3D VertsMesh;
 
 		Vertex3[] PointCloudVerts;
@@ -75,11 +79,21 @@ namespace Game {
 			VertsMesh.SetVertices(new Vertex3());
 
 			// Variables
-			Sparse = ConVar.Register(nameof(Sparse).ToLower(), 3);
-			//Sparse.Threaded = true;
+			Sparse = ConVar.Register(nameof(Sparse).ToLower(), 0); // 3
+			LegLength = ConVar.Register(nameof(LegLength).ToLower(), 100.0f); // 1.0f
+			LegWidth = ConVar.Register(nameof(LegWidth).ToLower(), 100.0f); // 0.5f		
+			PickDistance = ConVar.Register(nameof(PickDistance).ToLower(), 1.0f);
+			PickSize = ConVar.Register(nameof(PickSize).ToLower(), 0.01f); // 0.025f
+			PickSampleNum = ConVar.Register(nameof(PickSampleNum).ToLower(), 10); // 10
 
-			LegLength = ConVar.Register(nameof(LegLength).ToLower(), 1.0f);
-			LegWidth = ConVar.Register(nameof(LegWidth).ToLower(), 0.5f);
+			ConCmd.Register("list", (Argv) => {
+				GConsole.WriteLine(Sparse);
+				GConsole.WriteLine(LegLength);
+				GConsole.WriteLine(LegWidth);
+				GConsole.WriteLine(PickDistance);
+				GConsole.WriteLine(PickSize);
+				GConsole.WriteLine(PickSampleNum);
+			});
 
 			Thread PollingThread = new Thread(() => {
 				while (true) {
@@ -95,13 +109,14 @@ namespace Game {
 			Engine.Camera3D.Position = new Vector3(0, 0, -NearClip);
 		}
 
+		Vector3 CursorWorldPos;
+		int CollisionSamples;
+
 		public override void Draw(float Dt) {
 			ShaderUniforms.Camera = Engine.Camera3D;
-			ShaderUniforms.Model = Matrix4x4.Identity;
+			ShaderUniforms.Model = Matrix4x4.CreateRotationZ((float)-Math.PI);
 			Gfx.EnableDepthDest(false);
 			Gfx.EnableCullFace(false);
-
-			ShaderUniforms.Model = Matrix4x4.CreateRotationZ((float)-Math.PI);
 
 			lock (VertsMeshLock)
 				VertsMesh.SetVertices(ProcessedCount, ProcessedVerts);
@@ -109,6 +124,15 @@ namespace Game {
 			LegShader.Bind();
 			VertsMesh.Draw();
 			LegShader.Unbind();
+
+			//////// 
+
+			Vector2 MousePos = (Engine.Window.WindowSize.GetHeight() - Engine.Window.MousePos) * new Vector2(-1, 1);
+			CursorWorldPos = Engine.Camera3D.ScreenToWorldDirection(MousePos, ShaderUniforms.Model) * PickDistance.Value;
+
+			ShaderUniforms.Camera = Engine.Camera2D;
+			ShaderUniforms.Model = Matrix4x4.Identity;
+			Gfx.Point(new Vertex2(MousePos, (CollisionSamples > PickSampleNum.Value) ? Color.Red : Color.Green), 5);
 		}
 
 		Vertex3[] OnPointCloud(int Count, Vertex3[] Verts, FrameData[] Frames) {
@@ -123,17 +147,26 @@ namespace Game {
 
 			lock (VertsMeshLock) {
 				ProcessedCount = 0;
+				CollisionSamples = 0;
 
 				Parallel.For(0, Count, (i) => {
 					if (Verts[i].Position.Z == 0)
 						return;
 
 					int SparseValue = Sparse.Value;
+					/*if (SparseValue == 69)
+						throw new Exception("WIuajdwiajd");*/
+
 					if (SparseValue != 0) {
-						if (((int)(Verts[i].Position.X * 1000)) % SparseValue != 0)
+						Vector3 XYZ = Verts[i].Position * 1000;
+
+						if (((int)(XYZ.X)) % SparseValue != 0)
 							return;
 
-						if (((int)(Verts[i].Position.Y * 1000)) % SparseValue != 0)
+						if (((int)(XYZ.Y)) % SparseValue != 0)
+							return;
+
+						if (((int)(XYZ.Z)) % SparseValue != 0)
 							return;
 					}
 
@@ -141,10 +174,23 @@ namespace Game {
 					if (Verts[i].Position.X < -LegWidthHalf || Verts[i].Position.X > LegWidthHalf)
 						return;
 
-					if (Verts[i].Position.LengthSquared() < (LegLength.Value * LegLength.Value)) {
-						ProcessedVerts[ProcessedCount] = new Vertex3(Verts[i], Frames[1].GetPixel(Verts[i].UV, false));
-						Interlocked.Add(ref ProcessedCount, 1);
-					}
+					if (Verts[i].Position.LengthSquared() > (LegLength.Value * LegLength.Value))
+						return;
+
+					Color Clr;
+
+					if (Vector2.DistanceSquared(Vector3.Normalize(CursorWorldPos).XY(), Vector3.Normalize(Verts[i].Position).XY()) < PickSize.Value * PickSize.Value) {
+						Clr = Color.Blue;
+
+						if (Vector3.DistanceSquared(Vector3.Zero, CursorWorldPos) > Vector3.DistanceSquared(Vector3.Zero, Verts[i].Position)) {
+							Interlocked.Add(ref CollisionSamples, 1);
+							Clr = Color.Red;
+						}
+					} else
+						Clr = Frames[1].GetPixel(Verts[i].UV, false);
+
+					ProcessedVerts[ProcessedCount] = new Vertex3(Verts[i], Clr);
+					Interlocked.Add(ref ProcessedCount, 1);
 				});
 			}
 

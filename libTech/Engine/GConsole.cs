@@ -167,6 +167,10 @@ namespace libTech {
 			ConCmd.Register("mousepos", (Argv) => {
 				GConsole.WriteLine((Engine.Window.WindowSize.GetHeight() - Engine.Window.MousePos).Abs());
 			});
+
+			ConCmd.Register("crash", (Argv) => {
+				throw new InvalidOperationException("Crashing the program!");
+			});
 		}
 
 		public static void RegisterAlias(string Alias, string Command) {
@@ -302,6 +306,8 @@ namespace libTech {
 					} else
 						Error("Unknown command/variable '{0}'", Argv[0]);
 				} catch (Exception E) {
+					Engine.LogFatal(E);
+
 					Error("{0}: {1}", E.GetType().Name, E.Message);
 				}
 			}

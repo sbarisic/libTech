@@ -127,22 +127,12 @@ namespace libTech {
 	}
 
 	public class ConVar<T> : ConVar {
-		public bool Threaded = false;
-
 		public virtual T Value {
 			get {
-				if (Threaded)
-					lock (this)
-						return (T)ObjectValue;
-
 				return (T)ObjectValue;
 			}
 			set {
-				if (Threaded)
-					lock (this)
-						ObjectValue = value;
-				else
-					ObjectValue = value;
+				ObjectValue = value;
 			}
 		}
 

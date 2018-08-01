@@ -1,7 +1,7 @@
 {
     "rdocCaptureSettings": 1,
     "settings": {
-        "autoStart": true,
+        "autoStart": false,
         "commandLine": "",
         "environment": [
         ],
@@ -16,9 +16,8 @@
             "captureCallstacksOnlyDraws": false,
             "debugOutputMute": true,
             "delayForDebugger": 0,
-            "hookIntoChildren": true,
-            "refAllResources": true,
-            "saveAllInitials": false,
+            "hookIntoChildren": false,
+            "refAllResources": false,
             "verifyMapWrites": false
         },
         "workingDir": ""
