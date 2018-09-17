@@ -150,12 +150,11 @@ namespace Game {
 				CollisionSamples = 0;
 
 				Parallel.For(0, Count, (i) => {
+					// Discard points that are too close to the camera
 					if (Verts[i].Position.Z == 0)
 						return;
 
 					int SparseValue = Sparse.Value;
-					/*if (SparseValue == 69)
-						throw new Exception("WIuajdwiajd");*/
 
 					if (SparseValue != 0) {
 						Vector3 XYZ = Verts[i].Position * 1000;

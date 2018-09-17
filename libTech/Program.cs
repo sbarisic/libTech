@@ -86,7 +86,7 @@ namespace libTech {
 			};
 
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
-			
+
 			if (Engine.LogFatal(RunGame)) {
 				Console.WriteLine("\n\nENGINE TERMINATED UNEXPECTEDLY");
 
@@ -96,8 +96,8 @@ namespace libTech {
 		}
 
 		static void InitConsole() {
-			//Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
-			Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
+			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
+			//Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
 			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
 			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
