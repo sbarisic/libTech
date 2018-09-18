@@ -118,8 +118,10 @@ namespace Game {
 			Gfx.EnableDepthDest(false);
 			Gfx.EnableCullFace(false);
 
-			lock (VertsMeshLock)
-				VertsMesh.SetVertices(ProcessedCount, ProcessedVerts);
+			lock (VertsMeshLock) {
+				VertsMesh.SetVertices(ProcessedVerts, ProcessedCount);
+				// VertsMesh.SetVertices(ProcessedCount, ProcessedVerts);
+			}
 
 			LegShader.Bind();
 			VertsMesh.Draw();
