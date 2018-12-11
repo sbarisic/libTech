@@ -1,17 +1,16 @@
-﻿using System;
+﻿using FishGfx;
+using FishGfx.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Numerics;
-
 //using Texture = System.Drawing.Bitmap;
 using System.Drawing.Imaging;
-using FishGfx.Graphics;
-using FishGfx;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 // TODO: Port to FishGfx
 
@@ -172,13 +171,18 @@ namespace libTech.Graphics {
 			int GlyphIdx = 0;
 
 			foreach (var Unicode in Unicodes) {
-				Glyph G = GetGlyph(Unicode).Value;
+				Glyph? G = GetGlyph(Unicode);
+
+				if (!G.HasValue)
+					continue;
+
+				Glyph Gly = G.Value;
 
 				if (Unicode == '\n') {
 					Pos = new Vector2(StartPos.X, Pos.Y - LineSpacing);
 				} else {
-					OnGlyph(GlyphIdx, Unicode, G, Pos + new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y)));
-					Pos += G.Advance;
+					OnGlyph(GlyphIdx, Unicode, Gly, Pos + new Vector2(Gly.Bearing.X, -(Gly.Size.Y - Gly.Bearing.Y)));
+					Pos += Gly.Advance;
 				}
 
 				GlyphIdx++;
@@ -187,15 +191,18 @@ namespace libTech.Graphics {
 		}
 
 		public Vector2 MeasureString(string Str, out Vector2 OutMin, out Vector2 OutMax) {
-			Vector2 Max = new Vector2(float.MinValue);
-			Vector2 Min = new Vector2(float.MaxValue);
+			Vector2 Max = new Vector2(0);
+			Vector2 Min = new Vector2(0);
+			bool ValuesSet = false;
 
 			GetGlyphs(Str, Vector2.Zero, (GlyphIdx, Unicode, G, Pos) => {
 				Pos -= new Vector2(G.Bearing.X, -(G.Size.Y - G.Bearing.Y));
 				Vector2 TopPos = Pos + G.Size;
 
-				Max = Max.Max(Pos).Max(TopPos);
-				Min = Min.Min(Pos).Min(TopPos);
+				Max = (ValuesSet ? Max : Pos).Max(Pos).Max(TopPos);
+				Min = (ValuesSet ? Min : Pos).Min(Pos).Min(TopPos);
+
+				ValuesSet = true;
 			});
 
 			OutMin = Min;

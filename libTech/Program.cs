@@ -177,6 +177,7 @@ namespace libTech {
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += OnChar;
 			GConsole.Init();
+			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
 			GConsole.Color = FishGfx.Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)
