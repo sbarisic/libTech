@@ -17,13 +17,10 @@ using libTech.Graphics;
 namespace Game {
 	public unsafe class Game : LibTechGame {
 		static string[] QuitPrompts = new string[] {
-				"Are you this stupid?",
 				"     Really?",
 				"Whyyyyyyyyy?",
 				"Are you sure you really want to quit?",
 				"Do you really want to quit?",
-				"Quit? Quitting is for losers.",
-				"Your mum didn't quit ME last night.",
 				"Are you not sure you do not want to not quit the game?",
 				"(\"&#(!% (\"!/$!)\\ =!)\")",
 				"Environment.Exit(0);",
