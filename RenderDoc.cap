@@ -5,7 +5,7 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "E:\\Projects2018\\libTech\\build_dbg\\libTech.exe",
+        "executable": ".\\build_dbg\\libTech.exe",
         "inject": false,
         "options": {
             "allowFullscreen": true,

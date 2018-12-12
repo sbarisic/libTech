@@ -220,11 +220,11 @@ namespace libTech {
 		static void Draw(float Dt) {
 			Gfx.Clear();
 
-			ShaderUniforms.Camera = Engine.Camera3D;
+			ShaderUniforms.Default.Camera = Engine.Camera3D;
 			Game.Draw(Dt);
 			Game.DrawTransparent(Dt);
 
-			ShaderUniforms.Camera = Engine.Camera2D;
+			ShaderUniforms.Default.Camera = Engine.Camera2D;
 			Game.DrawGUI(Dt);
 			Engine.GUI.Draw();
 
