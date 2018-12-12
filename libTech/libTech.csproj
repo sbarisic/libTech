@@ -234,10 +234,6 @@
       <Link>native\x64\glfw3.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\bin\Msdfgen.dll">
-      <Link>native\x64\Msdfgen.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\bin\OpenGL.Net.dll">
       <Link>native\x64\OpenGL.Net.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -329,6 +325,9 @@
     </Content>
     <Content Include="ico.ico" />
     <Content Include="native\x64\freetype.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="native\x64\Msdfgen.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="native\x86\freetype.dll">
