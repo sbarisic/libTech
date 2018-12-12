@@ -1,13 +1,12 @@
-﻿using System;
+﻿using FishGfx;
+using FishGfx.Graphics;
+using FishGfx.Graphics.Drawables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-
-using FishGfx;
-using FishGfx.Graphics;
-using FishGfx.Graphics.Drawables;
 
 namespace libTech.Graphics {
 	struct ColorEntry {
@@ -148,9 +147,9 @@ namespace libTech.Graphics {
 			if (EmptyString)
 				return;
 
-			ShaderUniforms.Default.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position - Offset, 0).Round());
+			ShaderUniforms.Default.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position - new Vector2(0, Font.LineHeight) , 0).Round());
 
-			DefaultShaders.DefaultTextureColor2D.Bind();
+			DefaultShaders.DefaultTextureColor2D.Bind(ShaderUniforms.Default);
 			Font.TextureAtlas.BindTextureUnit();
 			Mesh.Draw();
 			Font.TextureAtlas.UnbindTextureUnit();

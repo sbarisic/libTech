@@ -1,16 +1,25 @@
-﻿using System;
+﻿using libTech;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Numerics;
-using libTech;
 
 namespace libTech.libNative {
 	internal struct Vertex {
 		public Vector4 Position;
-		byte A, B, G, R;
+		public byte A, B, G, R;
+
+		public Vertex(byte R, byte G, byte B) {
+			this.R = R;
+			this.G = G;
+			this.B = B;
+			A = 255;
+
+			Position = Vector4.Zero;
+		}
 
 		public Vector4 Color {
 			get {
@@ -30,7 +39,7 @@ namespace libTech.libNative {
 		//const CallingConvention CConv = CallingConvention.Cdecl;
 		const CallingConvention CConv = CallingConvention.StdCall;
 
-		public static Action<Im3dPrimitiveType, Vertex[]> OnRender;
+		public static Action<Im3dPrimitiveType, Vertex[]> OnRender = null;
 
 		static void Render(Im3dPrimitiveType PrimitiveType, IntPtr Vertices, uint VertexCount) {
 			OnRender?.Invoke(PrimitiveType, new Vertex[VertexCount].Fill(Vertices));

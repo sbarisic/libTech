@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using libTech;
+﻿using libTech;
 using libTech.Entities;
+using libTech.Graphics;
+using libTech.GUI;
 using libTech.Importer;
 using libTech.libNative;
-using libTech.GUI;
-using libTech.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using Color = FishGfx.Color;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
@@ -32,10 +33,10 @@ namespace Game {
 				"         What?",
 			};
 
-		Window MainMenuWindow;
+		//Window MainMenuWindow;
 
 		void SpawnMainMenu(FreetypeFont MenuFont) {
-			float Padding = 5;
+			/*float Padding = 5;
 			float ButtonHeight = 40;
 
 			MainMenuWindow = Engine.GUI.AddChild(new Window());
@@ -58,12 +59,45 @@ namespace Game {
 			};
 
 			MainMenuWindow.AutoResize(new Vector2(Padding));
-			MainMenuWindow.Center(Engine.Window.WindowSize / 2);
+			MainMenuWindow.Center(Engine.Window.WindowSize / 2);*/
+
+
 		}
+
+		Text Txt;
 
 		public override void Load() {
 			SpawnMainMenu(DefaultFonts.MainMenuMedium);
+			Txt = new Text(DefaultFonts.MainMenuSmall, "");
 
+			for (int i = 0; i < 30; i++) {
+				Txt.SetColor(new Color(255, 255, 255));
+				Txt.String += string.Format("{0}. - ", i);
+				
+				for (int j = 0; j < (i * i) / 8 + 1; j++) {
+					Txt.SetColor(new[] {
+						new Color(20, 12, 28), new Color(68, 36, 52), new Color(48, 52, 109),
+						new Color(78, 74, 78), new Color(133, 76, 48), new Color(52, 101, 36),
+						new Color(208, 70, 72), new Color(117, 113, 97), new Color(89, 125, 206),
+						new Color(210, 125, 44), new Color(133, 149, 161), new Color(109, 170, 44),
+						new Color(210, 170, 153), new Color(109, 194, 202), new Color(218, 212, 94),
+						new Color(222, 238, 214) }.Random());
+
+					Txt.String += ("QWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnm1234567890".Random());
+				}
+
+				Txt.String += "\n";
+			}
+
+			Txt.Position = new Vector2(0, Engine.WindowHeight);
+			//Txt.Position = Vector2.Zero;
+		}
+
+		public override void DrawGUI(float Dt) {
+			base.DrawGUI(Dt);
+
+			FishGfx.Graphics.Gfx.Clear(new Color(20, 20, 20, 0));
+			Txt.Draw();
 		}
 	}
 }
