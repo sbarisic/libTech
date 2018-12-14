@@ -1,4 +1,6 @@
-﻿using libTech;
+﻿using FishGfx;
+using FishGfx.Graphics;
+using libTech;
 using libTech.Entities;
 using libTech.Graphics;
 using libTech.GUI;
@@ -73,7 +75,7 @@ namespace Game {
 			for (int i = 0; i < 30; i++) {
 				Txt.SetColor(new Color(255, 255, 255));
 				Txt.String += string.Format("{0}. - ", i);
-				
+
 				for (int j = 0; j < (i * i) / 8 + 1; j++) {
 					Txt.SetColor(new[] {
 						new Color(20, 12, 28), new Color(68, 36, 52), new Color(48, 52, 109),
@@ -95,8 +97,10 @@ namespace Game {
 
 		public override void DrawGUI(float Dt) {
 			base.DrawGUI(Dt);
+			
+			Gfx.Clear(new Color(100, 100, 100, 0));
+			Gfx.Line(new Vertex2(new Vector2(0, 0), Color.Red), new Vertex2(new Vector2(100, -100), Color.Red), 10);
 
-			FishGfx.Graphics.Gfx.Clear(new Color(20, 20, 20, 0));
 			Txt.Draw();
 		}
 	}

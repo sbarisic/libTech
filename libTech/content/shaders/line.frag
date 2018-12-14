@@ -18,4 +18,5 @@ void main() {
 	//OutColor = Clr * D;
 	//OutColor = vec4(1.0, 1.0, 1.0, 1.0);
 	OutColor = Clr;
+	//OutColor = vec4(1, 1, 1, 1);
 }
