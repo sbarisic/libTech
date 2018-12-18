@@ -15,16 +15,15 @@ namespace libTech {
 		public static Color Color = Color.White;
 		public static bool Echo = true;
 
-		static Window ConsoleWindow;
-
-		static Label Output;
-		static InputBox Input;
+		//static Window ConsoleWindow;
+		//static Label Output;
+		//static InputBox Input;
 
 		static StringBuilder TempBuffer = new StringBuilder();
 		static Dictionary<string, string> Aliases = new Dictionary<string, string>();
 
 		internal static void Init() {
-			ConsoleWindow = new Window();
+			/*ConsoleWindow = new Window();
 			ConsoleWindow.ResizableHorizontal = false;
 			ConsoleWindow.Movable = false;
 			ConsoleWindow.Color = new Color(255, 255, 255, 200);
@@ -49,13 +48,14 @@ namespace libTech {
 			if (TempBuffer.Length > 0) {
 				Output.AppendString(TempBuffer.ToString());
 				TempBuffer.Clear();
-			}
+			}//*/
 
 			ConVar<float> ConHeight = ConVar.Register("con_height", 0.4f, ConVarType.Archive);
-			const float Padding = 10;
+			//const float Padding = 10;
 
-			ConsoleWindow.Position = new Vector2(Padding, (int)(Engine.WindowHeight * ConHeight) + Padding);
-			ConsoleWindow.Size = new Vector2(Engine.WindowWidth - Padding * 2, (int)(Engine.WindowHeight * (1.0f - ConHeight)) - Padding * 2);
+			//ConsoleWindow.Position = new Vector2(Padding, (int)(Engine.WindowHeight * ConHeight) + Padding);
+			//ConsoleWindow.Size = new Vector2(Engine.WindowWidth - Padding * 2, (int)(Engine.WindowHeight * (1.0f - ConHeight)) - Padding * 2);
+
 
 			ConCmd.Register("clear", (Argv) => {
 				Clear();
@@ -192,30 +192,17 @@ namespace libTech {
 		}
 
 		internal static void Update() {
-			if (Open && ConsoleWindow.Parent == null) {
-				Engine.GUI.AddChild(ConsoleWindow);
-				Engine.GUI.Select(Input);
-			} else if (!Open && ConsoleWindow.Parent != null)
-				Engine.GUI.RemoveChild(ConsoleWindow);
+			// TODO
 		}
 
 		public static void Clear() {
-			if (Output == null)
-				return;
-
-			Output.Clear();
-			ConsoleWindow.Size = ConsoleWindow.Size;
+			// TODO
 		}
 
 		public static void Write(string Msg) {
 			Console.Write(Msg);
 
-			if (Output == null) {
-				TempBuffer.Append(Msg);
-				return;
-			}
-
-			Output.AppendString(Msg, Color);
+			// TODO
 		}
 
 		public static void Write(object Val) {

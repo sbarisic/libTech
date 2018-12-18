@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Numerics;
-using System.IO;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.ComponentModel;
-using System.Diagnostics;
-using CARP;
-
-using libTech.GUI;
-using libTech.Reflection;
-using libTech.Importer;
-
+﻿using CARP;
 using FishGfx.Graphics;
 using FishGfx.System;
 using libTech.Graphics;
+using libTech.GUI;
+using libTech.Importer;
+using libTech.Reflection;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace libTech {
 	static partial class Engine {
@@ -173,9 +171,10 @@ namespace libTech {
 			Engine.GUI = new libGUI();
 
 			Engine.Window = new RenderWindow(Engine.WindowWidth, Engine.WindowHeight, "libTech", Engine.WindowResizable);
-			Engine.Window.OnMouseMove += OnMouseMove;
+			Engine.Window.OnMouseMove += Engine.GUI.OnMouseMove;
 			Engine.Window.OnKey += OnKey;
-			Engine.Window.OnChar += OnChar;
+			Engine.Window.OnChar += Engine.GUI.OnChar;
+			
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
@@ -185,13 +184,10 @@ namespace libTech {
 			GConsole.Color = FishGfx.Color.White;
 
 			// Graphics init
-			Gfx.Line2D = DefaultShaders.Line2D;
-			Gfx.Point2D = DefaultShaders.Point2D;
-			Gfx.Default2D = DefaultShaders.DefaultColor2D;
-
-			Gfx.Line3D = DefaultShaders.Line3D;
-			Gfx.Point3D = DefaultShaders.Point3D;
-			Gfx.Default3D = DefaultShaders.DefaultColor3D;
+			Gfx.ShadersDirectory = "content/shaders";
+			//Gfx.Line3D = DefaultShaders.Line3D;
+			//Gfx.Point3D = DefaultShaders.Point3D;
+			//Gfx.Default3D = DefaultShaders.DefaultColor3D;
 
 			// Camera init
 			Engine.Camera2D = new Camera();
@@ -225,16 +221,17 @@ namespace libTech {
 			Game.DrawTransparent(Dt);
 
 			ShaderUniforms.Default.Camera = Engine.Camera2D;
+			RenderState State = Gfx.PeekRenderState();
+			State.EnableDepthTest = false;
+			Gfx.PushRenderState(State);
+
 			Game.DrawGUI(Dt);
 			Engine.GUI.Draw();
 
+			Gfx.PopRenderState();
 			Engine.Window.SwapBuffers();
 		}
-
-		private static void OnChar(RenderWindow Wnd, string Char, uint Unicode) {
-			Engine.GUI.SendOnChar(Char, Unicode);
-		}
-
+		
 		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			if (Key == Key.F1 && Pressed) {
 				GConsole.Open = !GConsole.Open;
@@ -245,11 +242,7 @@ namespace libTech {
 				Engine.Window.ShowCursor = true;
 			}
 
-			Engine.GUI.SendOnKey(Key, Scancode, Pressed, Repeat, Mods);
-		}
-
-		private static void OnMouseMove(RenderWindow Wnd, float X, float Y) {
-			Engine.GUI.SendOnMouseMove(new Vector2(X, Engine.WindowHeight - Y));
+			Engine.GUI.OnKey(Wnd, Key, Scancode, Pressed, Repeat, Mods);
 		}
 	}
 }

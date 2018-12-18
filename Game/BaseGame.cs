@@ -94,11 +94,11 @@ namespace Game {
 			Txt.Position = new Vector2(0, Engine.WindowHeight);
 			//Txt.Position = Vector2.Zero;
 		}
-
+	
 		public override void DrawGUI(float Dt) {
 			base.DrawGUI(Dt);
 			
-			Gfx.Clear(new Color(100, 100, 100, 0));
+			//Gfx.Clear(new Color(100, 100, 100, 0));
 			Gfx.Line(new Vertex2(new Vector2(0, 0), Color.Red), new Vertex2(new Vector2(100, -100), Color.Red), 10);
 
 			Txt.Draw();

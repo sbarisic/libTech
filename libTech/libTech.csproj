@@ -80,7 +80,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Engine\GUIManagement.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
     <Compile Include="Graphics\Text.cs" />
@@ -95,11 +94,7 @@
     <Compile Include="Engine\FileWatcher.cs" />
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
-    <Compile Include="GUI\InputBox.cs" />
-    <Compile Include="GUI\Label.cs" />
     <Compile Include="GUI\libGUI.cs" />
-    <Compile Include="GUI\TextButton.cs" />
-    <Compile Include="GUI\Window.cs" />
     <Compile Include="Importer\Importer.cs" />
     <Compile Include="Importer\Importer_Texture.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
