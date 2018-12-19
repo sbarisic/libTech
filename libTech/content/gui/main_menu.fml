@@ -1,0 +1,3 @@
+﻿window title = "Test Window" width = 200 height = 160 movable resizable {
+	button text = "OK" { }
+}

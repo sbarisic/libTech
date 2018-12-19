@@ -75,6 +75,11 @@
       <Name>FishGfx</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\FML\FishMarkupLanguage\FishMarkupLanguage.csproj">
+      <Project>{deba5fb3-ec87-493f-9908-e04242fe290d}</Project>
+      <Name>FishMarkupLanguage</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\libTech\libTech.csproj">
       <Project>{a0c03244-d714-4bfe-8a14-23d809d9211a}</Project>
       <Name>libTech</Name>
