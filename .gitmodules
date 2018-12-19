@@ -1,3 +1,6 @@
 [submodule "FishGfx"]
 	path = FishGfx
 	url = https://github.com/sbarisic/FishGfx
+[submodule "FML"]
+	path = FML
+	url = https://github.com/sbarisic/FML

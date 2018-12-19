@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libNative", "libNative\libN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishGfx", "FishGfx\FishGfx\FishGfx.csproj", "{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishMarkupLanguage", "FML\FishMarkupLanguage\FishMarkupLanguage.csproj", "{DEBA5FB3-EC87-493F-9908-E04242FE290D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_Advanced|Any CPU = Debug_Advanced|Any CPU
@@ -115,6 +117,24 @@ Global
 		{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}.Release|x64.Build.0 = Release|x64
 		{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}.Release|x86.ActiveCfg = Release|x86
 		{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}.Release|x86.Build.0 = Release|x86
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|Any CPU.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|x64.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|x64.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|x86.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug_Advanced|x86.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|x64.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Debug|x86.Build.0 = Debug|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|x64.ActiveCfg = Release|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|x64.Build.0 = Release|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|x86.ActiveCfg = Release|Any CPU
+		{DEBA5FB3-EC87-493F-9908-E04242FE290D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

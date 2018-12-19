@@ -232,6 +232,11 @@
       <Name>FishGfx</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\FML\FishMarkupLanguage\FishMarkupLanguage.csproj">
+      <Project>{deba5fb3-ec87-493f-9908-e04242fe290d}</Project>
+      <Name>FishMarkupLanguage</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\bin\FishGfx.dll">
@@ -244,6 +249,10 @@
     </Content>
     <Content Include="..\bin\OpenGL.Net.dll">
       <Link>native\x64\OpenGL.Net.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FML\bin\FishMarkupLanguage.dll">
+      <Link>native\x64\FishMarkupLanguage.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll">
