@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -36,20 +37,26 @@ namespace Game {
 			"         What?",
 		};
 
-		public override void Load() {
-			FMLDocument Doc = new FMLDocument();
-			Doc.TagSet.AddTags("window", "button", "label");
-			FML.Parse("content/gui/main_menu.fml", Doc);
+		FMLDocument Doc;
+		FileSystemWatcher FSW;
 
+		public override void Load() {
+			Doc = new FMLDocument();
+			Doc.TagSet.AddTags("root", "window", "button", "label");
+
+			FSW = new FileSystemWatcher("content/gui", "main_menu.fml");
+			FSW.Changed += (S, E) => {
+				FML.Parse("content/gui/main_menu.fml", Doc);
+			};
+			FSW.EnableRaisingEvents = true;
+
+			FML.Parse("content/gui/main_menu.fml", Doc);
 		}
 
 		public override void DrawGUI(float Dt) {
 			base.DrawGUI(Dt);
 
-			//Gfx.Clear(new Color(100, 100, 100, 0));
-			/*Gfx.Line(new Vertex2(new Vector2(0, 0), Color.Red), new Vertex2(new Vector2(100, -100), Color.Red), 10);
-
-			Txt.Draw();*/
+			Engine.GUI.DrawDocument(Doc);
 		}
 	}
 }

@@ -1,3 +1,11 @@
-﻿window title = "Test Window" width = 200 height = 160 movable resizable {
-	button text = "OK" { }
+﻿root {
+	window title = "Test Window" x = 100 y = 100 width = 200 height = 130 movable resizable {
+		button text = "OK" { }
+		button text = "Another Button" { }
+	}
+
+	window title = "Test Window #2" x = 400 y = 100 width = 200 height = 200 minimizable = false {
+		button text = "OK" { }
+		button text = "Another Button" { }
+	}
 }

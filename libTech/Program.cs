@@ -174,6 +174,8 @@ namespace libTech {
 			Engine.Window.OnMouseMove += Engine.GUI.OnMouseMove;
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += Engine.GUI.OnChar;
+
+			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 			
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);

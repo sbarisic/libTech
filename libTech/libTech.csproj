@@ -235,6 +235,16 @@
       <Name>FishGfx</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\FishGfx\FishGfx_Nuklear\FishGfx_Nuklear.csproj">
+      <Project>{49ddfa9f-6b29-467e-a147-9435f55ea0fd}</Project>
+      <Name>FishGfx_Nuklear</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FishGfx\submodule_NuklearDotNet\NuklearDotNet\NuklearDotNet.csproj">
+      <Project>{bdb132a4-22a1-479d-a4d0-0a2b00021f16}</Project>
+      <Name>NuklearDotNet</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FML\FishMarkupLanguage\FishMarkupLanguage.csproj">
       <Project>{deba5fb3-ec87-493f-9908-e04242fe290d}</Project>
       <Name>FishMarkupLanguage</Name>
@@ -252,6 +262,18 @@
     </Content>
     <Content Include="..\bin\OpenGL.Net.dll">
       <Link>native\x64\OpenGL.Net.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FishGfx\bin\FishGfx_Nuklear.dll">
+      <Link>native\x64\FishGfx_Nuklear.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FishGfx\submodule_NuklearDotNet\binaries\Nuklear.dll">
+      <Link>native\x64\Nuklear.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FishGfx\submodule_NuklearDotNet\bin_dbg\NuklearDotNet.dll">
+      <Link>native\x64\NuklearDotNet.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\FML\bin\FishMarkupLanguage.dll">
