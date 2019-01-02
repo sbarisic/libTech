@@ -4,6 +4,3 @@
 [submodule "FML"]
 	path = FML
 	url = https://github.com/sbarisic/FML
-[submodule "WaveFunctionCollapse"]
-	path = WaveFunctionCollapse
-	url = https://github.com/mxgmn/WaveFunctionCollapse
