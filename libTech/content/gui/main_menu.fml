@@ -1,11 +1,18 @@
 ﻿root {
-	window title = "Test Window" x = 100 y = 100 width = 200 height = 130 movable resizable {
-		button text = "OK" { }
-		button text = "Another Button" { }
+	panel x = 100 y = 400 width = 160 height = 100 {
+		button text = "New Game";
+		button text = "Quit" onclick = [[
+			Script.Invoke( delegate ( ) { } )
+		]];
 	}
 
-	window title = "Test Window #2" x = 400 y = 100 width = 200 height = 200 minimizable = false {
-		button text = "OK" { }
-		button text = "Another Button" { }
+	window title = "Console" x = 500 y = 250 width = 600 height = 400 movable resizable closable noscrollbar nolayout {
+		layout dynamic height = [[ Window.H - 85 ]] {
+			input editor readonly;
+		}
+
+		layout dynamic {
+			input field;
+		}
 	}
 }

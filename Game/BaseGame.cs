@@ -40,23 +40,30 @@ namespace Game {
 		FMLDocument Doc;
 		FileSystemWatcher FSW;
 
+		object Locke = new object();
+
 		public override void Load() {
 			Doc = new FMLDocument();
-			Doc.TagSet.AddTags("root", "window", "button", "label");
+			Doc.TagSet.AddTags("root", "window", "button", "label", "panel", "input", "layout", "row");
 
 			FSW = new FileSystemWatcher("content/gui", "main_menu.fml");
 			FSW.Changed += (S, E) => {
-				FML.Parse("content/gui/main_menu.fml", Doc);
+				lock (Locke) {
+					FML.Parse("content/gui/main_menu.fml", Doc);
+				}
 			};
 			FSW.EnableRaisingEvents = true;
 
 			FML.Parse("content/gui/main_menu.fml", Doc);
+			// TODO: Assign actions
 		}
 
 		public override void DrawGUI(float Dt) {
 			base.DrawGUI(Dt);
 
-			Engine.GUI.DrawDocument(Doc);
+			lock (Locke) {
+				Engine.GUI.DrawDocument(Doc);
+			}
 		}
 	}
 }

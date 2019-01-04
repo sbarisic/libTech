@@ -227,10 +227,10 @@ namespace libTech {
 			State.EnableDepthTest = false;
 			Gfx.PushRenderState(State);
 
-			Game.DrawGUI(Dt);
-			Engine.GUI.Draw();
+			Engine.GUI.Draw(() => Game.DrawGUI(Dt));
 
 			Gfx.PopRenderState();
+
 			Engine.Window.SwapBuffers();
 		}
 		
