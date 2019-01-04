@@ -68,12 +68,10 @@ namespace libTech {
 		static List<string> FailedToLoadDLLs;
 
 		static void Main(string[] args) {
-			string DllDirectory = "native/x86";
-
-			if (IntPtr.Size == 8)
-				DllDirectory = "native/x64";
-
-			if (!Kernel32.SetDllDirectory(DllDirectory))
+			if (IntPtr.Size != 8)
+				throw new Exception("x86 not supported");
+			
+			if (!Kernel32.SetDllDirectory("native"))
 				throw new Win32Exception();
 
 			FailedToLoadDLLs = new List<string>();
@@ -83,7 +81,7 @@ namespace libTech {
 					Engine.LogFatal((E.ExceptionObject ?? "Unknown unhandled exception object").ToString());
 			};
 
-			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
+			//AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, DllDirectory);
 
 			if (Engine.LogFatal(RunGame)) {
 				Console.WriteLine("\n\nENGINE TERMINATED UNEXPECTEDLY");
