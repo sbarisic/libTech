@@ -39,15 +39,13 @@ namespace libTech {
 		}
 
 		private static void OnChanged(object S, FileSystemEventArgs E) {
-			//GConsole.WriteLine("File changed: {0}", E.FullPath);
-
 			FileWatchHandle H = Watch(E.FullPath);
+
 			if (H != null)
 				H.HasChanged = true;
 		}
 
 		private static void OnCreated(object S, FileSystemEventArgs E) {
-			//GConsole.WriteLine("File created: {0}", E.FullPath);
 		}
 	}
 

@@ -1,6 +1,5 @@
 ﻿using FishGfx;
 using FishGfx.Graphics;
-using FishMarkupLanguage;
 using libTech;
 using libTech.Entities;
 using libTech.Graphics;
@@ -38,35 +37,29 @@ namespace Game {
 			"         What?",
 		};
 
-		FMLDocument Doc;
-		FileSystemWatcher FSW;
-
-		object Locke = new object();
+		GUIDocument Doc;
 
 		public override void Load() {
-			Doc = new FMLDocument();
-			Doc.TagSet.AddTags("root", "window", "button", "label", "panel", "input", "layout", "row");
-
-			FSW = new FileSystemWatcher("content/gui", "main_menu.fml");
-			FSW.Changed += (S, E) => {
-				lock (Locke) {
-					FML.Parse("content/gui/main_menu.fml", Doc);
-				}
-			};
-			FSW.EnableRaisingEvents = true;
-
-			FML.Parse("content/gui/main_menu.fml", Doc);
+			Doc = new GUIDocument("content/gui/main_menu.fml");
 
 			Lua.Set(Lua.GUIEnvironment, "OnNewGame", new Action(() => { }));
 			Lua.Set(Lua.GUIEnvironment, "OnQuit", new Action(() => Environment.Exit(0)));
 		}
 
+		public override void Update(float Dt) {
+			base.Update(Dt);
+
+			try {
+				Doc.UpdateIfChanged();
+			} catch (Exception E) {
+				Console.WriteLine(E);
+			}
+		}
+
 		public override void DrawGUI(float Dt) {
 			base.DrawGUI(Dt);
 
-			lock (Locke) {
-				Engine.GUI.DrawDocument(Doc);
-			}
+			Engine.GUI.DrawDocument(Doc);
 		}
 	}
 }

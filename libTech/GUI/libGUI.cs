@@ -95,8 +95,9 @@ namespace libTech.GUI {
 
 		}
 
-		public void DrawDocument(FMLDocument Doc) {
-			PaintTags(Doc.Tags);
+		public void DrawDocument(GUIDocument Doc) {
+			lock (Doc)
+				PaintTags(Doc.Tags);
 		}
 
 		void PaintTags(IEnumerable<FMLTag> Tags) {

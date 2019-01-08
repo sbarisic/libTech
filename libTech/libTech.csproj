@@ -110,6 +110,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Reflect.cs" />
+    <Compile Include="Scripting\GUIDocument.cs" />
     <Compile Include="Scripting\Lua.cs" />
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />

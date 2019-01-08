@@ -76,7 +76,7 @@
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\FML\FishMarkupLanguage\FishMarkupLanguage.csproj">
-      <Project>{deba5fb3-ec87-493f-9908-e04242fe290d}</Project>
+      <Project>{DEBA5FB3-EC87-493F-9908-E04242FE290D}</Project>
       <Name>FishMarkupLanguage</Name>
       <Private>False</Private>
     </ProjectReference>
