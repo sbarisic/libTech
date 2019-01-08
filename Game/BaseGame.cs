@@ -7,6 +7,7 @@ using libTech.Graphics;
 using libTech.GUI;
 using libTech.Importer;
 using libTech.libNative;
+using libTech.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -55,7 +56,9 @@ namespace Game {
 			FSW.EnableRaisingEvents = true;
 
 			FML.Parse("content/gui/main_menu.fml", Doc);
-			// TODO: Assign actions
+
+			Lua.Set(Lua.GUIEnvironment, "OnNewGame", new Action(() => { }));
+			Lua.Set(Lua.GUIEnvironment, "OnQuit", new Action(() => Environment.Exit(0)));
 		}
 
 		public override void DrawGUI(float Dt) {

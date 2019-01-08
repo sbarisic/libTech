@@ -3,68 +3,66 @@ using FishGfx.Graphics;
 using FishGfx_Nuklear;
 using FishMarkupLanguage;
 using libTech.Graphics;
+using libTech.Scripting;
 using NuklearDotNet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
+using LuaFuncRef = LuaNET.LuaFuncRef;
+using LuaReference = LuaNET.LuaReference;
 
 namespace libTech.GUI {
-	struct ParamDef {
-		public Type T;
+	public class ScriptArg {
 		public string Name;
+		public object Value;
 
-		public ParamDef(Type T, string Name) {
-			this.T = T;
+		public ScriptArg(string Name, object Value) {
 			this.Name = Name;
+			this.Value = Value;
 		}
 	}
 
 	static class libGUIScriptManager {
-		public class ScriptState {
-			public bool Invoke(Action A) {
-				A();
-				return true;
-			}
+		static Dictionary<string, LuaFuncRef> Scripts = new Dictionary<string, LuaFuncRef>();
 
-			public bool Wat() {
-				return true;
-			}
-		}
-
-		static Dictionary<string, Delegate> Scripts = new Dictionary<string, Delegate>();
-		static ScriptState ScriptStateInstance = new ScriptState();
-
-		static Delegate CacheCompile(string Script, params ParamDef[] Params) {
-			Delegate ScriptDelegate = null;
-
-			List<ParamDef> ParamsDefList = new List<ParamDef>();
-			ParamsDefList.Add(new ParamDef(typeof(ScriptState), "Script"));
-
-			if (Params != null)
-				ParamsDefList.AddRange(Params);
+		static LuaFuncRef CacheCompile(string Script) {
+			LuaFuncRef ScriptDelegate = null;
+			Script = Script.Trim();
 
 			if (Scripts.ContainsKey(Script))
 				ScriptDelegate = Scripts[Script];
 			else {
-				ScriptDelegate = DynamicExpression.ParseLambda(ParamsDefList.Select(KV => Expression.Parameter(KV.T, KV.Name)).ToArray(), null, Script).Compile();
+				ScriptDelegate = Lua.Compile(Script);
 				Scripts.Add(Script, ScriptDelegate);
 			}
-			
+
 			return ScriptDelegate;
 		}
 
-		public static object CacheInvoke(string Script, ParamDef[] Params, params object[] Args) {
-			List<object> ArgsList = new List<object>();
-			ArgsList.Add(ScriptStateInstance);
-			ArgsList.AddRange(Args);
+		public static T CacheInvokeFunc<T>(string Script, params ScriptArg[] Args) {
+			LuaFuncRef Func = CacheCompile(Script);
+			// TODO: Single environment
 
-			return CacheCompile(Script, Params).DynamicInvoke(ArgsList.ToArray());
+			using (LuaReference Env = Lua.CreateNewEnvironment(Lua.GUIEnvironment)) {
+				Lua.SetEnvironment(Func, Env);
+
+				foreach (var Arg in Args)
+					Lua.Set(Env, Arg.Name, Arg.Value);
+
+				return Lua.Run<T>(Func);
+			}
+		}
+
+		public static void CacheInvokeAction(string Script, params ScriptArg[] Args) {
+			object Result = CacheInvokeFunc<object>(Script, Args);
+
+			if (Result is LuaReference Ref)
+				Ref.Dispose();
 		}
 	}
 
@@ -108,6 +106,15 @@ namespace libTech.GUI {
 
 		string GetWindowName() {
 			return "window_" + FreeWindowSlot++.ToString();
+		}
+
+		Stopwatch SWatch = Stopwatch.StartNew();
+
+		ScriptArg[] CreateScriptGlobals() {
+			return new ScriptArg[] {
+				new ScriptArg("Window", Lua.ConvertToTable(NuklearAPI.WindowGetBounds())),
+				new ScriptArg("Time", SWatch.ElapsedMilliseconds / 1000.0f)
+			};
 		}
 
 		void PaintTag(FMLTag Tag) {
@@ -180,10 +187,10 @@ namespace libTech.GUI {
 
 				case "button": {
 						if (NuklearAPI.ButtonLabel(Attrib.GetAttribute("text", "Button"))) {
-							/*object OnClick = Attrib.GetAttribute("onclick");
+							object OnClick = Attrib.GetAttribute("script");
 
-							if (OnClick is string OnClickStr)
-								libGUIScriptManager.CacheInvoke(OnClickStr, null);*/
+							if (OnClick is FMLHereDoc OnClickDoc)
+								libGUIScriptManager.CacheInvokeAction(OnClickDoc.Content, CreateScriptGlobals());
 						}
 
 						break;
@@ -220,7 +227,7 @@ namespace libTech.GUI {
 						object Height = Attrib.GetAttribute("height");
 
 						if (Height is FMLHereDoc HeightScript)
-							Height = Convert.ToSingle(libGUIScriptManager.CacheInvoke(HeightScript.Content, new[] { new ParamDef(typeof(NkRect), "Window") }, NuklearAPI.WindowGetBounds()));
+							Height = libGUIScriptManager.CacheInvokeFunc<float>(HeightScript.Content, CreateScriptGlobals());
 
 						Nuklear.nk_layout_row_begin(NuklearAPI.Ctx, Layout, (Height as float?) ?? 0.0f, Columns);
 						Nuklear.nk_layout_row_push(NuklearAPI.Ctx, 1);

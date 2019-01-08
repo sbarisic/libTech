@@ -85,6 +85,11 @@
       <Name>libTech</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\LuaDotNet\Lua.NET\Lua.NET.csproj">
+      <Project>{1d3681d5-9104-4638-a6d4-ace3b60cecbb}</Project>
+      <Name>Lua.NET</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

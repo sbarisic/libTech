@@ -1,13 +1,14 @@
 ﻿root {
-	panel x = 100 y = 400 width = 160 height = 100 {
-		button text = "New Game";
-		button text = "Quit" onclick = [[
-			Script.Invoke( delegate ( ) { } )
-		]];
+	panel x = 10 y = 10 width = 160 height = 100 {
+		button text = "New Game" script = [[ OnNewGame() ]];
+		button text = "Quit" script = [[ OnQuit() ]];
 	}
 
 	window title = "Console" x = 500 y = 250 width = 600 height = 400 movable resizable closable noscrollbar nolayout {
-		layout dynamic height = [[ Window.H - 85 ]] {
+		layout dynamic height = [[
+			--print(Window)
+			return Window.H - 85
+		]] {
 			input editor readonly;
 		}
 

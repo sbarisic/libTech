@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using libTech.Scripting;
 
 namespace libTech {
 	static partial class Engine {
@@ -174,7 +175,8 @@ namespace libTech {
 			Engine.Window.OnChar += Engine.GUI.OnChar;
 
 			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
-			
+
+			Lua.Init();
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
