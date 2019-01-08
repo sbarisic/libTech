@@ -1,0 +1,9 @@
+﻿window title = "Console" x = 500 y = 250 width = 600 height = 400 movable resizable closable noscrollbar nolayout {
+	layout dynamic height = [[ return Window.H - 85 ]] {
+		input editor readonly;
+	}
+
+	layout dynamic {
+		input field;
+	}
+}

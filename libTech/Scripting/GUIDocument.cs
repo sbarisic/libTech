@@ -10,7 +10,7 @@ namespace libTech.Scripting {
 		string FileName;
 
 		public GUIDocument() {
-			TagSet.AddTags("root", "window", "button", "label", "panel", "input", "layout", "row");
+			TagSet.AddTags("root", "window", "button", "label", "panel", "input", "layout", "row", "label");
 		}
 
 		public GUIDocument(string FileName) : this() {

@@ -81,6 +81,9 @@ namespace libTech.GUI {
 			Dev.RegisterEvents(RWind);
 
 			NuklearAPI.Init(Dev);
+
+			// TODO: Skinning
+			//NuklearAPI.Ctx-> 
 		}
 
 		public void OnMouseMove(RenderWindow RWind, float X, float Y) {
@@ -109,13 +112,28 @@ namespace libTech.GUI {
 			return "window_" + FreeWindowSlot++.ToString();
 		}
 
-		Stopwatch SWatch = Stopwatch.StartNew();
-
 		ScriptArg[] CreateScriptGlobals() {
+			NkRect WindowBounds = new NkRect(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight);
+
+			if (NuklearAPI.Ctx->current != null)
+				WindowBounds = NuklearAPI.WindowGetBounds();
+
 			return new ScriptArg[] {
-				new ScriptArg("Window", Lua.ConvertToTable(NuklearAPI.WindowGetBounds())),
-				new ScriptArg("Time", SWatch.ElapsedMilliseconds / 1000.0f)
+				new ScriptArg("Window", Lua.ConvertToTable(WindowBounds))
 			};
+		}
+
+		// TODO: Setup variables once and then just copy from global environment for each function before invoking
+		T GetScriptedAttrib<T>(FMLAttributes Attrib, string Name, T Default) {
+			object Val = Attrib.GetAttribute(Name);
+
+			if (Val is FMLHereDoc ScriptDoc)
+				Val = libGUIScriptManager.CacheInvokeFunc<T>(ScriptDoc.Content, CreateScriptGlobals());
+
+			if (Val is T TVal)
+				return TVal;
+
+			return Default;
 		}
 
 		void PaintTag(FMLTag Tag) {
@@ -123,11 +141,17 @@ namespace libTech.GUI {
 
 			switch (Tag.TagName) {
 				case "root": {
+						if (GetScriptedAttrib(Attrib, "disable", false))
+							break;
+
 						PaintTags(Tag.Children);
 						break;
 					}
 
 				case "window": {
+						if (GetScriptedAttrib(Attrib, "disable", false))
+							break;
+
 						NkPanelFlags Flags = NkPanelFlags.BorderTitle;
 
 						if (Attrib.GetAttribute("minimizable", true))
@@ -145,11 +169,11 @@ namespace libTech.GUI {
 						if (Attrib.GetAttribute("noscrollbar", false))
 							Flags |= NkPanelFlags.NoScrollbar;
 
-						float X = Attrib.GetAttribute("x", 0.0f);
-						float Y = Attrib.GetAttribute("y", 0.0f);
-						float W = Attrib.GetAttribute("width", 50.0f);
-						float H = Attrib.GetAttribute("height", 50.0f);
-						string Title = Attrib.GetAttribute("title", GetWindowName());
+						float X = GetScriptedAttrib(Attrib, "x", 0.0f);
+						float Y = GetScriptedAttrib(Attrib, "y", 0.0f);
+						float W = GetScriptedAttrib(Attrib, "width", 50.0f);
+						float H = GetScriptedAttrib(Attrib, "height", 50.0f);
+						string Title = GetScriptedAttrib(Attrib, "title", GetWindowName());
 
 						bool DoLayout = !Attrib.GetAttribute("nolayout", false);
 
@@ -163,22 +187,29 @@ namespace libTech.GUI {
 					}
 
 				case "panel": {
+						if (GetScriptedAttrib(Attrib, "disable", false))
+							break;
+
 						NkPanelFlags Flags = NkPanelFlags.NoScrollbar;
 
-						float X = Attrib.GetAttribute("x", 0.0f);
-						float Y = Attrib.GetAttribute("y", 0.0f);
-						float W = Attrib.GetAttribute("width", 50.0f);
-						float H = Attrib.GetAttribute("height", 50.0f);
-						string Title = Attrib.GetAttribute("title", GetWindowName());
+						float X = GetScriptedAttrib(Attrib, "x", 0.0f);
+						float Y = GetScriptedAttrib(Attrib, "y", 0.0f);
+						float W = GetScriptedAttrib(Attrib, "width", 50.0f);
+						float H = GetScriptedAttrib(Attrib, "height", 50.0f);
+
+						string Title = GetScriptedAttrib(Attrib, "title", GetWindowName());
 
 						byte R = (byte)Attrib.GetAttribute("r", 0.0f);
 						byte G = (byte)Attrib.GetAttribute("g", 0.0f);
 						byte B = (byte)Attrib.GetAttribute("b", 0.0f);
 						byte A = (byte)Attrib.GetAttribute("a", 0.0f);
 
+						bool DoLayout = !Attrib.GetAttribute("nolayout", false);
+
 						Nuklear.nk_style_push_style_item(NuklearAPI.Ctx, &NuklearAPI.Ctx->style.window.fixed_background, Nuklear.nk_style_item_color(new NkColor(R, G, B, A)));
 						NuklearAPI.Window(Title, X, Y, W, H, Flags, () => {
-							NuklearAPI.LayoutRowDynamic();
+							if (DoLayout)
+								NuklearAPI.LayoutRowDynamic();
 
 							PaintTags(Tag.Children);
 						});
@@ -187,10 +218,11 @@ namespace libTech.GUI {
 					}
 
 				case "button": {
-						if (NuklearAPI.ButtonLabel(Attrib.GetAttribute("text", "Button"))) {
-							object OnClick = Attrib.GetAttribute("script");
+						if (GetScriptedAttrib(Attrib, "disable", false))
+							break;
 
-							if (OnClick is FMLHereDoc OnClickDoc)
+						if (NuklearAPI.ButtonLabel(GetScriptedAttrib(Attrib, "text", "Button"))) {
+							if (Attrib.GetAttribute("script") is FMLHereDoc OnClickDoc)
 								libGUIScriptManager.CacheInvokeAction(OnClickDoc.Content, CreateScriptGlobals());
 						}
 
@@ -224,14 +256,9 @@ namespace libTech.GUI {
 						else
 							throw new Exception("No layout type specified");
 
-						int Columns = (int)Attrib.GetAttribute("columns", 1.0f);
-						object Height = Attrib.GetAttribute("height");
-
-						if (Height is FMLHereDoc HeightScript)
-							Height = libGUIScriptManager.CacheInvokeFunc<float>(HeightScript.Content, CreateScriptGlobals());
-
-						Nuklear.nk_layout_row_begin(NuklearAPI.Ctx, Layout, (Height as float?) ?? 0.0f, Columns);
-						Nuklear.nk_layout_row_push(NuklearAPI.Ctx, 1);
+						// TODO: Stack these so you can recurse
+						Nuklear.nk_layout_row_begin(NuklearAPI.Ctx, Layout, GetScriptedAttrib(Attrib, "height", 0.0f), (int)GetScriptedAttrib(Attrib, "columns", 1.0f));
+						Nuklear.nk_layout_row_push(NuklearAPI.Ctx, GetScriptedAttrib(Attrib, "row", 1.0f));
 
 						PaintTags(Tag.Children);
 
@@ -240,7 +267,45 @@ namespace libTech.GUI {
 					}
 
 				case "row": {
-						Nuklear.nk_layout_row_push(NuklearAPI.Ctx, Attrib.GetAttribute("width", 1.0f));
+						float Pad = GetScriptedAttrib(Attrib, "pad", 0.0f);
+						if (Pad > 0) {
+							Nuklear.nk_layout_row_push(NuklearAPI.Ctx, Pad);
+							NuklearAPI.Label("");
+						}
+
+						Nuklear.nk_layout_row_push(NuklearAPI.Ctx, GetScriptedAttrib(Attrib, "width", 1.0f));
+						break;
+					}
+
+				case "label": {
+						string Txt = GetScriptedAttrib(Attrib, "text", "This label is empty");
+						string[] Lines = Txt.Split(new[] { '\n' });
+
+						bool Wrap = Attrib.GetAttribute("wrap", false);
+						NkTextAlign HAlign = NkTextAlign.NK_TEXT_ALIGN_LEFT;
+						NkTextAlign VAlign = NkTextAlign.NK_TEXT_ALIGN_MIDDLE;
+
+						if (Attrib.GetAttribute("left", false))
+							HAlign = NkTextAlign.NK_TEXT_ALIGN_LEFT;
+						else if (Attrib.GetAttribute("center", false))
+							HAlign = NkTextAlign.NK_TEXT_ALIGN_CENTERED;
+						else if (Attrib.GetAttribute("right", false))
+							HAlign = NkTextAlign.NK_TEXT_ALIGN_RIGHT;
+
+						if (Attrib.GetAttribute("top", false))
+							VAlign = NkTextAlign.NK_TEXT_ALIGN_TOP;
+						else if (Attrib.GetAttribute("middle", false))
+							VAlign = NkTextAlign.NK_TEXT_ALIGN_MIDDLE;
+						else if (Attrib.GetAttribute("bottom", false))
+							VAlign = NkTextAlign.NK_TEXT_ALIGN_BOTTOM;
+
+						for (int i = 0; i < Lines.Length; i++) {
+							if (Wrap)
+								NuklearAPI.LabelWrap(Lines[i]);
+							else
+								NuklearAPI.Label(Lines[i], VAlign | HAlign);
+						}
+
 						break;
 					}
 
@@ -248,6 +313,8 @@ namespace libTech.GUI {
 					throw new InvalidOperationException("Unknown tag name " + Tag.TagName);
 			}
 		}
+
+
 
 		StringBuilder Out = new StringBuilder(1024);
 		StringBuilder In = new StringBuilder(1024);

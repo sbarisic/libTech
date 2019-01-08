@@ -1,19 +1,19 @@
-﻿root {
-	panel x = 10 y = 10 width = 160 height = 100 {
-		button text = "New Game" script = [[ OnNewGame() ]];
-		button text = "Quit" script = [[ OnQuit() ]];
+﻿window title = "libTech" x = 200 y = 300 width = 200 height = 232 noscrollbar movable nolayout {
+	layout dynamic {
+		button text = "Start Game" script = [[ OnStartGame() ]];
+		button text = "Join Game" script = [[ OnJoinGame() ]];
 	}
 
-	window title = "Console" x = 500 y = 250 width = 600 height = 400 movable resizable closable noscrollbar nolayout {
-		layout dynamic height = [[
-			--print(Window)
-			return Window.H - 85
-		]] {
-			input editor readonly;
-		}
+	layout dynamic height = 10 { row pad; }
 
-		layout dynamic {
-			input field;
-		}
+	layout dynamic {
+		button text = "Settings" script = [[ OnSettings() ]];
+		button text = "Addons" script = [[ OnAddons() ]];
+	}
+
+	layout dynamic height = 10 { row pad = 10; }
+
+	layout dynamic {
+		button text = "Quit" script = [[ OnQuit() ]];
 	}
 }

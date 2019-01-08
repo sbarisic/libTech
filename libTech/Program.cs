@@ -5,6 +5,7 @@ using libTech.Graphics;
 using libTech.GUI;
 using libTech.Importer;
 using libTech.Reflection;
+using libTech.Scripting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,7 +19,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using libTech.Scripting;
 
 namespace libTech {
 	static partial class Engine {
@@ -33,6 +33,8 @@ namespace libTech {
 		public static ConVar<int> WindowHeight;
 		public static ConVar<bool> WindowResizable;
 		public static ConVar<bool> WindowBorderless;
+
+		public static float Time;
 
 		public static void LogFatal(string Msg) {
 			Console.WriteLine(Msg);
@@ -65,13 +67,14 @@ namespace libTech {
 
 	unsafe static class Program {
 		static LibTechGame Game;
+		static Stopwatch TimeStopwatch;
 
 		static List<string> FailedToLoadDLLs;
 
 		static void Main(string[] args) {
 			if (IntPtr.Size != 8)
 				throw new Exception("x86 not supported");
-			
+
 			if (!Kernel32.SetDllDirectory("native"))
 				throw new Win32Exception();
 
@@ -162,6 +165,7 @@ namespace libTech {
 		}
 
 		static void RunGame() {
+			TimeStopwatch = Stopwatch.StartNew();
 			InitConsole();
 
 			FileWatcher.Init("content");
@@ -199,17 +203,24 @@ namespace libTech {
 			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
 			LoadGameDll(Engine.GamePath);
+			Stopwatch SWatch = Stopwatch.StartNew();
 
-			float Dt = 0;
+			float Dt = 1.0f / 60.0f;
 			while (!Engine.Window.ShouldClose) {
 				Update(Dt);
 				Draw(Dt);
-				Thread.Sleep(0);
+
+				// TODO: Move frame cap somewhere else
+				while ((SWatch.ElapsedMilliseconds / 1000.0f) < (1.0f / 120.0f))
+					Thread.Sleep(0);
+				Dt = SWatch.ElapsedMilliseconds / 1000.0f;
+				SWatch.Restart();
 			}
 		}
 
 		static void Update(float Dt) {
 			Events.Poll();
+			Engine.Time = TimeStopwatch.ElapsedMilliseconds / 1000.0f;
 
 			Game.Update(Dt);
 			GConsole.Update();
@@ -233,7 +244,7 @@ namespace libTech {
 
 			Engine.Window.SwapBuffers();
 		}
-		
+
 		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			if (Key == Key.F1 && Pressed) {
 				GConsole.Open = !GConsole.Open;
