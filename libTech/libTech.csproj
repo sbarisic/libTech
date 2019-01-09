@@ -265,6 +265,10 @@
       <Name>FishMarkupLanguage</Name>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Gweny\Gweny\Gweny.csproj">
+      <Project>{28145a47-48f9-4f02-8c48-a0c8465312e7}</Project>
+      <Name>Gweny</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LuaDotNet\Lua.NET\Lua.NET.csproj">
       <Project>{1d3681d5-9104-4638-a6d4-ace3b60cecbb}</Project>
       <Name>Lua.NET</Name>
