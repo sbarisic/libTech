@@ -7,6 +7,3 @@
 [submodule "LuaDotNet"]
 	path = LuaDotNet
 	url = https://github.com/sbarisic/Lua.NET
-[submodule "Gweny"]
-	path = Gweny
-	url = https://github.com/sbarisic/Gweny
