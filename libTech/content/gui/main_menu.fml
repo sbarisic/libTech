@@ -1,4 +1,4 @@
-﻿window title = "libTech" x = 200 y = 300 width = 200 height = 232 noscrollbar movable nolayout {
+﻿window title = "libTech" x = 200 y = 300 width = 200 height = 232 noscrollbar movable resizable closable nolayout {
 	layout dynamic {
 		button text = "Start Game" script = [[ OnStartGame() ]];
 		button text = "Join Game" script = [[ OnJoinGame() ]];
