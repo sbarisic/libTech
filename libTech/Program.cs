@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace libTech {
 	static partial class Engine {
 		public static RenderWindow Window;
-		public static libGUI GUI;
+		public static NuklearGUI GUI;
 
 		public static Camera Camera3D;
 		public static Camera Camera2D;
@@ -171,7 +171,7 @@ namespace libTech {
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
 
-			Engine.GUI = new libGUI();
+			Engine.GUI = new NuklearGUI();
 
 			Engine.Window = new RenderWindow(Engine.WindowWidth, Engine.WindowHeight, "libTech", Engine.WindowResizable);
 			Engine.Window.OnMouseMove += Engine.GUI.OnMouseMove;

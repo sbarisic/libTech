@@ -99,6 +99,7 @@
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
     <Compile Include="GUI\libGUI.cs" />
+    <Compile Include="GUI\NuklearGUI.cs" />
     <Compile Include="Importer\Importer.cs" />
     <Compile Include="Importer\Importer_Texture.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
