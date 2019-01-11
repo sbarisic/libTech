@@ -1,6 +1,6 @@
 ﻿using CARP;
+using FishGfx;
 using FishGfx.Graphics;
-using FishGfx.System;
 using libTech.Graphics;
 using libTech.GUI;
 using libTech.Importer;
@@ -28,13 +28,16 @@ namespace libTech {
 		public static Camera Camera3D;
 		public static Camera Camera2D;
 
+		public static ConVar<int> MaxFPS;
 		public static ConVar<string> GamePath;
 		public static ConVar<int> WindowWidth;
 		public static ConVar<int> WindowHeight;
 		public static ConVar<bool> WindowResizable;
 		public static ConVar<bool> WindowBorderless;
+		public static ConVar<bool> ShowFPS;
 
 		public static float Time;
+		public static RunningAverage FrameTime = new RunningAverage(30);
 
 		public static void LogFatal(string Msg) {
 			Console.WriteLine(Msg);
@@ -78,6 +81,13 @@ namespace libTech {
 			if (!Kernel32.SetDllDirectory("native"))
 				throw new Win32Exception();
 
+			/*
+			{
+				Console.WriteLine("Waiting for RenderDoc ...");
+				Console.ReadLine();
+			}
+			//*/
+
 			FailedToLoadDLLs = new List<string>();
 
 			AppDomain.CurrentDomain.UnhandledException += (S, E) => {
@@ -99,6 +109,7 @@ namespace libTech {
 			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
 			//Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
+			Engine.MaxFPS = ConVar.Register("maxfps", 0, ConVarType.Archive);
 			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
 			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
 
@@ -107,6 +118,7 @@ namespace libTech {
 
 			Engine.WindowBorderless = ConVar.Register("borderless", false, ConVarType.Archive);
 			Engine.WindowResizable = ConVar.Register("resizable", false, ConVarType.Archive);
+			Engine.ShowFPS = ConVar.Register("showfps", true, ConVarType.Archive);
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
@@ -205,14 +217,23 @@ namespace libTech {
 			LoadGameDll(Engine.GamePath);
 			Stopwatch SWatch = Stopwatch.StartNew();
 
+			int MaxFPS = Engine.MaxFPS;
+			if (MaxFPS <= 0)
+				MaxFPS = 900;
+
+			float FrameCap = 1.0f / MaxFPS;
 			float Dt = 1.0f / 60.0f;
+
 			while (!Engine.Window.ShouldClose) {
+				Engine.FrameTime.Push(Dt);
+
 				Update(Dt);
 				Draw(Dt);
 
 				// TODO: Move frame cap somewhere else
-				while ((SWatch.ElapsedMilliseconds / 1000.0f) < (1.0f / 120.0f))
+				while ((SWatch.ElapsedMilliseconds / 1000.0f) < FrameCap)
 					Thread.Sleep(0);
+
 				Dt = SWatch.ElapsedMilliseconds / 1000.0f;
 				SWatch.Restart();
 			}
@@ -228,12 +249,12 @@ namespace libTech {
 
 		static void Draw(float Dt) {
 			Gfx.Clear();
-
-			ShaderUniforms.Default.Camera = Engine.Camera3D;
+	
+			ShaderUniforms.Current.Camera = Engine.Camera3D;
 			Game.Draw(Dt);
 			Game.DrawTransparent(Dt);
 
-			ShaderUniforms.Default.Camera = Engine.Camera2D;
+			ShaderUniforms.Current.Camera = Engine.Camera2D;
 			RenderState State = Gfx.PeekRenderState();
 			State.EnableDepthTest = false;
 			Gfx.PushRenderState(State);

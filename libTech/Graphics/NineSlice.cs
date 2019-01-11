@@ -1,13 +1,12 @@
-﻿using System;
+﻿using FishGfx;
+using FishGfx.Graphics;
+using FishGfx.Graphics.Drawables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-
-using FishGfx;
-using FishGfx.Graphics;
-using FishGfx.Graphics.Drawables;
 
 namespace libTech.Graphics {
 	public class NineSlice {
@@ -30,16 +29,58 @@ namespace libTech.Graphics {
 			}
 		}
 
-		float _Border;
-		public float Border {
+		float _BorderTop;
+		public float BorderTop {
 			get {
-				return _Border;
+				return _BorderTop;
 			}
 			set {
-				if (_Border == value)
+				if (_BorderTop == value)
 					return;
 
-				_Border = value;
+				_BorderTop = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderLeft;
+		public float BorderLeft {
+			get {
+				return _BorderLeft;
+			}
+			set {
+				if (_BorderLeft == value)
+					return;
+
+				_BorderLeft = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderBottom;
+		public float BorderBottom {
+			get {
+				return _BorderBottom;
+			}
+			set {
+				if (_BorderBottom == value)
+					return;
+
+				_BorderBottom = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderRight;
+		public float BorderRight {
+			get {
+				return _BorderRight;
+			}
+			set {
+				if (_BorderRight == value)
+					return;
+
+				_BorderRight = value;
 				Dirty = true;
 			}
 		}
@@ -61,8 +102,11 @@ namespace libTech.Graphics {
 
 		List<Tuple<int, AABB>> Boxes;
 
-		public NineSlice(Texture NineSlice, float Border) {
-			this.Border = Border;
+		public NineSlice(Texture NineSlice, float BorderTop, float BorderBottom, float BorderLeft, float BorderRight) {
+			this.BorderTop = BorderTop;
+			this.BorderLeft = BorderLeft;
+			this.BorderBottom = BorderBottom;
+			this.BorderRight = BorderRight;
 
 			Color = Color.White;
 			Rotation = Quaternion.Identity;
@@ -73,6 +117,9 @@ namespace libTech.Graphics {
 			Mesh = new Mesh2D();
 
 			Boxes = new List<Tuple<int, AABB>>();
+		}
+
+		public NineSlice(Texture NineSlice, float Border) : this(NineSlice, Border, Border, Border, Border) {
 		}
 
 		public int Collides(Vector2 Pos) {
@@ -91,33 +138,54 @@ namespace libTech.Graphics {
 			return Vertex2.CreateQuad(Pos, Size, UV, UVSize, Color);
 		}
 
+		Vector2 ToUV(float X, float Y) {
+			return new Vector2(X, Y) / Texture.Size;
+		}
+
 		void Refresh() {
 			List<Vertex2> Verts = new List<Vertex2>();
 
 			Vector2 Pos = Vector2.Zero;
-			Vector2 CornerSize = new Vector2(Border, Border);
+			Vector2 CornerSize = new Vector2(BorderTop, BorderTop);
 			Vector2 CornerSizeN = CornerSize / Texture.Size;
 
-			Vector2 HBarSize = new Vector2(Size.X, Border);
-			Vector2 HBarSizeN = new Vector2(Texture.Width - CornerSize.X * 2, Border) / Texture.Size;
+			Vector2 HBarSize = new Vector2(Size.X, BorderTop);
+			Vector2 HBarSizeN = new Vector2(Texture.Width - CornerSize.X * 2, BorderTop) / Texture.Size;
 
-			Vector2 VBarSize = new Vector2(Border, Size.Y);
-			Vector2 VBarSizeN = new Vector2(Border, Texture.Height - CornerSize.X * 2) / Texture.Size;
+			Vector2 VBarSize = new Vector2(BorderTop, Size.Y);
+			Vector2 VBarSizeN = new Vector2(BorderTop, Texture.Height - CornerSize.X * 2) / Texture.Size;
 
 			Vector2 MiddleSize = Size;
 			Vector2 MiddleSizeN = (Texture.Size - CornerSize * 2) / Texture.Size;
 
 			Boxes.Clear();
+
+			// 1
 			Verts.AddRange(EmitQuad(1, Pos + Size.GetHeight() - CornerSize.GetWidth(), CornerSize, new Vector2(CornerSizeN.X, 1) - CornerSizeN, CornerSizeN));
+			//Verts.AddRange(EmitQuad(1, Pos + new Vector2(0, Size.Y - BorderTop), new Vector2(BorderLeft, BorderTop), ToUV(0, 0), ToUV(0, 0)));
+
+			// 2
 			Verts.AddRange(EmitQuad(2, Pos + Size.GetHeight(), HBarSize, new Vector2(CornerSizeN.X, 1 - CornerSizeN.Y), HBarSizeN));
+
+			// 3
 			Verts.AddRange(EmitQuad(3, Pos + Size, CornerSize, Vector2.One - CornerSizeN, CornerSizeN));
 
+			// 4
 			Verts.AddRange(EmitQuad(4, Pos - CornerSize.GetWidth(), VBarSize, CornerSizeN.GetHeight(), VBarSizeN));
+
+			// 5
 			Verts.AddRange(EmitQuad(5, Pos, MiddleSize, CornerSizeN, MiddleSizeN));
+
+			// 6
 			Verts.AddRange(EmitQuad(6, Pos + Size - VBarSize.GetHeight(), VBarSize, CornerSizeN + HBarSizeN.GetWidth(), VBarSizeN));
 
+			// 7
 			Verts.AddRange(EmitQuad(7, Pos - CornerSize, CornerSize, Vector2.Zero, CornerSizeN));
+
+			// 8
 			Verts.AddRange(EmitQuad(8, Pos - CornerSize.GetHeight(), HBarSize, CornerSizeN.GetWidth(), HBarSizeN));
+
+			// 9
 			Verts.AddRange(EmitQuad(9, Pos + Size.GetWidth() - CornerSize.GetHeight(), CornerSize, new Vector2(1, 0) - CornerSizeN.GetWidth(), CornerSizeN));
 
 			Mesh.SetVertices(Verts.ToArray());
@@ -129,9 +197,9 @@ namespace libTech.Graphics {
 				Refresh();
 			}
 
-			ShaderUniforms.Default.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position, 0).Round());
+			ShaderUniforms.Current.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position, 0).Round());
 
-			DefaultShaders.DefaultTextureColor2D.Bind(ShaderUniforms.Default);
+			DefaultShaders.DefaultTextureColor2D.Bind(ShaderUniforms.Current);
 			Texture.BindTextureUnit();
 			Mesh.Draw();
 			Texture.UnbindTextureUnit();

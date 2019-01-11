@@ -44,21 +44,21 @@ namespace Game {
 		libGUI GUI;
 
 		public override void DrawGUI(float Dt) {
-
+			GUI.Draw(Dt);
 		}
 
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
 
-			ShaderUniforms.Default.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
+			ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
 
-			MenuMeshShader.Bind(ShaderUniforms.Default);
+			MenuMeshShader.Bind(ShaderUniforms.Current);
 			MenuMeshTex.BindTextureUnit();
 			MenuMesh.Draw();
 			MenuMeshTex.UnbindTextureUnit();
 			MenuMeshShader.Unbind();
 
-			ShaderUniforms.Default.Model = Matrix4x4.Identity;
+			ShaderUniforms.Current.Model = Matrix4x4.Identity;
 		}
 	}
 }
