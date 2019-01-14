@@ -36,17 +36,8 @@ namespace Game {
 			Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);
 			Cam.LookAt(Vector3.Zero);
-
-
-			GUI = new libGUI();
 		}
-
-		libGUI GUI;
-
-		public override void DrawGUI(float Dt) {
-			GUI.Draw(Dt);
-		}
-
+		
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -104,8 +105,8 @@ namespace libTech.Graphics {
 
 		public NineSlice(Texture NineSlice, float BorderTop, float BorderBottom, float BorderLeft, float BorderRight) {
 			this.BorderTop = BorderTop;
-			this.BorderLeft = BorderLeft;
 			this.BorderBottom = BorderBottom;
+			this.BorderLeft = BorderLeft;
 			this.BorderRight = BorderRight;
 
 			Color = Color.White;
@@ -131,62 +132,88 @@ namespace libTech.Graphics {
 			return 0;
 		}
 
-		IEnumerable<Vertex2> EmitQuad(int ID, Vector2 Pos, Vector2 Size, Vector2 UV, Vector2 UVSize) {
+		/*IEnumerable<Vertex2> EmitQuad(int ID, Vector2 Pos, Vector2 Size, Vector2 UV, Vector2 UVSize) {
 			//Console.WriteLine("{0} - {1} .. {2}", ID, Pos, Pos + Size);
 
 			Boxes.Add(new Tuple<int, AABB>(ID, new AABB(Pos, Size)));
 			return Vertex2.CreateQuad(Pos, Size, UV, UVSize, Color);
+		}*/
+
+		IEnumerable<Vertex2> EmitQuad2(int ID, Vector2 Pos, Vector2 Size, Vector2 UVPos, Vector2 UVSize) {
+			Boxes.Add(new Tuple<int, AABB>(ID, new AABB(Pos, Size)));
+			return Vertex2.CreateQuad(Pos, Size, UVPos / Texture.Size, UVSize / Texture.Size);
 		}
 
-		Vector2 ToUV(float X, float Y) {
+		/*Vector2 ToUV(float X, float Y) {
 			return new Vector2(X, Y) / Texture.Size;
+		}*/
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		void CalcPositions(Vector2 Size, out Vector2 A, out Vector2 B, out Vector2 C, out Vector2 D, out Vector2 E, out Vector2 F, out Vector2 G, out Vector2 H, out Vector2 I) {
+			float BL = BorderLeft;
+			float BR = BorderRight;
+			float BT = BorderTop;
+			float BB = BorderBottom;
+
+			float WX = Size.X - BL - BR;
+
+			A = new Vector2(0, Size.Y) - new Vector2(0, BT);
+			B = A + new Vector2(BL, 0);
+			C = B + new Vector2(WX, 0);
+			D = new Vector2(0, BB);
+			E = D + new Vector2(BL, 0);
+			F = E + new Vector2(WX, 0);
+			G = Vector2.Zero;
+			H = G + new Vector2(BL, 0);
+			I = H + new Vector2(WX, 0);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		void CalcSizes(Vector2 Size, out Vector2 SA, out Vector2 SB, out Vector2 SC, out Vector2 SD, out Vector2 SE, out Vector2 SF, out Vector2 SG, out Vector2 SH, out Vector2 SI) {
+			float BL = BorderLeft;
+			float BR = BorderRight;
+			float BT = BorderTop;
+			float BB = BorderBottom;
+
+			float WX = Size.X - BL - BR;
+			float WY = Size.Y - BT - BB;
+
+			SA = new Vector2(BL, BT);
+			SB = new Vector2(WX, BT);
+			SC = new Vector2(BR, BT);
+			SD = new Vector2(BL, WY);
+			SE = new Vector2(WX, WY);
+			SF = new Vector2(BR, WY);
+			SG = new Vector2(BL, BB);
+			SH = new Vector2(WX, BB);
+			SI = new Vector2(BR, BB);
 		}
 
 		void Refresh() {
 			List<Vertex2> Verts = new List<Vertex2>();
 
-			Vector2 Pos = Vector2.Zero;
-			Vector2 CornerSize = new Vector2(BorderTop, BorderTop);
-			Vector2 CornerSizeN = CornerSize / Texture.Size;
+			Vector2 A, B, C, D, E, F, G, H, I;
+			CalcPositions(Size, out A, out B, out C, out D, out E, out F, out G, out H, out I);
 
-			Vector2 HBarSize = new Vector2(Size.X, BorderTop);
-			Vector2 HBarSizeN = new Vector2(Texture.Width - CornerSize.X * 2, BorderTop) / Texture.Size;
+			Vector2 SA, SB, SC, SD, SE, SF, SG, SH, SI;
+			CalcSizes(Size, out SA, out SB, out SC, out SD, out SE, out SF, out SG, out SH, out SI);
 
-			Vector2 VBarSize = new Vector2(BorderTop, Size.Y);
-			Vector2 VBarSizeN = new Vector2(BorderTop, Texture.Height - CornerSize.X * 2) / Texture.Size;
+			Vector2 UV_A, UV_B, UV_C, UV_D, UV_E, UV_F, UV_G, UV_H, UV_I;
+			CalcPositions(Texture.Size, out UV_A, out UV_B, out UV_C, out UV_D, out UV_E, out UV_F, out UV_G, out UV_H, out UV_I);
 
-			Vector2 MiddleSize = Size;
-			Vector2 MiddleSizeN = (Texture.Size - CornerSize * 2) / Texture.Size;
+			Vector2 UV_SA, UV_SB, UV_SC, UV_SD, UV_SE, UV_SF, UV_SG, UV_SH, UV_SI;
+			CalcSizes(Texture.Size, out UV_SA, out UV_SB, out UV_SC, out UV_SD, out UV_SE, out UV_SF, out UV_SG, out UV_SH, out UV_SI);
 
 			Boxes.Clear();
-
-			// 1
-			Verts.AddRange(EmitQuad(1, Pos + Size.GetHeight() - CornerSize.GetWidth(), CornerSize, new Vector2(CornerSizeN.X, 1) - CornerSizeN, CornerSizeN));
-			//Verts.AddRange(EmitQuad(1, Pos + new Vector2(0, Size.Y - BorderTop), new Vector2(BorderLeft, BorderTop), ToUV(0, 0), ToUV(0, 0)));
-
-			// 2
-			Verts.AddRange(EmitQuad(2, Pos + Size.GetHeight(), HBarSize, new Vector2(CornerSizeN.X, 1 - CornerSizeN.Y), HBarSizeN));
-
-			// 3
-			Verts.AddRange(EmitQuad(3, Pos + Size, CornerSize, Vector2.One - CornerSizeN, CornerSizeN));
-
-			// 4
-			Verts.AddRange(EmitQuad(4, Pos - CornerSize.GetWidth(), VBarSize, CornerSizeN.GetHeight(), VBarSizeN));
-
-			// 5
-			Verts.AddRange(EmitQuad(5, Pos, MiddleSize, CornerSizeN, MiddleSizeN));
-
-			// 6
-			Verts.AddRange(EmitQuad(6, Pos + Size - VBarSize.GetHeight(), VBarSize, CornerSizeN + HBarSizeN.GetWidth(), VBarSizeN));
-
-			// 7
-			Verts.AddRange(EmitQuad(7, Pos - CornerSize, CornerSize, Vector2.Zero, CornerSizeN));
-
-			// 8
-			Verts.AddRange(EmitQuad(8, Pos - CornerSize.GetHeight(), HBarSize, CornerSizeN.GetWidth(), HBarSizeN));
-
-			// 9
-			Verts.AddRange(EmitQuad(9, Pos + Size.GetWidth() - CornerSize.GetHeight(), CornerSize, new Vector2(1, 0) - CornerSizeN.GetWidth(), CornerSizeN));
+			Verts.AddRange(EmitQuad2(1, A, SA, UV_A, UV_SA));
+			Verts.AddRange(EmitQuad2(2, B, SB, UV_B, UV_SB));
+			Verts.AddRange(EmitQuad2(3, C, SC, UV_C, UV_SC));
+			Verts.AddRange(EmitQuad2(4, D, SD, UV_D, UV_SD));
+			Verts.AddRange(EmitQuad2(5, E, SE, UV_E, UV_SE));
+			Verts.AddRange(EmitQuad2(6, F, SF, UV_F, UV_SF));
+			Verts.AddRange(EmitQuad2(7, G, SG, UV_G, UV_SG));
+			Verts.AddRange(EmitQuad2(8, H, SH, UV_H, UV_SH));
+			Verts.AddRange(EmitQuad2(9, I, SI, UV_I, UV_SI));
 
 			Mesh.SetVertices(Verts.ToArray());
 		}
@@ -197,6 +224,8 @@ namespace libTech.Graphics {
 				Refresh();
 			}
 
+			//ShaderUniforms.
+			Matrix4x4 OldModel = ShaderUniforms.Current.Model;
 			ShaderUniforms.Current.Model = Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(new Vector3(Position, 0).Round());
 
 			DefaultShaders.DefaultTextureColor2D.Bind(ShaderUniforms.Current);
@@ -204,6 +233,8 @@ namespace libTech.Graphics {
 			Mesh.Draw();
 			Texture.UnbindTextureUnit();
 			DefaultShaders.DefaultTextureColor2D.Unbind();
+
+			ShaderUniforms.Current.Model = OldModel;
 		}
 	}
 }

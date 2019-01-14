@@ -25,6 +25,8 @@ namespace libTech {
 		public static RenderWindow Window;
 		public static NuklearGUI GUI;
 
+		public static libGUI UI;
+
 		public static Camera Camera3D;
 		public static Camera Camera2D;
 
@@ -74,7 +76,7 @@ namespace libTech {
 
 		static List<string> FailedToLoadDLLs;
 
-		static void Main(string[] args) {
+		internal static void Main(string[] args) {
 			if (IntPtr.Size != 8)
 				throw new Exception("x86 not supported");
 
@@ -192,6 +194,7 @@ namespace libTech {
 
 			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 
+			Engine.UI = new libGUI(Engine.Window);
 			Lua.Init();
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
@@ -243,13 +246,14 @@ namespace libTech {
 			Events.Poll();
 			Engine.Time = TimeStopwatch.ElapsedMilliseconds / 1000.0f;
 
+			Engine.UI.Update(Dt);
 			Game.Update(Dt);
 			GConsole.Update();
 		}
 
 		static void Draw(float Dt) {
 			Gfx.Clear();
-	
+
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
 			Game.Draw(Dt);
 			Game.DrawTransparent(Dt);
@@ -259,7 +263,10 @@ namespace libTech {
 			State.EnableDepthTest = false;
 			Gfx.PushRenderState(State);
 
-			Engine.GUI.Draw(() => Game.DrawGUI(Dt));
+			Engine.GUI.Draw(() => {
+				Engine.UI.Draw();
+				Game.DrawGUI(Dt);
+			});
 
 			Gfx.PopRenderState();
 

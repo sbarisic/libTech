@@ -62,26 +62,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup>
-    <DllExportIdent>E4512BD2-4AF9-4846-B042-1659D20551C4</DllExportIdent>
-    <DllExportMetaLibName>DllExport.dll</DllExportMetaLibName>
-    <DllExportNamespace>libTech</DllExportNamespace>
-    <DllExportDDNSCecil>true</DllExportDDNSCecil>
-    <DllExportSkipOnAnyCpu>false</DllExportSkipOnAnyCpu>
-    <DllExportPlatform>Auto</DllExportPlatform>
-    <DllExportOrdinalsBase>1</DllExportOrdinalsBase>
-    <DllExportGenExpLib>false</DllExportGenExpLib>
-    <DllExportOurILAsm>false</DllExportOurILAsm>
-    <DllExportLeaveIntermediateFiles>false</DllExportLeaveIntermediateFiles>
-    <DllExportTimeout>30000</DllExportTimeout>
-    <DllExportPeCheck>2</DllExportPeCheck>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DllExport, PublicKeyToken=8337224c9ad9e356">
-      <HintPath>$(SolutionDir)packages\DllExport.1.6.2\gcache\metalib\$(DllExportNamespace)\$(DllExportMetaLibName)</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -125,7 +106,6 @@
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
     <Compile Include="native\libNative\libNative.cs" />
-    <Compile Include="native\NvidiaOptimus.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\Msdfgen.cs" />
     <Compile Include="native\WinAPI.cs" />
@@ -426,14 +406,4 @@
     <Folder Include="content\maps\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ImportGroup Label=".NET DllExport">
-    <Import Project="$(SolutionDir)packages\DllExport.1.6.2\tools\net.r_eg.DllExport.targets" Condition="Exists($([MSBuild]::Escape('$(SolutionDir)packages\DllExport.1.6.2\tools\net.r_eg.DllExport.targets')))" Label="8337224c9ad9e356" />
-  </ImportGroup>
-  <Target Name="DllExportRestorePkg" BeforeTargets="PrepareForBuild">
-    <Error Condition="!Exists('$(SolutionDir)DllExport.bat')" Text="DllExport.bat is not found. Path: '$(SolutionDir)' - https://github.com/3F/DllExport" />
-    <Exec Condition="('$(DllExportModImported)' != 'true' Or !Exists('$(SolutionDir)packages\DllExport.1.6.2\tools\net.r_eg.DllExport.targets')) And Exists('$(SolutionDir)DllExport.bat')" Command="DllExport.bat  -action Restore" WorkingDirectory="$(SolutionDir)" />
-  </Target>
-  <Target Name="DllExportRPkgDynamicImport" BeforeTargets="PostBuildEvent" DependsOnTargets="GetFrameworkPaths" Condition="'$(DllExportModImported)' != 'true' And '$(DllExportRPkgDyn)' != 'false'">
-    <MSBuild BuildInParallel="true" UseResultsCache="true" Projects="$(MSBuildProjectFullPath)" Properties="DllExportRPkgDyn=true" Targets="Build" />
-  </Target>
 </Project>
