@@ -86,6 +86,62 @@ namespace libTech.Graphics {
 			}
 		}
 
+		float _BorderLeftScale;
+		public float BorderLeftScale {
+			get {
+				return _BorderLeftScale;
+			}
+			set {
+				if (_BorderLeftScale == value)
+					return;
+
+				_BorderLeftScale = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderRightScale;
+		public float BorderRightScale {
+			get {
+				return _BorderRightScale;
+			}
+			set {
+				if (_BorderRightScale == value)
+					return;
+
+				_BorderRightScale = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderTopScale;
+		public float BorderTopScale {
+			get {
+				return _BorderTopScale;
+			}
+			set {
+				if (_BorderTopScale == value)
+					return;
+
+				_BorderTopScale = value;
+				Dirty = true;
+			}
+		}
+
+		float _BorderBottomScale;
+		public float BorderBottomScale {
+			get {
+				return _BorderBottomScale;
+			}
+			set {
+				if (_BorderBottomScale == value)
+					return;
+
+				_BorderBottomScale = value;
+				Dirty = true;
+			}
+		}
+
 		Color _Color;
 		public Color Color {
 			get {
@@ -108,6 +164,8 @@ namespace libTech.Graphics {
 			this.BorderBottom = BorderBottom;
 			this.BorderLeft = BorderLeft;
 			this.BorderRight = BorderRight;
+
+			BorderTopScale = BorderBottomScale = BorderLeftScale = BorderRightScale = 1;
 
 			Color = Color.White;
 			Rotation = Quaternion.Identity;
@@ -149,11 +207,18 @@ namespace libTech.Graphics {
 		}*/
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void CalcPositions(Vector2 Size, out Vector2 A, out Vector2 B, out Vector2 C, out Vector2 D, out Vector2 E, out Vector2 F, out Vector2 G, out Vector2 H, out Vector2 I) {
+		void CalcPositions(Vector2 Size, bool PerformScale, out Vector2 A, out Vector2 B, out Vector2 C, out Vector2 D, out Vector2 E, out Vector2 F, out Vector2 G, out Vector2 H, out Vector2 I) {
 			float BL = BorderLeft;
 			float BR = BorderRight;
 			float BT = BorderTop;
 			float BB = BorderBottom;
+
+			if (PerformScale) {
+				BL *= BorderLeftScale;
+				BR *= BorderRightScale;
+				BT *= BorderTopScale;
+				BB *= BorderBottomScale;
+			}
 
 			float WX = Size.X - BL - BR;
 
@@ -169,11 +234,18 @@ namespace libTech.Graphics {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void CalcSizes(Vector2 Size, out Vector2 SA, out Vector2 SB, out Vector2 SC, out Vector2 SD, out Vector2 SE, out Vector2 SF, out Vector2 SG, out Vector2 SH, out Vector2 SI) {
+		void CalcSizes(Vector2 Size, bool PerformScale, out Vector2 SA, out Vector2 SB, out Vector2 SC, out Vector2 SD, out Vector2 SE, out Vector2 SF, out Vector2 SG, out Vector2 SH, out Vector2 SI) {
 			float BL = BorderLeft;
 			float BR = BorderRight;
 			float BT = BorderTop;
 			float BB = BorderBottom;
+
+			if (PerformScale) {
+				BL *= BorderLeftScale;
+				BR *= BorderRightScale;
+				BT *= BorderTopScale;
+				BB *= BorderBottomScale;
+			}
 
 			float WX = Size.X - BL - BR;
 			float WY = Size.Y - BT - BB;
@@ -193,16 +265,16 @@ namespace libTech.Graphics {
 			List<Vertex2> Verts = new List<Vertex2>();
 
 			Vector2 A, B, C, D, E, F, G, H, I;
-			CalcPositions(Size, out A, out B, out C, out D, out E, out F, out G, out H, out I);
+			CalcPositions(Size, true, out A, out B, out C, out D, out E, out F, out G, out H, out I);
 
 			Vector2 SA, SB, SC, SD, SE, SF, SG, SH, SI;
-			CalcSizes(Size, out SA, out SB, out SC, out SD, out SE, out SF, out SG, out SH, out SI);
+			CalcSizes(Size, true, out SA, out SB, out SC, out SD, out SE, out SF, out SG, out SH, out SI);
 
 			Vector2 UV_A, UV_B, UV_C, UV_D, UV_E, UV_F, UV_G, UV_H, UV_I;
-			CalcPositions(Texture.Size, out UV_A, out UV_B, out UV_C, out UV_D, out UV_E, out UV_F, out UV_G, out UV_H, out UV_I);
+			CalcPositions(Texture.Size, false, out UV_A, out UV_B, out UV_C, out UV_D, out UV_E, out UV_F, out UV_G, out UV_H, out UV_I);
 
 			Vector2 UV_SA, UV_SB, UV_SC, UV_SD, UV_SE, UV_SF, UV_SG, UV_SH, UV_SI;
-			CalcSizes(Texture.Size, out UV_SA, out UV_SB, out UV_SC, out UV_SD, out UV_SE, out UV_SF, out UV_SG, out UV_SH, out UV_SI);
+			CalcSizes(Texture.Size, false, out UV_SA, out UV_SB, out UV_SC, out UV_SD, out UV_SE, out UV_SF, out UV_SG, out UV_SH, out UV_SI);
 
 			Boxes.Clear();
 			Verts.AddRange(EmitQuad2(1, A, SA, UV_A, UV_SA));
