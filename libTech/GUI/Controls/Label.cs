@@ -9,6 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.GUI.Controls {
+	public enum TextAlign {
+		Left,
+		Center,
+		Right
+	}
+
 	public class Label : Control {
 		bool Dirty;
 
@@ -26,20 +32,45 @@ namespace libTech.GUI.Controls {
 			}
 		}
 
-		public Label(GfxFont Font) {
+		public GfxFont Font;
+		public Color Color;
+		public bool PerformClipping;
 
+		Vector2 _TextSize;
+		public override Vector2 Size {
+			get {
+				Refresh();
+				return _TextSize;
+			}
+			set => throw new InvalidOperationException();
+		}
+
+		public Label(libGUI GUI, GfxFont Font) : base(GUI) {
+			this.Font = Font;
+			PerformClipping = true;
 		}
 
 		void Refresh() {
+			if (!Dirty)
+				return;
+			Dirty = false;
 
+			_TextSize = Font.MeasureString(Text);
 		}
 
 		public override void Draw() {
-			if (Dirty) {
-				Dirty = false;
-				Refresh();
+			Refresh();
+
+			if (PerformClipping) {
+				RenderState RS = Gfx.PeekRenderState();
+				RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
+				Gfx.PushRenderState(RS);
 			}
 
+			Gfx.DrawText(Font, GlobalPosition, Text, Color);
+
+			if (PerformClipping)
+				Gfx.PopRenderState();
 			base.Draw();
 		}
 	}

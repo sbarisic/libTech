@@ -100,6 +100,7 @@
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
     <Compile Include="GUI\Controls\Control.cs" />
+    <Compile Include="GUI\Controls\Button.cs" />
     <Compile Include="GUI\Controls\Label.cs" />
     <Compile Include="GUI\Controls\Window.cs" />
     <Compile Include="GUI\libGUI.cs" />
@@ -360,6 +361,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\gui\panel_transparent.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\button_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\button_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\button_hover.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\gui_elements\nineslice_30.png">

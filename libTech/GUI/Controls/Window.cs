@@ -10,24 +10,42 @@ using System.Threading.Tasks;
 
 namespace libTech.GUI.Controls {
 	public class Window : Control {
-		NineSlice Skin;
-
 		public override float BorderLeft { get => Skin.BorderLeft * Skin.BorderLeftScale; set => Skin.BorderLeft = value; }
-		public override float BorderRight { get => Skin.BorderRightScale * Skin.BorderRightScale; set => Skin.BorderRightScale = value; }
+		public override float BorderRight { get => Skin.BorderRight * Skin.BorderRightScale; set => Skin.BorderRight = value; }
 		public override float BorderTop { get => Skin.BorderTop * Skin.BorderTopScale; set => Skin.BorderTop = value; }
 		public override float BorderBottom { get => Skin.BorderBottom * Skin.BorderBottomScale; set => Skin.BorderBottom = value; }
 
+		public bool Resizable;
+
+		NineSlice Skin;
 		bool IsBeingDragged;
 		int DragSlice;
 		Vector2 DragStartPos;
 		Vector2 DragStartSize;
 		Vector2 DragStartMousePos;
+		Label WindowLabel;
 
-		public string Title;
+		public string Title {
+			get {
+				return WindowLabel.Text;
+			}
+			set {
+				WindowLabel.Text = value;
+			}
+		}
 
-		public Window(Texture SkinTexture) {
+		public Window(libGUI GUI) : base(GUI) {
+			WindowLabel = new Label(GUI, GUI.DefaultFont);
+			WindowLabel.Color = Color.Black;
+			WindowLabel.Text = "Window";
+			WindowLabel.Parent = this;
+			WindowLabel.PerformClipping = false;
+			//WindowLabel.DebugPaintClientArea = true;
+			//AddChild(WindowLabel);
+
+			Resizable = true;
 			Title = "Window";
-			Skin = new NineSlice(SkinTexture, 27, 4, 4, 4);
+			Skin = new NineSlice(GUI.WindowSkin, 27, 4, 4, 4);
 		}
 
 		public override void Draw() {
@@ -35,88 +53,97 @@ namespace libTech.GUI.Controls {
 			Skin.Size = Size;
 			Skin.Draw();
 
-			/*float BtmTxtOffset = (BorderTop - Font.MeasureString(Title).Y) / 3.0f;
-			Gfx.DrawText(Font, GlobalPosition + new Vector2(BorderLeft * 2, Size.Y - BorderTop + BtmTxtOffset), Title, Color.Black);*/
+			RenderState RS = Gfx.PeekRenderState();
+			RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalPosition + new Vector2(BorderLeft, Size.Y - BorderTop), new Vector2(Size.X - BorderLeft - BorderRight, BorderTop)));
+			Gfx.PushRenderState(RS);
 
+			float BtmTxtOffset = (BorderTop - WindowLabel.Size.Y) / 2.0f;
+			WindowLabel.Position = new Vector2(BorderLeft * 2, Size.Y - BorderTop + BtmTxtOffset);
+			WindowLabel.Draw();
+
+			Gfx.PopRenderState();
 			base.Draw();
 		}
 
 		public override bool OnMouseMove(OnMouseMoveEventArgs E) {
-			base.OnMouseMove(E);
+			if (IsBeingDragged) {
+				Vector2 D = E.Pos - DragStartMousePos;
 
-			if (!E.Consumed) {
-				if (IsBeingDragged) {
-					Vector2 D = E.Pos - DragStartMousePos;
+				if (DragSlice == 1 || DragSlice == 2 || DragSlice == 3)
+					Position = DragStartPos + D;
+				else if (DragSlice == 6 && Resizable) {
+					Vector2 NewSize = new Vector2(DragStartSize.X + D.X, DragStartSize.Y);
 
-					if (DragSlice == 1 || DragSlice == 2 || DragSlice == 3)
-						Position = DragStartPos + D;
-					else if (DragSlice == 6) {
-						Vector2 NewSize = new Vector2(DragStartSize.X + D.X, DragStartSize.Y);
+					if (NewSize.X >= MinSize.X && NewSize.Y >= MinSize.Y)
+						Size = NewSize;
+				} else if (DragSlice == 8 && Resizable) {
+					Vector2 NewSize = new Vector2(DragStartSize.X, DragStartSize.Y - D.Y);
+					Vector2 NewPosition = DragStartPos + new Vector2(0, D.Y);
 
-						if (NewSize.X >= MinSize.X && NewSize.Y >= MinSize.Y)
-							Size = NewSize;
-					} else if (DragSlice == 8) {
-						Vector2 NewSize = new Vector2(DragStartSize.X, DragStartSize.Y - D.Y);
-						Vector2 NewPosition = DragStartPos + new Vector2(0, D.Y);
+					if (NewSize.X >= MinSize.X && NewSize.Y >= MinSize.Y) {
+						Size = NewSize;
+						Position = NewPosition;
+					}
+				} else if (DragSlice == 9 && Resizable) {
+					Vector2 NewSize = new Vector2(DragStartSize.X + D.X, DragStartSize.Y - D.Y);
+					Vector2 NewPosition = DragStartPos + new Vector2(0, D.Y);
 
-						if (NewSize.X >= MinSize.X && NewSize.Y >= MinSize.Y) {
-							Size = NewSize;
-							Position = NewPosition;
-						}
-					} else if (DragSlice == 9) {
-						Vector2 NewSize = new Vector2(DragStartSize.X + D.X, DragStartSize.Y - D.Y);
-						Vector2 NewPosition = DragStartPos + new Vector2(0, D.Y);
-
-						if (NewSize.X >= MinSize.X) {
-							Size = new Vector2(NewSize.X, Size.Y);
-							Position = new Vector2(NewPosition.X, Position.Y);
-						}
-
-						if (NewSize.Y >= MinSize.Y) {
-							Size = new Vector2(Size.X, NewSize.Y);
-							Position = new Vector2(Position.X, NewPosition.Y);
-						}
+					if (NewSize.X >= MinSize.X) {
+						Size = new Vector2(NewSize.X, Size.Y);
+						Position = new Vector2(NewPosition.X, Position.Y);
 					}
 
-					E.Consumed = true;
-					return true;
+					if (NewSize.Y >= MinSize.Y) {
+						Size = new Vector2(Size.X, NewSize.Y);
+						Position = new Vector2(Position.X, NewPosition.Y);
+					}
 				}
+
+				E.Consumed = true;
+				return true;
 			}
 
+			if (!IsInClientArea(E.Pos)) {
+				E.Consumed = true;
+				return true;
+			}
+
+			base.OnMouseMove(E);
 			return false;
 		}
 
 		public override bool OnKey(OnKeyEventArgs E) {
-			base.OnKey(E);
+			int Slice = Skin.Collides(E.MousePos - GlobalPosition);
 
-			if (!E.Consumed && E.Key == Key.MouseLeft) {
-				if (IsBeingDragged && !E.Pressed) {
-					IsBeingDragged = false;
-					E.Consumed = true;
-					return true;
-				}
+			AABB ClientArea = new AABB(GlobalClientArea, ClientAreaSize);
+			if (Slice == 5 && ClientArea.IsInside(E.MousePos)) {
+				base.OnKey(E);
 
-				int Slice = Skin.Collides(E.MousePos - GlobalPosition);
-				if (Slice != 0) {
-					/*if (E.Pressed)
-						Console.WriteLine("{0} - {1}", DebugName, Slice);*/
-
-					if (!IsBeingDragged && E.Pressed) {
-						IsBeingDragged = true;
-						DragSlice = Slice;
-						DragStartPos = Position;
-						DragStartSize = Size;
-						DragStartMousePos = E.MousePos;
-					}
-				}
-
-				if (Slice != 0) {
-					E.Consumed = true;
-					return true;
-				}
+				if (E.Consumed)
+					return false;
 			}
 
-			return false;
+			E.Consumed = true;
+			return true;
+		}
+
+		public override void OnBeginHold(OnKeyEventArgs E) {
+			if (E.Key == Key.MouseLeft) {
+				int Slice = Skin.Collides(E.MousePos - GlobalPosition);
+
+				if (Slice != 0) {
+					IsBeingDragged = true;
+					DragSlice = Slice;
+					DragStartPos = Position;
+					DragStartSize = Size;
+					DragStartMousePos = E.MousePos;
+				}
+			}
+		}
+
+		public override void OnEndHold(OnKeyEventArgs E) {
+			if (E.Key == Key.MouseLeft)
+				IsBeingDragged = false;
 		}
 	}
 }

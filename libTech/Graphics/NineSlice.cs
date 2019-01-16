@@ -11,7 +11,19 @@ using System.Threading.Tasks;
 
 namespace libTech.Graphics {
 	public class NineSlice {
-		public Texture Texture;
+		Texture _Texture;
+		public Texture Texture {
+			get {
+				return _Texture;
+			}
+			set {
+				if (_Texture == value)
+					return;
+
+				_Texture = value;
+				Dirty = true;
+			}
+		}
 
 		public Quaternion Rotation;
 		public Vector2 Position;
