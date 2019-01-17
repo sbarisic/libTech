@@ -88,6 +88,11 @@ namespace libTech.GUI.Controls {
 			Children.Add(Ctrl);
 		}
 
+		public virtual void RemoveChild(Control Ctrl) {
+			Children.Remove(Ctrl);
+			Ctrl.Parent = null;
+		}
+
 		public virtual bool IsInside(Vector2 Pos) {
 			if (Parent != null) {
 				if (!Parent.IsInside(Pos))
@@ -105,6 +110,9 @@ namespace libTech.GUI.Controls {
 			}
 
 			return false;
+		}
+
+		public virtual void Refresh() {
 		}
 
 		/// <summary>

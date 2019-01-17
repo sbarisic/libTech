@@ -41,7 +41,7 @@ namespace Game {
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
 
-			ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
+			/*ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
 
 			MenuMeshShader.Bind(ShaderUniforms.Current);
 			MenuMeshTex.BindTextureUnit();
@@ -49,7 +49,7 @@ namespace Game {
 			MenuMeshTex.UnbindTextureUnit();
 			MenuMeshShader.Unbind();
 
-			ShaderUniforms.Current.Model = Matrix4x4.Identity;
+			ShaderUniforms.Current.Model = Matrix4x4.Identity;*/
 		}
 	}
 }

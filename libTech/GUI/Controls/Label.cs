@@ -50,27 +50,35 @@ namespace libTech.GUI.Controls {
 			PerformClipping = true;
 		}
 
-		void Refresh() {
+		public override void Refresh() {
+			base.Refresh();
+
 			if (!Dirty)
 				return;
 			Dirty = false;
 
-			_TextSize = Font.MeasureString(Text);
+			if (Text.Length == 0)
+				_TextSize = Vector2.Zero;
+			else
+				_TextSize = Font.MeasureString(Text);
 		}
 
 		public override void Draw() {
 			Refresh();
 
-			if (PerformClipping) {
-				RenderState RS = Gfx.PeekRenderState();
-				RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
-				Gfx.PushRenderState(RS);
+			if (Text.Length != 0) {
+				if (PerformClipping) {
+					RenderState RS = Gfx.PeekRenderState();
+					RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
+					Gfx.PushRenderState(RS);
+				}
+
+				Gfx.DrawText(Font, GlobalPosition, Text, Color);
+
+				if (PerformClipping)
+					Gfx.PopRenderState();
 			}
 
-			Gfx.DrawText(Font, GlobalPosition, Text, Color);
-
-			if (PerformClipping)
-				Gfx.PopRenderState();
 			base.Draw();
 		}
 	}

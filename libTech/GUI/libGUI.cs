@@ -27,20 +27,30 @@ namespace libTech.GUI {
 		public GfxFont DebugFont;
 
 		public Texture WindowSkin;
+
 		public Texture ButtonSkin;
 		public Texture ButtonHoverSkin;
 		public Texture ButtonDisabledSkin;
 		public Texture ButtonClickSkin;
+
+		public Texture ButtonCloseSkin;
+		public Texture ButtonCloseHoverSkin;
+		public Texture ButtonCloseClickSkin;
 
 		public libGUI(RenderWindow RWind) {
 			Controls = new List<Control>();
 			MouseHeldControls = new Dictionary<Key, Control>();
 
 			WindowSkin = Texture.FromFile("content/textures/gui_elements/window.png");
+
 			ButtonSkin = Texture.FromFile("content/textures/gui_elements/button.png");
 			ButtonHoverSkin = Texture.FromFile("content/textures/gui_elements/button_hover.png");
 			ButtonDisabledSkin = Texture.FromFile("content/textures/gui_elements/button_disabled.png");
 			ButtonClickSkin = Texture.FromFile("content/textures/gui_elements/button_click.png");
+
+			ButtonCloseSkin = Texture.FromFile("content/textures/gui_elements/button_close.png");
+			ButtonCloseHoverSkin = Texture.FromFile("content/textures/gui_elements/button_close_hover.png");
+			ButtonCloseClickSkin = Texture.FromFile("content/textures/gui_elements/button_close_click.png");
 
 			RWind.OnMouseMove += (W, X, Y) => {
 				MousePos = new Vector2(X, W.WindowHeight - Y);
@@ -92,32 +102,31 @@ namespace libTech.GUI {
 			AnonPro32 = new BMFont("content/fonts/anonymous_pro_32.fnt");
 			AnonPro32.LoadTextures("content/textures", TextureFilter.Linear);
 
-			Window ParentWindow = null;
+			Window Parent = null;
 
-			for (int j = 0; j < 3; j++) {
-				Window TestWindow = new Window(this);
-				TestWindow.Position = new Vector2(100, 100);
-				TestWindow.Size = new Vector2(300, 200);
-				TestWindow.Title = "Some Window";
-				//TestWindow.Resizable = false;
-				//Controls.Add(TestWindow);
+			for (int i = 0; i < 3; i++) {
+				Window W = new Window(this);
+				W.Position = new Vector2(50, 50);
+				W.Size = new Vector2(400 - 100 * i, 400 - 100 * i);
+				W.Title = "Window #" + i;
 
-				for (int i = 0; i < 3; i++) {
-					Button Btn = new Button(this);
-					Btn.OnClick += (S, E) => { Console.WriteLine("Hello!"); };
-					Btn.Position = new Vector2(20, 20 + 35 * i);
-					Btn.Size = new Vector2(100 + 20 * i, 30);
-					Btn.Text = "Button #" + i;
-					TestWindow.AddChild(Btn);
-				}
+				AddButton(W);
 
-				if (ParentWindow != null)
-					ParentWindow.AddChild(TestWindow);
-				else {
-					ParentWindow = TestWindow;
-					Controls.Add(TestWindow);
-				}
+				if (Parent == null)
+					AddControl(W);
+				else
+					Parent.AddChild(W);
+
+				Parent = W;
 			}
+		}
+
+		void AddButton(Window Wnd) {
+			Button BtnA = new Button(this);
+			BtnA.Position = new Vector2(10, 10);
+			BtnA.Size = new Vector2(60, 30);
+			BtnA.Text = "Button";
+			Wnd.AddChild(BtnA);
 		}
 
 		void ClickControl(Control C, Key MouseKey, bool Pressed) {
@@ -154,6 +163,14 @@ namespace libTech.GUI {
 		public void Update(float Dt) {
 			foreach (var C in Controls)
 				C.Update(Dt);
+		}
+
+		public void AddControl(Control C) {
+			Controls.Add(C);
+		}
+
+		public void RemoveControl(Control C) {
+			Controls.Remove(C);
 		}
 
 		public void Draw() {

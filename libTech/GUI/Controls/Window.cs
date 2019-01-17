@@ -23,7 +23,9 @@ namespace libTech.GUI.Controls {
 		Vector2 DragStartPos;
 		Vector2 DragStartSize;
 		Vector2 DragStartMousePos;
+
 		Label WindowLabel;
+		Button WindowCloseButton;
 
 		public string Title {
 			get {
@@ -43,9 +45,25 @@ namespace libTech.GUI.Controls {
 			//WindowLabel.DebugPaintClientArea = true;
 			//AddChild(WindowLabel);
 
+			WindowCloseButton = new Button(GUI);
+			WindowCloseButton.ButtonSkin = GUI.ButtonCloseSkin;
+			WindowCloseButton.ButtonHoverSkin = GUI.ButtonCloseHoverSkin;
+			WindowCloseButton.ButtonClickSkin = GUI.ButtonCloseClickSkin;
+			WindowCloseButton.Size = new Vector2(20, 17);
+			WindowCloseButton.Parent = this;
+			WindowCloseButton.OnClick += (S, E) => Close();
+			WindowCloseButton.Refresh();
+
 			Resizable = true;
 			Title = "Window";
 			Skin = new NineSlice(GUI.WindowSkin, 27, 4, 4, 4);
+		}
+
+		public virtual void Close() {
+			if (Parent != null)
+				Parent.RemoveChild(this);
+			else
+				GUI.RemoveControl(this);
 		}
 
 		public override void Draw() {
@@ -56,12 +74,15 @@ namespace libTech.GUI.Controls {
 			RenderState RS = Gfx.PeekRenderState();
 			RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalPosition + new Vector2(BorderLeft, Size.Y - BorderTop), new Vector2(Size.X - BorderLeft - BorderRight, BorderTop)));
 			Gfx.PushRenderState(RS);
-
-			float BtmTxtOffset = (BorderTop - WindowLabel.Size.Y) / 2.0f;
-			WindowLabel.Position = new Vector2(BorderLeft * 2, Size.Y - BorderTop + BtmTxtOffset);
-			WindowLabel.Draw();
-
+			{
+				float BtmTxtOffset = (BorderTop - WindowLabel.Size.Y) / 2.0f;
+				WindowLabel.Position = new Vector2(BorderLeft * 2, Size.Y - BorderTop + BtmTxtOffset);
+				WindowLabel.Draw();
+			}
 			Gfx.PopRenderState();
+
+			WindowCloseButton.Position = Size - WindowCloseButton.Size * new Vector2(1.5f, 1);
+			WindowCloseButton.Draw();
 			base.Draw();
 		}
 
@@ -103,6 +124,8 @@ namespace libTech.GUI.Controls {
 				return true;
 			}
 
+			WindowCloseButton.OnMouseMove(E);
+
 			if (!IsInClientArea(E.Pos)) {
 				E.Consumed = true;
 				return true;
@@ -123,6 +146,8 @@ namespace libTech.GUI.Controls {
 					return false;
 			}
 
+			WindowCloseButton.OnKey(E);
+
 			E.Consumed = true;
 			return true;
 		}
@@ -132,11 +157,15 @@ namespace libTech.GUI.Controls {
 				int Slice = Skin.Collides(E.MousePos - GlobalPosition);
 
 				if (Slice != 0) {
-					IsBeingDragged = true;
-					DragSlice = Slice;
-					DragStartPos = Position;
-					DragStartSize = Size;
-					DragStartMousePos = E.MousePos;
+					if (Slice == 2 && WindowCloseButton.IsInside(E.MousePos)) {
+						// Do nothing if inside window close button
+					} else {
+						IsBeingDragged = true;
+						DragSlice = Slice;
+						DragStartPos = Position;
+						DragStartSize = Size;
+						DragStartMousePos = E.MousePos;
+					}
 				}
 			}
 		}
