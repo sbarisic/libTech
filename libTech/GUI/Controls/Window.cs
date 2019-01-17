@@ -16,6 +16,7 @@ namespace libTech.GUI.Controls {
 		public override float BorderBottom { get => Skin.BorderBottom * Skin.BorderBottomScale; set => Skin.BorderBottom = value; }
 
 		public bool Resizable;
+		public bool Closable;
 
 		NineSlice Skin;
 		bool IsBeingDragged;
@@ -81,8 +82,10 @@ namespace libTech.GUI.Controls {
 			}
 			Gfx.PopRenderState();
 
-			WindowCloseButton.Position = Size - WindowCloseButton.Size * new Vector2(1.5f, 1);
-			WindowCloseButton.Draw();
+			if (Closable) {
+				WindowCloseButton.Position = Size - WindowCloseButton.Size * new Vector2(1.5f, 1);
+				WindowCloseButton.Draw();
+			}
 			base.Draw();
 		}
 
@@ -124,7 +127,8 @@ namespace libTech.GUI.Controls {
 				return true;
 			}
 
-			WindowCloseButton.OnMouseMove(E);
+			if (Closable)
+				WindowCloseButton.OnMouseMove(E);
 
 			if (!IsInClientArea(E.Pos)) {
 				E.Consumed = true;
@@ -146,7 +150,8 @@ namespace libTech.GUI.Controls {
 					return false;
 			}
 
-			WindowCloseButton.OnKey(E);
+			if (Closable)
+				WindowCloseButton.OnKey(E);
 
 			E.Consumed = true;
 			return true;
@@ -157,7 +162,7 @@ namespace libTech.GUI.Controls {
 				int Slice = Skin.Collides(E.MousePos - GlobalPosition);
 
 				if (Slice != 0) {
-					if (Slice == 2 && WindowCloseButton.IsInside(E.MousePos)) {
+					if (Closable && Slice == 2 && WindowCloseButton.IsInside(E.MousePos)) {
 						// Do nothing if inside window close button
 					} else {
 						IsBeingDragged = true;

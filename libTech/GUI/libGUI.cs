@@ -101,32 +101,6 @@ namespace libTech.GUI {
 
 			AnonPro32 = new BMFont("content/fonts/anonymous_pro_32.fnt");
 			AnonPro32.LoadTextures("content/textures", TextureFilter.Linear);
-
-			Window Parent = null;
-
-			for (int i = 0; i < 3; i++) {
-				Window W = new Window(this);
-				W.Position = new Vector2(50, 50);
-				W.Size = new Vector2(400 - 100 * i, 400 - 100 * i);
-				W.Title = "Window #" + i;
-
-				AddButton(W);
-
-				if (Parent == null)
-					AddControl(W);
-				else
-					Parent.AddChild(W);
-
-				Parent = W;
-			}
-		}
-
-		void AddButton(Window Wnd) {
-			Button BtnA = new Button(this);
-			BtnA.Position = new Vector2(10, 10);
-			BtnA.Size = new Vector2(60, 30);
-			BtnA.Text = "Button";
-			Wnd.AddChild(BtnA);
 		}
 
 		void ClickControl(Control C, Key MouseKey, bool Pressed) {
