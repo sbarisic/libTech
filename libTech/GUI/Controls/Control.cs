@@ -8,6 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.GUI.Controls {
+	public enum SizeMode {
+		Value,
+		EncapsuleChildren
+	}
+
 	public abstract class Control {
 		public readonly libGUI GUI;
 
@@ -18,8 +23,46 @@ namespace libTech.GUI.Controls {
 		public List<Control> Children = new List<Control>();
 
 		public virtual Vector2 Position { get; set; }
-		public virtual Vector2 Size { get; set; }
 		public virtual Vector2 MinSize { get { return new Vector2(70, 40); } }
+		public virtual SizeMode SizeMode { get; set; } = SizeMode.Value;
+
+		public virtual bool CanSetSize {
+			get {
+				return SizeMode == SizeMode.Value;
+			}
+		}
+
+		Vector2 _Size;
+		public virtual Vector2 Size {
+			get {
+				if (SizeMode == SizeMode.Value)
+					return _Size;
+				else if (SizeMode == SizeMode.EncapsuleChildren) {
+					if (Children.Count == 0)
+						return MinSize;
+					else {
+						Vector2 MaxPos = Vector2.Zero;
+
+						foreach (var C in Children)
+							MaxPos = MaxPos.Max(C.Position + C.Size);
+
+						// TODO: Child position is not normalized to parent client area
+						// This is why only right and top border is added, and not left and bottom ones
+						return MaxPos + new Vector2(BorderRight, BorderTop);
+					}
+				}
+
+				throw new NotImplementedException();
+			}
+			set {
+				if (SizeMode == SizeMode.Value) {
+					_Size = value;
+					return;
+				}
+
+				throw new InvalidOperationException();
+			}
+		}
 
 		public virtual Vector2 GlobalPosition {
 			get {
@@ -73,14 +116,16 @@ namespace libTech.GUI.Controls {
 			if (DebugPaintClientArea)
 				Gfx.FilledRectangle(GlobalClientArea.X, GlobalClientArea.Y, ClientAreaSize.X, ClientAreaSize.Y, Color.Red);
 
-			RenderState RS = Gfx.PeekRenderState();
-			RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
-			Gfx.PushRenderState(RS);
+			if (Children.Count > 0) {
+				RenderState RS = Gfx.PeekRenderState();
+				RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
+				Gfx.PushRenderState(RS);
 
-			foreach (var C in Children)
-				C.Draw();
+				foreach (var C in Children)
+					C.Draw();
 
-			Gfx.PopRenderState();
+				Gfx.PopRenderState();
+			}
 		}
 
 		public virtual void AddChild(Control Ctrl) {

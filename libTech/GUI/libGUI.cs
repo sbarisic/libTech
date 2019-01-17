@@ -70,19 +70,26 @@ namespace libTech.GUI {
 
 				if (IsMouse) {
 					bool ClickedOnAny = false;
+					Control ClickedRootControl = null;
 
 					foreach (var C in Controls)
 						if (C.IsInside(MousePos)) {
 							Control Ctrl = C.GetRecursiveClientAreaChildAt(MousePos) ?? C;
 							ClickControl(Ctrl, Key, Pressed);
+
 							ClickedOnAny = true;
+							ClickedRootControl = C;
 						}
+
+					if (ClickedRootControl != null)
+						BringToFront(ClickedRootControl);
 
 					if (!ClickedOnAny)
 						ClickControl(null, Key, Pressed);
 				}
 
-				foreach (var C in Controls) {
+				for (int i = 0; i < Controls.Count; i++) {
+					Control C = Controls[i];
 					C.OnKey(Evt);
 
 					if (Evt.Consumed)
@@ -147,6 +154,11 @@ namespace libTech.GUI {
 			Controls.Remove(C);
 		}
 
+		public void BringToFront(Control C) {
+			RemoveControl(C);
+			AddControl(C);
+		}
+
 		public void Draw() {
 			float FT = Engine.FrameTime.Average();
 			float FPS = 1.0f / FT;
@@ -168,6 +180,21 @@ namespace libTech.GUI {
 				C.Draw();
 
 			Gfx.PopRenderState();
+		}
+	}
+
+	public static class libGUIExtensions {
+		public static Button AddButton(this Window Wnd, Vector2 Pos, Vector2 Size, string Text, OnButtonClickFunc OnClick = null) {
+			Button Btn = new Button(Wnd.GUI);
+			Btn.Position = Pos;
+			Btn.Size = Size;
+			Btn.Text = Text;
+
+			if (OnClick != null)
+				Btn.OnClick += OnClick;
+
+			Wnd.AddChild(Btn);
+			return Btn;
 		}
 	}
 }

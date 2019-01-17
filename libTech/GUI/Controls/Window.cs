@@ -15,8 +15,22 @@ namespace libTech.GUI.Controls {
 		public override float BorderTop { get => Skin.BorderTop * Skin.BorderTopScale; set => Skin.BorderTop = value; }
 		public override float BorderBottom { get => Skin.BorderBottom * Skin.BorderBottomScale; set => Skin.BorderBottom = value; }
 
-		public bool Resizable;
+		bool _Resizable;
+		public bool Resizable {
+			get {
+				if (CanSetSize)
+					return _Resizable;
+
+				return false;
+			}
+
+			set {
+				_Resizable = value;
+			}
+		}
+
 		public bool Closable;
+		public event Action OnClose;
 
 		NineSlice Skin;
 		bool IsBeingDragged;
@@ -55,6 +69,7 @@ namespace libTech.GUI.Controls {
 			WindowCloseButton.OnClick += (S, E) => Close();
 			WindowCloseButton.Refresh();
 
+			Closable = true;
 			Resizable = true;
 			Title = "Window";
 			Skin = new NineSlice(GUI.WindowSkin, 27, 4, 4, 4);
@@ -65,6 +80,8 @@ namespace libTech.GUI.Controls {
 				Parent.RemoveChild(this);
 			else
 				GUI.RemoveControl(this);
+
+			OnClose?.Invoke();
 		}
 
 		public override void Draw() {
@@ -153,8 +170,9 @@ namespace libTech.GUI.Controls {
 			if (Closable)
 				WindowCloseButton.OnKey(E);
 
-			E.Consumed = true;
-			return true;
+			//E.Consumed = true;
+			//return true;
+			return false;
 		}
 
 		public override void OnBeginHold(OnKeyEventArgs E) {
