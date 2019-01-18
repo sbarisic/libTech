@@ -105,8 +105,8 @@ namespace libTech.GUI.Controls {
 		}
 
 		public virtual void Update(float Dt) {
-			foreach (var C in Children)
-				C.Update(Dt);
+			for (int i = 0; i < Children.Count; i++)
+				Children[i].Update(Dt);
 		}
 
 		public virtual void Draw() {
@@ -121,8 +121,8 @@ namespace libTech.GUI.Controls {
 				RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));
 				Gfx.PushRenderState(RS);
 
-				foreach (var C in Children)
-					C.Draw();
+				for (int i = 0; i < Children.Count; i++)
+					Children[i].Draw();
 
 				Gfx.PopRenderState();
 			}
@@ -154,6 +154,14 @@ namespace libTech.GUI.Controls {
 				return CArea.IsInside(Pos);
 			}
 
+			return false;
+		}
+
+		public virtual bool ContainsControl(Control Ctrl) {
+			foreach (var C in Children)
+				if (C == Ctrl || C.ContainsControl(Ctrl))
+					return true;
+			
 			return false;
 		}
 

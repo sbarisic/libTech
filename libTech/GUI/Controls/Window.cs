@@ -146,13 +146,14 @@ namespace libTech.GUI.Controls {
 
 			if (Closable)
 				WindowCloseButton.OnMouseMove(E);
+			
+			base.OnMouseMove(E);
 
-			if (!IsInClientArea(E.Pos)) {
+			if (!E.Consumed && IsInside(E.Pos)) {
 				E.Consumed = true;
 				return true;
 			}
 
-			base.OnMouseMove(E);
 			return false;
 		}
 
@@ -170,9 +171,9 @@ namespace libTech.GUI.Controls {
 			if (Closable)
 				WindowCloseButton.OnKey(E);
 
-			//E.Consumed = true;
-			//return true;
-			return false;
+			E.Consumed = true;
+			return true;
+			//return false;
 		}
 
 		public override void OnBeginHold(OnKeyEventArgs E) {

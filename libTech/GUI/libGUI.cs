@@ -56,7 +56,9 @@ namespace libTech.GUI {
 				MousePos = new Vector2(X, W.WindowHeight - Y);
 				OnMouseMoveEventArgs Evt = new OnMouseMoveEventArgs(this, MousePos);
 
-				foreach (var C in Controls) {
+				for (int i = Controls.Count - 1; i >= 0; i--) {
+					// for (int i = 0; i < Controls.Count; i++) {
+					Control C = Controls[i];
 					C.OnMouseMove(Evt);
 
 					if (Evt.Consumed)
@@ -72,7 +74,10 @@ namespace libTech.GUI {
 					bool ClickedOnAny = false;
 					Control ClickedRootControl = null;
 
-					foreach (var C in Controls)
+					for (int i = 0; i < Controls.Count; i++) {
+						// for (int i = Controls.Count - 1; i >= 0; i--) {
+						Control C = Controls[i];
+
 						if (C.IsInside(MousePos)) {
 							Control Ctrl = C.GetRecursiveClientAreaChildAt(MousePos) ?? C;
 							ClickControl(Ctrl, Key, Pressed);
@@ -80,6 +85,7 @@ namespace libTech.GUI {
 							ClickedOnAny = true;
 							ClickedRootControl = C;
 						}
+					}
 
 					if (ClickedRootControl != null)
 						BringToFront(ClickedRootControl);
@@ -88,7 +94,8 @@ namespace libTech.GUI {
 						ClickControl(null, Key, Pressed);
 				}
 
-				for (int i = 0; i < Controls.Count; i++) {
+				for (int i = Controls.Count - 1; i >= 0; i--) {
+					//for (int i = 0; i < Controls.Count; i++) {
 					Control C = Controls[i];
 					C.OnKey(Evt);
 
@@ -146,7 +153,16 @@ namespace libTech.GUI {
 				C.Update(Dt);
 		}
 
-		public void AddControl(Control C) {
+		public void AddControl(Control C, bool PerformSanityCheck = true) {
+			if (PerformSanityCheck) {
+				if (Controls.Contains(C))
+					throw new Exception("Control already added to UI");
+
+				foreach (var Ctrl in Controls)
+					if (Ctrl.ContainsControl(C))
+						throw new Exception("Control already present in one of the existing ones");
+			}
+
 			Controls.Add(C);
 		}
 
@@ -155,8 +171,10 @@ namespace libTech.GUI {
 		}
 
 		public void BringToFront(Control C) {
-			RemoveControl(C);
-			AddControl(C);
+			if (Controls.IndexOf(C) < Controls.Count - 1) {
+				RemoveControl(C);
+				AddControl(C);
+			}
 		}
 
 		public void Draw() {
