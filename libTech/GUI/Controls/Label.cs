@@ -19,7 +19,7 @@ namespace libTech.GUI.Controls {
 		bool Dirty;
 
 		string _Text;
-		public string Text {
+		public virtual string Text {
 			get {
 				return _Text;
 			}
@@ -33,8 +33,8 @@ namespace libTech.GUI.Controls {
 		}
 
 		public GfxFont Font;
-		public Color Color;
-		public bool PerformClipping;
+		public Color Color = Color.Black;
+		public virtual bool PerformClipping { get; set; }
 
 		Vector2 _TextSize;
 		public override Vector2 Size {
@@ -48,6 +48,9 @@ namespace libTech.GUI.Controls {
 		public Label(libGUI GUI, GfxFont Font) : base(GUI) {
 			this.Font = Font;
 			PerformClipping = true;
+		}
+
+		public Label(libGUI GUI) : this(GUI, GUI.DefaultFont) {
 		}
 
 		public override void Refresh() {
@@ -66,7 +69,7 @@ namespace libTech.GUI.Controls {
 		public override void Draw() {
 			Refresh();
 
-			if (Text.Length != 0) {
+			if ((Text?.Length ?? 0) != 0) {
 				if (PerformClipping) {
 					RenderState RS = Gfx.PeekRenderState();
 					RS.ScissorRegion = RS.ScissorRegion.Intersection(new AABB(GlobalClientArea, ClientAreaSize));

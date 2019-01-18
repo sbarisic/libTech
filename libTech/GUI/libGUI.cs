@@ -7,6 +7,7 @@ using libTech.GUI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -37,20 +38,31 @@ namespace libTech.GUI {
 		public Texture ButtonCloseHoverSkin;
 		public Texture ButtonCloseClickSkin;
 
+		public Texture CheckBoxSkin;
+		public Texture CheckBoxCheckedSkin;
+		public Texture CheckBoxHoverOverlaySkin;
+
+		public void LoadSkin(string SkinFolder) {
+			Texture.CreateOrUpdateFromFile(ref WindowSkin, Path.Combine(SkinFolder, "window.png"));
+
+			Texture.CreateOrUpdateFromFile(ref ButtonSkin, Path.Combine(SkinFolder, "button.png"));
+			Texture.CreateOrUpdateFromFile(ref ButtonHoverSkin, Path.Combine(SkinFolder, "button_hover.png"));
+			Texture.CreateOrUpdateFromFile(ref ButtonDisabledSkin, Path.Combine(SkinFolder, "button_disabled.png"));
+			Texture.CreateOrUpdateFromFile(ref ButtonClickSkin, Path.Combine(SkinFolder, "button_click.png"));
+
+			Texture.CreateOrUpdateFromFile(ref ButtonCloseSkin, Path.Combine(SkinFolder, "button_close.png"));
+			Texture.CreateOrUpdateFromFile(ref ButtonCloseHoverSkin, Path.Combine(SkinFolder, "button_close_hover.png"));
+			Texture.CreateOrUpdateFromFile(ref ButtonCloseClickSkin, Path.Combine(SkinFolder, "button_close_click.png"));
+
+			Texture.CreateOrUpdateFromFile(ref CheckBoxSkin, Path.Combine(SkinFolder, "checkbox.png"));
+			Texture.CreateOrUpdateFromFile(ref CheckBoxCheckedSkin, Path.Combine(SkinFolder, "checkbox_checked.png"));
+			Texture.CreateOrUpdateFromFile(ref CheckBoxHoverOverlaySkin, Path.Combine(SkinFolder, "checkbox_hover_overlay.png"));
+		}
+
 		public libGUI(RenderWindow RWind) {
 			Controls = new List<Control>();
 			MouseHeldControls = new Dictionary<Key, Control>();
-
-			WindowSkin = Texture.FromFile("content/textures/gui_elements/window.png");
-
-			ButtonSkin = Texture.FromFile("content/textures/gui_elements/button.png");
-			ButtonHoverSkin = Texture.FromFile("content/textures/gui_elements/button_hover.png");
-			ButtonDisabledSkin = Texture.FromFile("content/textures/gui_elements/button_disabled.png");
-			ButtonClickSkin = Texture.FromFile("content/textures/gui_elements/button_click.png");
-
-			ButtonCloseSkin = Texture.FromFile("content/textures/gui_elements/button_close.png");
-			ButtonCloseHoverSkin = Texture.FromFile("content/textures/gui_elements/button_close_hover.png");
-			ButtonCloseClickSkin = Texture.FromFile("content/textures/gui_elements/button_close_click.png");
+			LoadSkin("content/textures/gui_elements/standard");
 
 			RWind.OnMouseMove += (W, X, Y) => {
 				MousePos = new Vector2(X, W.WindowHeight - Y);

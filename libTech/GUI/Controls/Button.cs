@@ -48,7 +48,7 @@ namespace libTech.GUI.Controls {
 
 			Skin = new NineSlice(this.ButtonSkin, 2);
 		}
-
+		
 		public override void Refresh() {
 			base.Refresh();
 

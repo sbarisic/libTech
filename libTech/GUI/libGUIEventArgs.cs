@@ -49,5 +49,14 @@ namespace libTech.GUI {
 		}
 	}
 
+	public class OnCheckBoxToggledEventArgs : libGUIEventArgs {
+		public bool Checked;
+
+		public OnCheckBoxToggledEventArgs(libGUI GUI, bool Checked) : base(GUI) {
+			this.Checked = Checked;
+		}
+	}
+
 	public delegate void OnButtonClickFunc(object Sender, OnButtonClickEventArgs Args);
+	public delegate void OnCheckBoxToggledFunc(object Sender, OnCheckBoxToggledEventArgs Args);
 }

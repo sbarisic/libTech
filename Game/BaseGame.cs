@@ -30,6 +30,10 @@ namespace Game {
 		Mesh3D MenuMesh;
 		Texture MenuMeshTex;
 
+		const float BtnPadding = 7;
+		const float BtnHeight = 30;
+		const float BtnWidth = 200;
+
 		public override void Load() {
 			MenuMeshShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag"));
 			MenuMesh = new Mesh3D(Smd.Load("content/models/oildrum001_explosive_reference.smd")[0]);
@@ -43,17 +47,34 @@ namespace Game {
 			Window MainMenuWindow = new Window(Engine.UI);
 			MainMenuWindow.Position = new Vector2(50, 50);
 			MainMenuWindow.SizeMode = SizeMode.EncapsuleChildren;
+			//MainMenuWindow.Size = new Vector2(200, 200);
 			MainMenuWindow.Title = "libTech";
 			MainMenuWindow.Closable = false;
 			Engine.UI.AddControl(MainMenuWindow);
 
-			const float BtnPadding = 7;
-			const float BtnHeight = 30;
-			const float BtnWidth = 200;
 
-			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 2 + BtnPadding * 2), new Vector2(BtnWidth, BtnHeight), "New Game", (S, E) => { });
-			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 1 + BtnPadding * 1), new Vector2(BtnWidth, BtnHeight), "Options", (S, E) => { SpawnOptionsWindow(); });
-			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 0 + BtnPadding * 0), new Vector2(BtnWidth, BtnHeight), "Quit", (S, E) => { Environment.Exit(0); });
+			/*MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 5 + BtnPadding * 5), new Vector2(BtnWidth, BtnHeight), "Standard Skin", (S, E) => {
+				Engine.UI.LoadSkin("content/textures/gui_elements/standard");
+			});
+			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 4 + BtnPadding * 4), new Vector2(BtnWidth, BtnHeight), "Flat Skin", (S, E) => {
+				Engine.UI.LoadSkin("content/textures/gui_elements/flat");
+			});
+			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 3 + BtnPadding * 3), new Vector2(BtnWidth, BtnHeight), "Flat Gray Skin", (S, E) => {
+				Engine.UI.LoadSkin("content/textures/gui_elements/flat_gray");
+			});*/
+
+			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 2 + BtnPadding * 2), new Vector2(BtnWidth, BtnHeight), "New Game", (S, E) => {
+			});
+
+			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 1 + BtnPadding * 1), new Vector2(BtnWidth, BtnHeight), "Options", (S, E) => {
+				SpawnOptionsWindow();
+			});
+
+			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 0 + BtnPadding * 0), new Vector2(BtnWidth, BtnHeight), "Quit", (S, E) => {
+				Environment.Exit(0);
+			});
+
+
 		}
 
 		void SpawnOptionsWindow() {
@@ -65,9 +86,30 @@ namespace Game {
 			Window OptionsWindow = new Window(Engine.UI);
 			OptionsWindow.OnClose += () => OptionsWindowShown = false;
 			OptionsWindow.Title = "Options";
+			OptionsWindow.SizeMode = SizeMode.EncapsuleChildren;
+			//OptionsWindow.Size = new Vector2(200, 200);
 			OptionsWindow.Position = new Vector2(200, 200);
-			OptionsWindow.Size = new Vector2(300, 300);
 			Engine.UI.AddControl(OptionsWindow);
+
+			OptionsWindow.AddButton(OptionsWindow.ClientArea + new Vector2(100, 0), new Vector2(BtnWidth / 2, BtnHeight), "OK", (S, E) => {
+				OptionsWindow.Close();
+			});
+
+			OptionsWindow.AddButton(OptionsWindow.ClientArea + new Vector2(100 + BtnWidth / 2 + BtnPadding, 0), new Vector2(BtnWidth / 2, BtnHeight), "Cancel", (S, E) => {
+				OptionsWindow.Close();
+			});
+
+			Label Lbl = new Label(Engine.UI);
+			Lbl.Position = new Vector2(10, 200);
+			Lbl.Text = "// TODO: Put stuff here";
+			OptionsWindow.AddChild(Lbl);
+
+			for (int i = 1; i < 6; i++) {
+				CheckBox CBox = new CheckBox(Engine.UI);
+				CBox.Position = new Vector2(10, 200 - 20 * i);
+				CBox.Text = "Check me #" + i;
+				OptionsWindow.AddChild(CBox);
+			}
 		}
 
 		public override void Draw(float Dt) {
