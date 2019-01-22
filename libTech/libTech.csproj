@@ -111,6 +111,7 @@
     <Compile Include="Importer\Importer_Texture.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
+    <Compile Include="Map\BSP.cs" />
     <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\Msdfgen.cs" />
@@ -224,6 +225,9 @@
     <None Include="content\gui\main_menu.fml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\maps\lun3dm5.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -294,6 +298,10 @@
       <Project>{deba5fb3-ec87-493f-9908-e04242fe290d}</Project>
       <Name>FishMarkupLanguage</Name>
       <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\LibBSP\LibBSP\LibBSP.csproj">
+      <Project>{33e4ffca-8d0b-4089-afd2-527547531578}</Project>
+      <Name>LibBSP</Name>
     </ProjectReference>
     <ProjectReference Include="..\LuaDotNet\Lua.NET\Lua.NET.csproj">
       <Project>{1d3681d5-9104-4638-a6d4-ace3b60cecbb}</Project>
@@ -555,8 +563,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="content\maps\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

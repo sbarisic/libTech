@@ -74,7 +74,7 @@ namespace Game {
 				Environment.Exit(0);
 			});
 
-
+			libTech.Map.BSP.Load("content/maps/lun3dm5.bsp");
 		}
 
 		void SpawnOptionsWindow() {
