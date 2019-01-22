@@ -63,6 +63,15 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Facepunch.Parse">
+      <HintPath>..\..\SourceUtils\bin\Facepunch.Parse.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\SourceUtils\bin\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="SourceUtils">
+      <HintPath>..\..\SourceUtils\bin\SourceUtils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -85,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\RunningAverage.cs" />
+    <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
     <Compile Include="Graphics\Text.cs" />
@@ -112,6 +122,7 @@
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
     <Compile Include="Map\BSP.cs" />
+    <Compile Include="Models\SourceMdl.cs" />
     <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\Msdfgen.cs" />

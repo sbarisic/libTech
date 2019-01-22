@@ -1,6 +1,7 @@
 ﻿using CARP;
 using FishGfx;
 using FishGfx.Graphics;
+using libTech.FileSystem;
 using libTech.Graphics;
 using libTech.GUI;
 using libTech.Importer;
@@ -27,6 +28,8 @@ namespace libTech {
 
 		public static libGUI UI;
 
+		public static VirtualFileSystem VFS;
+
 		public static Camera Camera3D;
 		public static Camera Camera2D;
 
@@ -37,6 +40,7 @@ namespace libTech {
 		public static ConVar<bool> WindowResizable;
 		public static ConVar<bool> WindowBorderless;
 		public static ConVar<bool> ShowFPS;
+		public static ConVar<string> SourceGameDirs;
 
 		public static float Time;
 		public static RunningAverage FrameTime = new RunningAverage(30);
@@ -122,6 +126,8 @@ namespace libTech {
 			Engine.WindowResizable = ConVar.Register("resizable", false, ConVarType.Archive);
 			Engine.ShowFPS = ConVar.Register("showfps", true, ConVarType.Archive);
 
+			Engine.SourceGameDirs = ConVar.Register("source_game_dirs", "C:/Program Files (x86)/Steam/steamapps/common/GarrysMod", ConVarType.Archive);
+
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
 				switch (Arg.Key) {
@@ -158,21 +164,24 @@ namespace libTech {
 		}
 
 		static void LoadGameDll(string BasePath) {
-			BasePath = Path.Combine(BasePath, "Game.dll");
+			string GameDllPath = Path.Combine(BasePath, "Game.dll");
 
-			Assembly GameAssembly = Reflect.LoadAssembly(BasePath);
+			Assembly GameAssembly = Reflect.LoadAssembly(GameDllPath);
 			Type[] GameImplementations = Reflect.GetAllImplementationsOf(GameAssembly, typeof(LibTechGame)).ToArray();
 
 			if (GameImplementations.Length == 0) {
-				GConsole.WriteLine("No game implementations found in " + BasePath);
+				GConsole.WriteLine("No game implementations found in " + GameDllPath);
 				Environment.Exit(0);
 			} else if (GameImplementations.Length > 1) {
-				GConsole.WriteLine("Too many game implementations in " + BasePath);
+				GConsole.WriteLine("Too many game implementations in " + GameDllPath);
 				Environment.Exit(0);
 			}
 
-			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, BasePath);
+			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, GameDllPath);
 			Importers.RegisterAll(GameAssembly);
+
+			if (Directory.Exists(Path.Combine(BasePath, "content")))
+				Engine.VFS.AddProvider(new FileProvider(Path.Combine(BasePath, "content"), "content"));
 
 			Game = (LibTechGame)Activator.CreateInstance(GameImplementations[0]);
 			Game.Load();
@@ -181,6 +190,20 @@ namespace libTech {
 		static void RunGame() {
 			TimeStopwatch = Stopwatch.StartNew();
 			InitConsole();
+
+			Engine.VFS = new VirtualFileSystem();
+			Engine.VFS.AddProvider(new FileProvider("./content", "content"));
+			
+			string[] SourceGameDirs = Engine.SourceGameDirs.Value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Where(Pth => Directory.Exists(Pth)).ToArray();
+
+			if (SourceGameDirs.Length > 0) {
+				VPKProvider VPK = new VPKProvider();
+
+				foreach (var GameDir in SourceGameDirs)
+					VPK.AddRoot(GameDir);
+
+				Engine.VFS.AddProvider(VPK);
+			}
 
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());

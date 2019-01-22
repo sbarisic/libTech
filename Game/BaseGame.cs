@@ -36,7 +36,11 @@ namespace Game {
 
 		public override void Load() {
 			MenuMeshShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag"));
-			MenuMesh = new Mesh3D(Smd.Load("content/models/oildrum001_explosive_reference.smd")[0]);
+
+			//MenuMesh = new Mesh3D(Smd.Load("content/models/oildrum001_explosive_reference.smd")[0]);
+			//MenuMesh = new Mesh3D(libTech.Map.BSP.Load("content/maps/lun3dm5.bsp"));
+			MenuMesh = new Mesh3D(libTech.Models.SourceMdl.Load("models/props_c17/oildrum001_explosive.mdl"));
+
 			MenuMeshTex = Texture.FromFile("content/textures/oil_drum001h.png");
 			MenuMeshTex.SetFilter(TextureFilter.Linear);
 
@@ -73,8 +77,6 @@ namespace Game {
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 0 + BtnPadding * 0), new Vector2(BtnWidth, BtnHeight), "Quit", (S, E) => {
 				Environment.Exit(0);
 			});
-
-			libTech.Map.BSP.Load("content/maps/lun3dm5.bsp");
 		}
 
 		void SpawnOptionsWindow() {
@@ -115,7 +117,7 @@ namespace Game {
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
 
-			/*ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
+			ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
 
 			MenuMeshShader.Bind(ShaderUniforms.Current);
 			MenuMeshTex.BindTextureUnit();
@@ -123,7 +125,7 @@ namespace Game {
 			MenuMeshTex.UnbindTextureUnit();
 			MenuMeshShader.Unbind();
 
-			ShaderUniforms.Current.Model = Matrix4x4.Identity;*/
+			ShaderUniforms.Current.Model = Matrix4x4.Identity;
 		}
 	}
 }
