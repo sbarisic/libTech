@@ -9,6 +9,7 @@ using libTech.GUI;
 using libTech.GUI.Controls;
 using libTech.Importer;
 using libTech.libNative;
+using libTech.Models;
 using libTech.Scripting;
 using System;
 using System.Collections.Generic;
@@ -26,23 +27,24 @@ namespace Game {
 	public unsafe class Game : LibTechGame {
 		bool OptionsWindowShown = false;
 
-		ShaderProgram MenuMeshShader;
+		/*ShaderProgram MenuMeshShader;
 		Mesh3D MenuMesh;
-		Texture MenuMeshTex;
+		Texture MenuMeshTex;*/
+
+		libTechModel MenuModel;
+		Texture MenuWallpaperTex;
 
 		const float BtnPadding = 7;
 		const float BtnHeight = 30;
 		const float BtnWidth = 200;
 
 		public override void Load() {
-			MenuMeshShader = new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag"));
+			List<string> AllMdls = new List<string>(new[] { "logo_gmod_b.mdl", "dynamite.mdl", "armchair.mdl" });
+			MenuModel = Engine.Load<libTechModel>(AllMdls.Random());
+			MenuModel.CenterModel();
+			MenuModel.ScaleToSize(80);
 
-			//MenuMesh = new Mesh3D(Smd.Load("content/models/oildrum001_explosive_reference.smd")[0]);
-			//MenuMesh = new Mesh3D(libTech.Map.BSP.Load("content/maps/lun3dm5.bsp"));
-			MenuMesh = new Mesh3D(libTech.Models.SourceMdl.Load("models/props_c17/oildrum001_explosive.mdl"));
-
-			MenuMeshTex = Texture.FromFile("content/textures/oil_drum001h.png");
-			MenuMeshTex.SetFilter(TextureFilter.Linear);
+			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
 
 			Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);
@@ -71,7 +73,7 @@ namespace Game {
 			});
 
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 1 + BtnPadding * 1), new Vector2(BtnWidth, BtnHeight), "Options", (S, E) => {
-				SpawnOptionsWindow();
+				//SpawnOptionsWindow();
 			});
 
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 0 + BtnPadding * 0), new Vector2(BtnWidth, BtnHeight), "Quit", (S, E) => {
@@ -116,16 +118,19 @@ namespace Game {
 
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
+			ShaderUniforms.Current.Camera = Engine.Camera2D;
+			RenderState RS = Gfx.PeekRenderState();
+			RS.EnableDepthMask = false;
+			Gfx.PushRenderState(RS);
+			Gfx.TexturedRectangle(0, 0, Engine.WindowWidth, Engine.WindowHeight, Texture: MenuWallpaperTex);
+			Gfx.PopRenderState();
 
-			ShaderUniforms.Current.Model = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0) * Matrix4x4.CreateTranslation(new Vector3(7, -25, -25));
-
-			MenuMeshShader.Bind(ShaderUniforms.Current);
-			MenuMeshTex.BindTextureUnit();
-			MenuMesh.Draw();
-			MenuMeshTex.UnbindTextureUnit();
-			MenuMeshShader.Unbind();
-
-			ShaderUniforms.Current.Model = Matrix4x4.Identity;
+			ShaderUniforms.Current.Camera = Engine.Camera3D;
+			if (MenuModel != null) {
+				MenuModel.Rotation = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
+				MenuModel.Position = new Vector3(7, -10, -25);
+				MenuModel.Draw();
+			}
 		}
 	}
 }

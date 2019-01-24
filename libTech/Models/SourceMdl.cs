@@ -1,5 +1,7 @@
 ﻿using FishGfx;
 using FishGfx.Formats;
+using FishGfx.Graphics;
+using libTech.Textures;
 using SourceUtils;
 using System;
 using System.Collections.Generic;
@@ -11,8 +13,12 @@ using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 
 namespace libTech.Models {
-	public static class SourceMdl {
-		public static GenericMesh Load(string Pth) {
+	public unsafe class SourceMdl {
+		public StudioModelFile Mdl;
+		public ValveVertexFile Verts;
+		public ValveTriangleFile Tris;
+
+		/*public GenericMesh Load(string Pth) {
 			List<Vertex3> Verts = new List<Vertex3>();
 			StudioVertex[] Vtx = LoadMdl(Pth, Engine.VFS).ToArray()[0];
 
@@ -22,16 +28,37 @@ namespace libTech.Models {
 			}
 
 			return new GenericMesh(Verts.ToArray());
+		}*/
+
+		public Dictionary<string, Texture> GetTextures() {
+			Dictionary<string, Texture> Textures = new Dictionary<string, Texture>();
+
+			foreach (var TexName in GetMaterialNames())
+				Textures.Add(TexName, Engine.Load<Texture>(TexName));
+
+			return Textures;
 		}
 
+		public string[] GetMaterialNames() {
+			string[] MatNames = new string[Mdl.MaterialCount];
 
-		static IEnumerable<StudioVertex[]> LoadMdl(string FilePath, IResourceProvider Res) {
-			FilePath = FilePath.Substring(0, FilePath.Length - Path.GetExtension(FilePath).Length);
+			for (int i = 0; i < MatNames.Length; i++)
+				MatNames[i] = Mdl.GetMaterialName(i, Engine.VFS);
 
-			StudioModelFile Mdl = StudioModelFile.FromProvider(FilePath + ".mdl", Res);
-			ValveVertexFile Verts = ValveVertexFile.FromProvider(FilePath + ".vvd", Res);
-			ValveTriangleFile Tris = ValveTriangleFile.FromProvider(FilePath + ".dx90.vtx", Mdl, Verts, Res);
+			return MatNames;
+		}
 
+		public string[] GetBodyNames() {
+			string[] ModNames = new string[Mdl.BodyPartCount];
+
+			for (int i = 0; i < ModNames.Length; i++)
+				ModNames[i] = Mdl.GetBodyPartName(i);
+
+
+			return ModNames;
+		}
+
+		IEnumerable<StudioVertex[]> LoadMdl(IResourceProvider Res) {
 			for (int BodyPartIdx = 0; BodyPartIdx < Mdl.BodyPartCount; BodyPartIdx++) {
 				StudioModelFile.StudioModel[] Models = Mdl.GetModels(BodyPartIdx).ToArray();
 
@@ -52,11 +79,21 @@ namespace libTech.Models {
 						for (int i = 0; i < Indices.Length; i++)
 							Vts.Add(StudioVerts[Indices[i]]);
 
-
 						yield return Vts.ToArray();
 					}
 				}
 			}
+		}
+
+		public static SourceMdl FromFile(string FilePath, IResourceProvider Res) {
+			FilePath = FilePath.Substring(0, FilePath.Length - Path.GetExtension(FilePath).Length);
+
+			SourceMdl Model = new SourceMdl();
+			Model.Mdl = StudioModelFile.FromProvider(FilePath + ".mdl", Res);
+			Model.Verts = ValveVertexFile.FromProvider(FilePath + ".vvd", Res);
+			Model.Tris = ValveTriangleFile.FromProvider(FilePath + ".dx90.vtx", Model.Mdl, Model.Verts, Res);
+
+			return Model;
 		}
 	}
 }

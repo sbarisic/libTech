@@ -193,7 +193,7 @@ namespace libTech {
 
 			Engine.VFS = new VirtualFileSystem();
 			Engine.VFS.AddProvider(new FileProvider("./content", "content"));
-			
+
 			string[] SourceGameDirs = Engine.SourceGameDirs.Value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Where(Pth => Directory.Exists(Pth)).ToArray();
 
 			if (SourceGameDirs.Length > 0) {
@@ -221,6 +221,8 @@ namespace libTech {
 			Lua.Init();
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
+
+			Engine.RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
 
 			GConsole.Color = FishGfx.Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)

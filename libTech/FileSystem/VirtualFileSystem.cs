@@ -164,6 +164,10 @@ namespace libTech.FileSystem {
 			return Providers.SelectMany(P => P.GetFiles(Directory));
 		}
 
+		public IEnumerable<string> GetFiles(string Pth, string Ext) {
+			return GetFiles(Pth).Where(P => Path.GetExtension(P) == Ext);
+		}
+
 		public Stream OpenFile(string FileName) {
 			Stream S = null;
 
@@ -179,41 +183,6 @@ namespace libTech.FileSystem {
 				Console.WriteLine("Opening '{0}'", FileName);
 
 			return S;
-		}
-	}
-
-	public static class PathUtils {
-		public static string CleanUp(string Pth) {
-			if (Pth.Contains("\\"))
-				Pth = Pth.Replace("\\", "/");
-
-			if (Pth.StartsWith("/"))
-				Pth = Pth.Substring(1);
-
-			if (Pth.EndsWith("/"))
-				Pth = Pth.Substring(0, Pth.Length - 1);
-
-			return Pth;
-		}
-
-		public static string GetFullPath(string Pth) {
-			return CleanUp(Path.GetFullPath(Pth));
-		}
-
-		public static string Combine(params string[] Paths) {
-			return CleanUp(Path.Combine(Paths));
-		}
-
-		public static bool RemoveVirtualPrefix(ref string Pth, string Prefix) {
-			Pth = CleanUp(Pth);
-			Prefix = CleanUp(Prefix);
-
-			if (Pth.StartsWith(Prefix)) {
-				Pth = CleanUp(Pth.Substring(Prefix.Length));
-				return true;
-			}
-
-			return false;
 		}
 	}
 }

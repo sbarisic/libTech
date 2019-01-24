@@ -69,6 +69,9 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\SourceUtils\bin\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Magick.NET-Q8-x64, Version=7.10.1.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
+      <HintPath>..\packages\Magick.NET-Q8-x64.7.10.1\lib\net40\Magick.NET-Q8-x64.dll</HintPath>
+    </Reference>
     <Reference Include="SourceUtils">
       <HintPath>..\..\SourceUtils\bin\SourceUtils.dll</HintPath>
     </Reference>
@@ -93,6 +96,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
@@ -118,10 +122,17 @@
     <Compile Include="GUI\libGUIEventArgs.cs" />
     <Compile Include="GUI\NuklearGUI.cs" />
     <Compile Include="Importer\Importer.cs" />
-    <Compile Include="Importer\Importer_Texture.cs" />
+    <Compile Include="Importer\Importer_ValveMaterialType_Material.cs" />
+    <Compile Include="Importer\Importer_ValveTextureFile_Texture.cs" />
+    <Compile Include="Importer\Importer_SourceMdl_LibTechModel.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
     <Compile Include="Map\BSP.cs" />
+    <Compile Include="Materials\ValveMaterial.cs" />
+    <Compile Include="Materials\TexturedShaderMaterial.cs" />
+    <Compile Include="Materials\ShaderMaterial.cs" />
+    <Compile Include="Materials\Material.cs" />
+    <Compile Include="Models\libTechModel.cs" />
     <Compile Include="Models\SourceMdl.cs" />
     <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
@@ -132,6 +143,8 @@
     <Compile Include="Reflection\Reflect.cs" />
     <Compile Include="Scripting\GUIDocument.cs" />
     <Compile Include="Scripting\Lua.cs" />
+    <Compile Include="Textures\VTF.cs" />
+    <Compile Include="Utilities\DDS.cs" />
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />
     <Compile Include="Utilities\Utils.cs" />
@@ -362,6 +375,9 @@
     <Content Include="content\textures\base\base2_normal.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="content\textures\error.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="content\textures\gui\debug_thin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -560,6 +576,9 @@
     <Content Include="content\textures\skybox\test\top.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="content\textures\wallpaper.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="content\textures\test.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -576,4 +595,11 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets" Condition="Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets'))" />
+  </Target>
 </Project>
