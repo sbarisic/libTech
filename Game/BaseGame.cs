@@ -9,6 +9,7 @@ using libTech.GUI;
 using libTech.GUI.Controls;
 using libTech.Importer;
 using libTech.libNative;
+using libTech.Map;
 using libTech.Models;
 using libTech.Scripting;
 using System;
@@ -32,6 +33,8 @@ namespace Game {
 		Texture MenuMeshTex;*/
 
 		libTechModel MenuModel;
+		libTechModel MapModel;
+
 		Texture MenuWallpaperTex;
 
 		const float BtnPadding = 7;
@@ -40,11 +43,16 @@ namespace Game {
 
 		public override void Load() {
 			List<string> AllMdls = new List<string>(new[] { "logo_gmod_b.mdl", "dynamite.mdl", "armchair.mdl" });
+
+			//AllMdls.AddRange(Engine.VFS.GetFiles("models/", "*.mdl"));
+
 			MenuModel = Engine.Load<libTechModel>(AllMdls.Random());
 			MenuModel.CenterModel();
 			MenuModel.ScaleToSize(80);
 
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
+
+			MapModel = BSP.Load("content/maps/akutatourney8.bsp");
 
 			Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);
@@ -130,6 +138,8 @@ namespace Game {
 				MenuModel.Rotation = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
 				MenuModel.Position = new Vector3(7, -10, -25);
 				MenuModel.Draw();
+
+				MapModel?.Draw();
 			}
 		}
 	}

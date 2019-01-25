@@ -40,8 +40,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libTech_DedicatedGPU", "lib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libTech_Bootstrapper", "libTech_Bootstrapper\libTech_Bootstrapper.csproj", "{470B9F1E-E52D-4145-9E40-3810A981EAC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibBSP", "LibBSP\LibBSP\LibBSP.csproj", "{33E4FFCA-8D0B-4089-AFD2-527547531578}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,14 +124,6 @@ Global
 		{470B9F1E-E52D-4145-9E40-3810A981EAC1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{470B9F1E-E52D-4145-9E40-3810A981EAC1}.Release|x64.ActiveCfg = Release|Any CPU
 		{470B9F1E-E52D-4145-9E40-3810A981EAC1}.Release|x64.Build.0 = Release|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Debug|x64.Build.0 = Debug|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Release|x64.ActiveCfg = Release|Any CPU
-		{33E4FFCA-8D0B-4089-AFD2-527547531578}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
