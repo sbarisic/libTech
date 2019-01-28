@@ -194,12 +194,8 @@ namespace libTech {
 			string[] SourceGameDirs = Engine.SourceGameDirs.Value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Where(Pth => Directory.Exists(Pth)).ToArray();
 
 			if (SourceGameDirs.Length > 0) {
-				VPKProvider VPK = new VPKProvider();
-
 				foreach (var GameDir in SourceGameDirs)
-					VPK.AddRoot(GameDir);
-
-				Engine.VFS.AddProvider(VPK);
+					Engine.VFS.GetSourceProvider().AddRoot(GameDir);
 			}
 
 			if (Directory.Exists(Path.Combine(Engine.GamePath, "content")))

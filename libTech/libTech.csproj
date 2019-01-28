@@ -263,7 +263,13 @@
     <None Include="content\lun3dm5.pk3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="content\materials\lun3dm5.ltm">
+    <None Include="content\maps\gm_construct.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\maps\gm_flatgrass.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\maps\gm_modern_house_a.bsp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
@@ -619,7 +625,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="content\maps\" />
+    <Folder Include="content\materials\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets" Condition="Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" />

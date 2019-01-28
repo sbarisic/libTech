@@ -107,28 +107,33 @@ namespace libTech.FileSystem {
 		}
 	}
 
-	public class VPKProvider : FileSystemProvider {
+	public class SourceUtilsResourceProvider : FileSystemProvider {
 		ResourceLoader Res;
-		Dictionary<string, ValvePackage> MountedVPKs = new Dictionary<string, ValvePackage>();
+		Dictionary<string, IResourceProvider> MountedResources = new Dictionary<string, IResourceProvider>();
 
-		public VPKProvider() {
+		public SourceUtilsResourceProvider() {
 			Res = new ResourceLoader();
 		}
 
 		public string[] GetAllMountedVPKs() {
-			return MountedVPKs.Keys.ToArray();
+			return MountedResources.Keys.ToArray();
 		}
 
-		public VPKProvider Add(string FilePath) {
-			FilePath = PathUtils.GetFullPath(FilePath);
+		public IResourceProvider Add(string FilePath) {
+			//FilePath = PathUtils.GetFullPath(FilePath);
 
-			MountedVPKs.Add(FilePath, new ValvePackage(FilePath));
-			Res.AddResourceProvider(MountedVPKs[FilePath]);
+			MountedResources.Add(FilePath, new ValvePackage(FilePath));
+			Res.AddResourceProvider(MountedResources[FilePath]);
 
 			return this;
 		}
 
-		public VPKProvider AddRoot(string RootDir) {
+		public void Add(string Name, IResourceProvider Provider) {
+			MountedResources.Add(Name, Provider);
+			Res.AddResourceProvider(Provider);
+		}
+
+		public IResourceProvider AddRoot(string RootDir) {
 			string[] VPKs = IODirectory.GetFiles(RootDir, "*_dir.vpk", SearchOption.AllDirectories);
 
 			foreach (var VPK in VPKs)
@@ -138,11 +143,11 @@ namespace libTech.FileSystem {
 		}
 
 		public void Remove(string FilePath) {
-			FilePath = PathUtils.GetFullPath(FilePath);
+			//FilePath = PathUtils.GetFullPath(FilePath);
 
-			if (MountedVPKs.ContainsKey(FilePath)) {
-				Res.RemoveResourceProvider(MountedVPKs[FilePath]);
-				MountedVPKs.Remove(FilePath);
+			if (MountedResources.ContainsKey(FilePath)) {
+				Res.RemoveResourceProvider(MountedResources[FilePath]);
+				MountedResources.Remove(FilePath);
 			}
 		}
 
@@ -172,6 +177,16 @@ namespace libTech.FileSystem {
 
 	public class VirtualFileSystem : FileSystemProvider {
 		List<IFileSystem> FileSystems = new List<IFileSystem>();
+		SourceUtilsResourceProvider SourceProvider;
+
+		public SourceUtilsResourceProvider GetSourceProvider() {
+			if (SourceProvider == null) {
+				SourceProvider = new SourceUtilsResourceProvider();
+				AddProvider(SourceProvider);
+			}
+
+			return SourceProvider;
+		}
 
 		public VirtualFileSystem(string PhysicalRoot) {
 			AddProvider(new PhysicalFileSystem(PhysicalRoot));

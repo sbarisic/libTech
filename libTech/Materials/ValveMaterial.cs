@@ -14,6 +14,7 @@ namespace libTech.Materials {
 		public string MaterialDefinition;
 
 		public ValveMaterial(string MaterialDefinition, string MaterialName) : base(Engine.GetShader("default"), MaterialName) {
+			RETRY:
 			this.MaterialDefinition = MaterialDefinition;
 
 			string[] Lines = MaterialDefinition.Replace("{", "").Replace("}", "").Replace("\r", "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(L => L.Trim()).ToArray();
@@ -21,6 +22,9 @@ namespace libTech.Materials {
 
 			string TexturePath = "";
 			bool RemoveAlpha = false;
+
+			/*if (Lines[0].ToLower() == "\"patch\"")
+				Debugger.Break();*/
 
 			for (int i = 0; i < Lines.Length; i++) {
 				int SpaceChar = Lines[i].IndexOf(' ');
@@ -39,6 +43,12 @@ namespace libTech.Materials {
 				}
 
 				switch (K) {
+					case "include": {
+							string FileName = "/" + V.Replace("\\", "/");
+							MaterialDefinition = Engine.VFS.ReadAllText(FileName);
+							goto RETRY;
+						}
+
 					case "$basetexture":
 						TexturePath = PathUtils.Combine("materials", V + ".vtf");
 						break;

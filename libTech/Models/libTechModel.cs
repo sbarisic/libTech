@@ -88,15 +88,33 @@ namespace libTech.Models {
 			Scale = new Vector3(MaxSize / Vector3.Distance(Vector3.Zero, CalculateAABB().Bounds));
 		}
 
-		public void Draw() {
-			if (Meshes.Count >0) {
+		public void DrawOpaque() {
 			for (int i = 0; i < Meshes.Count; i++) {
+				if (Meshes[i].Material.Translucent)
+					continue;
+
 				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Rotation * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
 				Meshes[i].Draw();
 			}
 
 			ShaderUniforms.Current.Model = Matrix4x4.Identity;
+		}
+
+		public void DrawTransparent() {
+			for (int i = 0; i < Meshes.Count; i++) {
+				if (!Meshes[i].Material.Translucent)
+					continue;
+
+				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Rotation * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
+				Meshes[i].Draw();
 			}
+
+			ShaderUniforms.Current.Model = Matrix4x4.Identity;
+		}
+
+		public void Draw() {
+			DrawOpaque();
+			DrawTransparent();
 		}
 
 		public AABB CalculateAABB() {
@@ -129,7 +147,7 @@ namespace libTech.Models {
 				for (int ModelIdx = 0; ModelIdx < StudioModels.Length; ModelIdx++) {
 					ref StudioModelFile.StudioModel StudioModel = ref StudioModels[ModelIdx];
 					StudioModelFile.StudioMesh[] StudioMeshes = Mdl.Mdl.GetMeshes(ref StudioModel).ToArray();
-					
+
 					// MESHES
 					for (int MeshIdx = 0; MeshIdx < StudioMeshes.Length; MeshIdx++) {
 						ref StudioModelFile.StudioMesh StudioMesh = ref StudioMeshes[MeshIdx];
@@ -162,7 +180,7 @@ namespace libTech.Models {
 					}
 				}
 			}
-			
+
 			return Model;
 		}
 	}
