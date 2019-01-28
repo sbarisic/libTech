@@ -27,8 +27,9 @@ namespace libTech.Importer {
 
 		public override Texture Load(string FilePath) {
 			Stream S = Engine.VFS.OpenFile(FilePath);
+
 			if (S == null)
-				return null;
+				throw new NotImplementedException("Wut?");
 
 			return VTF.ToTexture(new ValveTextureFile(S));
 		}

@@ -1,18 +1,110 @@
-﻿using SourceUtils;
+﻿using SharpFileSystem;
+using SharpFileSystem.FileSystems;
+using SourceUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IODirectory = System.IO.Directory;
 
 namespace libTech.FileSystem {
-	public interface FileSystemProvider : IResourceProvider {
-		/*IEnumerable<string> GetFiles(string Directory);
-		IEnumerable<string> GetDirectories(string Directory);
+	public abstract class FileSystemProvider : IFileSystem, IResourceProvider {
+		public abstract bool Exists(FileSystemPath path);
+		public abstract ICollection<FileSystemPath> GetEntities(FileSystemPath path);
+		public abstract Stream OpenFile(FileSystemPath path, FileAccess access);
 
-		bool ContainsFile(string FileName);
-		Stream OpenFile(string FileName);*/
+		public virtual void CreateDirectory(FileSystemPath path) {
+			throw new NotImplementedException();
+		}
+
+		public virtual Stream CreateFile(FileSystemPath path) {
+			throw new NotImplementedException();
+		}
+
+		public virtual void Delete(FileSystemPath path) {
+			throw new NotImplementedException();
+		}
+
+		public virtual void Dispose() {
+		}
+
+		public virtual bool Exists(string Path) {
+			return Exists(RootParsePath(Path));
+		}
+
+		public IEnumerable<string> GetFiles(string directory = "") {
+			if (directory.Contains("\\"))
+				directory = directory.Replace("\\", "/");
+
+			return GetFiles(directory, false);
+		}
+
+		public string[] GetFiles(string directory = "", bool recursive = false) {
+			if (directory.Contains("\\"))
+				directory = directory.Replace("\\", "/");
+
+			List<string> Files = new List<string>();
+
+			foreach (var E in GetEntities(RootParsePath((directory))))
+				if (E.IsFile)
+					Files.Add(E.Path);
+				else if (E.IsDirectory && recursive)
+					Files.AddRange(GetFiles(E.Path, true));
+
+			return Files.ToArray();
+		}
+
+		public IEnumerable<string> GetDirectories(string directory = "") {
+			return GetDirectories(directory, false);
+		}
+
+		public string[] GetDirectories(string directory = "", bool recursive = false) {
+			List<string> Directories = new List<string>();
+
+			foreach (var E in GetEntities(RootParsePath((directory))))
+				if (E.IsDirectory) {
+					Directories.Add(E.Path);
+
+					if (recursive)
+						Directories.AddRange(GetDirectories(E.Path, true));
+				}
+
+			return Directories.ToArray();
+		}
+
+		public virtual bool ContainsFile(string filePath) {
+			return Exists(RootParsePath((filePath)));
+		}
+
+		public Stream OpenFile(string filePath) {
+			return OpenFile(RootParsePath((filePath)), FileAccess.Read);
+		}
+
+		public string ReadAllText(string FilePath) {
+			using (Stream S = OpenFile(FilePath)) {
+				using (StreamReader SR = new StreamReader(S)) {
+					return SR.ReadToEnd();
+				}
+			}
+		}
+
+		// ------------
+
+		public static FileSystemPath RootParsePath(string Path) {
+			if (Path.Contains("\\"))
+				Path = Path.Replace("\\", "/");
+
+			if (!Path.StartsWith("/"))
+				Path = "/" + Path;
+
+			return FileSystemPath.Parse(Path);
+		}
+
+		public static string UnrootPath(FileSystemPath Path) {
+			return Path.Path.Substring(1);
+		}
 	}
 
 	public class VPKProvider : FileSystemProvider {
@@ -37,7 +129,7 @@ namespace libTech.FileSystem {
 		}
 
 		public VPKProvider AddRoot(string RootDir) {
-			string[] VPKs = Directory.GetFiles(RootDir, "*_dir.vpk", SearchOption.AllDirectories);
+			string[] VPKs = IODirectory.GetFiles(RootDir, "*_dir.vpk", SearchOption.AllDirectories);
 
 			foreach (var VPK in VPKs)
 				Add(VPK);
@@ -54,135 +146,105 @@ namespace libTech.FileSystem {
 			}
 		}
 
-		public bool ContainsFile(string FileName) {
-			return Res.ContainsFile(FileName);
+		public override bool Exists(FileSystemPath path) {
+			return Res.ContainsFile(UnrootPath(path));
 		}
 
-		public IEnumerable<string> GetDirectories(string Directory) {
-			return Res.GetDirectories(Directory);
+		public override Stream OpenFile(FileSystemPath path, FileAccess access) {
+			return Res.OpenFile(UnrootPath(path));
 		}
 
-		public IEnumerable<string> GetFiles(string Directory) {
-			return Res.GetFiles(Directory);
-		}
+		public override ICollection<FileSystemPath> GetEntities(FileSystemPath path) {
+			if (path.IsFile)
+				throw new InvalidOperationException();
 
-		public Stream OpenFile(string FileName) {
-			return Res.OpenFile(FileName);
-		}
-	}
+			HashSet<FileSystemPath> Ents = new HashSet<FileSystemPath>();
 
-	public class FileProvider : FileSystemProvider {
-		public readonly string RootDirectory;
-		public readonly string VirtualDirectory;
+			foreach (var Dir in Res.GetDirectories(UnrootPath(path)))
+				Ents.Add(FileSystemPath.Parse(path.Path + Dir + "/"));
 
-		public FileProvider(string RootDir, string VirtualDirectory = "") {
-			this.VirtualDirectory = PathUtils.CleanUp(VirtualDirectory);
-			RootDirectory = PathUtils.GetFullPath(RootDir);
-		}
+			foreach (var Fil in Res.GetFiles(UnrootPath(path)))
+				Ents.Add(FileSystemPath.Parse(path.Path + Fil));
 
-		public bool ContainsFile(string FileName) {
-			if (Path.IsPathRooted(FileName))
-				return false;
-
-			if (VirtualDirectory.Length != 0) {
-				if (PathUtils.RemoveVirtualPrefix(ref FileName, VirtualDirectory))
-					return File.Exists(PathUtils.Combine(RootDirectory, FileName));
-
-				return false;
-			}
-
-
-			return File.Exists(PathUtils.Combine(RootDirectory, FileName));
-		}
-
-		public IEnumerable<string> GetDirectories(string Dir) {
-			if (!Path.IsPathRooted(Dir)) {
-				if (VirtualDirectory.Length != 0) {
-					if (PathUtils.RemoveVirtualPrefix(ref Dir, VirtualDirectory)) {
-						if (Directory.Exists(Dir))
-							return Directory.EnumerateDirectories(Dir).Select(S => PathUtils.GetFullPath(S).Replace(RootDirectory, ""));
-					}
-				} else if (Directory.Exists(Dir))
-					return Directory.EnumerateDirectories(Dir).Select(S => PathUtils.GetFullPath(S).Replace(RootDirectory, ""));
-			}
-
-
-			return new string[] { };
-		}
-
-		public IEnumerable<string> GetFiles(string Dir) {
-			if (!Path.IsPathRooted(Dir)) {
-				if (VirtualDirectory.Length != 0) {
-					if (PathUtils.RemoveVirtualPrefix(ref Dir, VirtualDirectory)) {
-						if (Directory.Exists(Dir))
-							return Directory.GetFiles(Dir).Select(S => PathUtils.GetFullPath(S).Replace(RootDirectory, ""));
-					}
-				} else if (Directory.Exists(Dir))
-					return Directory.GetFiles(Dir).Select(S => PathUtils.GetFullPath(S).Replace(RootDirectory, ""));
-			}
-
-			return new string[] { };
-		}
-
-		public Stream OpenFile(string FileName) {
-			if (ContainsFile(FileName)) {
-				if (VirtualDirectory.Length != 0)
-					PathUtils.RemoveVirtualPrefix(ref FileName, VirtualDirectory);
-
-				return File.OpenRead(PathUtils.Combine(RootDirectory, FileName));
-			}
-
-			return null;
+			return Ents;
 		}
 	}
 
 	public class VirtualFileSystem : FileSystemProvider {
-		List<FileSystemProvider> Providers;
+		List<IFileSystem> FileSystems = new List<IFileSystem>();
 
-		public VirtualFileSystem() {
-			Providers = new List<FileSystemProvider>();
+		public VirtualFileSystem(string PhysicalRoot) {
+			AddProvider(new PhysicalFileSystem(PhysicalRoot));
 		}
 
-		public void AddProvider(FileSystemProvider Provider) {
-			Providers.Insert(0, Provider);
+		public void Mount(string VirtualPath, IFileSystem FS) {
+			AddProvider(new FileSystemMounter(new KeyValuePair<FileSystemPath, IFileSystem>(FileSystemPath.Parse(VirtualPath), FS)));
 		}
 
-		public bool ContainsFile(string FileName) {
-			foreach (var P in Providers) {
-				if (P.ContainsFile(FileName))
+		public void Mount(string VirtualPath, string PhysicalPath) {
+			Console.WriteLine("Mounting {0} -> {1}", PhysicalPath, VirtualPath);
+			Mount(VirtualPath, new PhysicalFileSystem(PhysicalPath));
+		}
+
+		public void MountArchive(string VirtualPath, string ArchiveName, Stream Archive) {
+			Mount(VirtualPath, new SharpArchiveFileSystem(ArchiveName, Archive));
+		}
+
+		public void MountArchive(string VirtualPath, string ArchivePath) {
+			Console.WriteLine("Mounting {0} -> {1}", ArchivePath, VirtualPath);
+			MountArchive(VirtualPath, Path.GetFileName(ArchivePath), OpenFile(ArchivePath));
+		}
+
+		public void AddProvider(IFileSystem Provider) {
+			FileSystems.Add(Provider);
+		}
+
+		public override bool Exists(FileSystemPath path) {
+			for (int i = FileSystems.Count - 1; i >= 0; i--)
+				if (FileSystems[i].Exists(path))
 					return true;
-			}
 
 			return false;
 		}
 
-		public IEnumerable<string> GetDirectories(string Directory) {
-			return Providers.SelectMany(P => P.GetDirectories(Directory));
-		}
+		public override ICollection<FileSystemPath> GetEntities(FileSystemPath path) {
+			HashSet<FileSystemPath> Entities = new HashSet<FileSystemPath>();
 
-		public IEnumerable<string> GetFiles(string Directory) {
-			return Providers.SelectMany(P => P.GetFiles(Directory));
-		}
+			for (int i = FileSystems.Count - 1; i >= 0; i--) {
+				FileSystemPath[] Ents = FileSystems[i].GetEntities(path).ToArray();
 
-		public IEnumerable<string> GetFiles(string Pth, string Ext) {
-			return GetFiles(Pth).Where(P => Path.GetExtension(P) == Ext);
-		}
-
-		public Stream OpenFile(string FileName) {
-			Stream S = null;
-
-			foreach (var P in Providers) {
-				if (P.ContainsFile(FileName)) {
-					S = P.OpenFile(FileName);
-					break;
-				}
+				for (int j = 0; j < Ents.Length; j++)
+					if (!Entities.Contains(Ents[j]))
+						Entities.Add(Ents[j]);
 			}
 
-			// TODO
-			if (S != null)
-				Console.WriteLine("Opening '{0}'", FileName);
+			return Entities.ToArray();
+		}
 
-			return S;
+		public override Stream OpenFile(FileSystemPath path, FileAccess access) {
+			for (int i = FileSystems.Count - 1; i >= 0; i--) {
+				if (FileSystems[i].Exists(path))
+					return FileSystems[i].OpenFile(path, access);
+			}
+
+			return null;
+		}
+
+		public IEnumerable<SharpArchiveFileSystem> GetMountedArchives() {
+			for (int i = FileSystems.Count - 1; i >= 0; i--) {
+				if (FileSystems[i] is FileSystemMounter Mounter)
+					foreach (KeyValuePair<FileSystemPath, IFileSystem> Mount in Mounter.Mounts)
+						if (Mount.Value is SharpArchiveFileSystem ArchiveFS)
+							yield return ArchiveFS;
+			}
+		}
+
+		public SharpArchiveFileSystem GetMountedArchive(string ArchiveName) {
+			foreach (var ArchiveFS in GetMountedArchives())
+				if (ArchiveFS.ArchiveName == ArchiveName)
+					return ArchiveFS;
+
+			return null;
 		}
 	}
 }

@@ -3,6 +3,7 @@ using libTech.Importer;
 using libTech.Materials;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,6 +79,35 @@ namespace libTech {
 			}
 
 			return Materials[Name];
+		}
+
+		internal static void LoadMaterialDefs() {
+			// TODO: Move this to a separate file and make a proper definition thing?
+
+			string[] MaterialDefs = VFS.GetFiles("/content/materials/").Where(FName => Path.GetExtension(FName) == ".ltm").ToArray();
+
+			foreach (var MatDefFile in MaterialDefs) {
+				string[] MatDefs = VFS.ReadAllText(MatDefFile).Replace("\r", "").Trim().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+				foreach (var MatDef in MatDefs) {
+					string[] KV = MatDef.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+					string TexPath = "/content/" + KV[1];
+					System.Drawing.Image Img = null;
+
+					if (Path.GetExtension(TexPath) == ".tga")
+						Img = MagickImg.ToImage(VFS.OpenFile(TexPath));
+					else
+						Img = System.Drawing.Image.FromStream(VFS.OpenFile(TexPath));
+
+					Img = new System.Drawing.Bitmap(Img).RemoveAlpha(FishGfx.Color.White);
+					Texture Texx = Texture.FromImage(Img);
+					Texx.SetFilter(TextureFilter.Linear);
+					Texx.SetWrap(TextureWrap.Repeat);
+
+					TexturedShaderMaterial Mat = new TexturedShaderMaterial("default", Texx);
+					RegisterMaterial(KV[0], Mat);
+				}
+			}
 		}
 	}
 }

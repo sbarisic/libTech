@@ -41,20 +41,19 @@ namespace Game {
 		const float BtnHeight = 30;
 		const float BtnWidth = 200;
 
+		bool W, A, S, D;
+
 		public override void Load() {
-			List<string> AllMdls = new List<string>(new[] { "logo_gmod_b.mdl", "dynamite.mdl", "armchair.mdl" });
-
-			//AllMdls.AddRange(Engine.VFS.GetFiles("models/", "*.mdl"));
-
-			MenuModel = Engine.Load<libTechModel>(AllMdls.Random());
+			/*MenuModel = Engine.Load<libTechModel>(new[] { "logo_gmod_b.mdl", "dynamite.mdl", "armchair.mdl" }.Random());
 			MenuModel.CenterModel();
 			MenuModel.ScaleToSize(80);
 
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
+			//*/
 
-			MapModel = BSP.Load("content/maps/akutatourney8.bsp");
+			MapModel = BSP.LoadAsModel("/content/maps/lun3dm5.bsp");
 
-			Camera Cam = Engine.Camera3D;
+			/*Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);
 			Cam.LookAt(Vector3.Zero);
 
@@ -66,27 +65,38 @@ namespace Game {
 			MainMenuWindow.Closable = false;
 			Engine.UI.AddControl(MainMenuWindow);
 
-
-			/*MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 5 + BtnPadding * 5), new Vector2(BtnWidth, BtnHeight), "Standard Skin", (S, E) => {
-				Engine.UI.LoadSkin("content/textures/gui_elements/standard");
-			});
-			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 4 + BtnPadding * 4), new Vector2(BtnWidth, BtnHeight), "Flat Skin", (S, E) => {
-				Engine.UI.LoadSkin("content/textures/gui_elements/flat");
-			});
-			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 3 + BtnPadding * 3), new Vector2(BtnWidth, BtnHeight), "Flat Gray Skin", (S, E) => {
-				Engine.UI.LoadSkin("content/textures/gui_elements/flat_gray");
-			});*/
-
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 2 + BtnPadding * 2), new Vector2(BtnWidth, BtnHeight), "New Game", (S, E) => {
 			});
 
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 1 + BtnPadding * 1), new Vector2(BtnWidth, BtnHeight), "Options", (S, E) => {
-				//SpawnOptionsWindow();
 			});
 
 			MainMenuWindow.AddButton(MainMenuWindow.ClientArea + new Vector2(0, BtnHeight * 0 + BtnPadding * 0), new Vector2(BtnWidth, BtnHeight), "Quit", (S, E) => {
 				Environment.Exit(0);
 			});
+			//*/
+
+			//*
+			Engine.Camera3D.MouseMovement = true;
+			Engine.Window.CaptureCursor = true;
+
+			Engine.Window.OnMouseMoveDelta += (Wnd, X, Y) => {
+				Engine.Camera3D.Update(-new Vector2(X, Y));
+			};
+
+			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => {
+				if (Key == Key.W)
+					W = Pressed;
+				if (Key == Key.A)
+					A = Pressed;
+				if (Key == Key.S)
+					S = Pressed;
+				if (Key == Key.D)
+					D = Pressed;
+				if (Key == Key.Escape && Pressed)
+					Environment.Exit(0);
+			};
+			//*/
 		}
 
 		void SpawnOptionsWindow() {
@@ -124,23 +134,42 @@ namespace Game {
 			}
 		}
 
+		public override void Update(float Dt) {
+			base.Update(Dt);
+
+			const int MoveSpeed = 600;
+
+			if (W)
+				Engine.Camera3D.Position += Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
+			if (A)
+				Engine.Camera3D.Position += -Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
+			if (S)
+				Engine.Camera3D.Position += -Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
+			if (D)
+				Engine.Camera3D.Position += Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
+		}
+
 		public override void Draw(float Dt) {
 			base.Draw(Dt);
-			ShaderUniforms.Current.Camera = Engine.Camera2D;
-			RenderState RS = Gfx.PeekRenderState();
-			RS.EnableDepthMask = false;
-			Gfx.PushRenderState(RS);
-			Gfx.TexturedRectangle(0, 0, Engine.WindowWidth, Engine.WindowHeight, Texture: MenuWallpaperTex);
-			Gfx.PopRenderState();
+			Gfx.Clear(new Color(80, 90, 100));
+
+			if (MenuWallpaperTex != null) {
+				ShaderUniforms.Current.Camera = Engine.Camera2D;
+				RenderState RS = Gfx.PeekRenderState();
+				RS.EnableDepthMask = false;
+				Gfx.PushRenderState(RS);
+				Gfx.TexturedRectangle(0, 0, Engine.WindowWidth, Engine.WindowHeight, Texture: MenuWallpaperTex);
+				Gfx.PopRenderState();
+			}
 
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
 			if (MenuModel != null) {
 				MenuModel.Rotation = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
 				MenuModel.Position = new Vector3(7, -10, -25);
 				MenuModel.Draw();
-
-				MapModel?.Draw();
 			}
+
+			MapModel?.Draw();
 		}
 	}
 }

@@ -233,16 +233,17 @@ namespace libTech {
 			return CleanUp(Path.Combine(Paths));
 		}
 
-		public static bool RemoveVirtualPrefix(ref string Pth, string Prefix) {
+		public static bool AddVirtualPrefix(ref string Pth, string Prefix) {
 			Pth = CleanUp(Pth);
 			Prefix = CleanUp(Prefix);
 
-			if (Pth.StartsWith(Prefix)) {
+			/*if (Pth.StartsWith(Prefix)) {
 				Pth = CleanUp(Pth.Substring(Prefix.Length));
 				return true;
-			}
+			}*/
 
-			return false;
+			Pth = Combine(Prefix, Pth);
+			return true;
 		}
 	}
 }

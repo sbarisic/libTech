@@ -98,6 +98,7 @@
   <ItemGroup>
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
+    <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Scripting\Lua.cs" />
     <Compile Include="Textures\VTF.cs" />
     <Compile Include="Utilities\DDS.cs" />
+    <Compile Include="Utilities\MagickImage.cs" />
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />
     <Compile Include="Utilities\Utils.cs" />
@@ -195,6 +197,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="content\akutatourney8.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\fonts\anonymous_pro_16.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -249,16 +254,10 @@
     <None Include="content\gui\main_menu.fml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="content\maps\akutatourney8.bsp">
+    <None Include="content\lun3dm5.pk3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="content\maps\akutatourney8.pk3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\maps\aty3dm5v2.bsp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\maps\lun3dm5.bsp">
+    <None Include="content\materials\lun3dm5.ltm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
@@ -271,6 +270,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\skull.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\phantq3ctf1_rev.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\phantq3dm3_rev.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\pukka3tourney5.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\q3gwdm2.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\rustgrad.pk3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\leg.frag">
@@ -312,6 +326,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\VirtualFileSystem\SharpFileSystem\SharpFileSystem.csproj">
+      <Project>{3c4d07ba-23b5-4a63-92cf-f3bf892b7329}</Project>
+      <Name>SharpFileSystem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FishGfx\FishGfx\FishGfx.csproj">
       <Project>{9d55cabd-ba2d-4fb2-8156-82cea30b15b9}</Project>
       <Name>FishGfx</Name>
@@ -598,7 +616,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="content\maps\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets" Condition="Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

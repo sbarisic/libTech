@@ -180,9 +180,6 @@ namespace libTech {
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, GameDllPath);
 			Importers.RegisterAll(GameAssembly);
 
-			if (Directory.Exists(Path.Combine(BasePath, "content")))
-				Engine.VFS.AddProvider(new FileProvider(Path.Combine(BasePath, "content"), "content"));
-
 			Game = (LibTechGame)Activator.CreateInstance(GameImplementations[0]);
 			Game.Load();
 		}
@@ -191,8 +188,8 @@ namespace libTech {
 			TimeStopwatch = Stopwatch.StartNew();
 			InitConsole();
 
-			Engine.VFS = new VirtualFileSystem();
-			Engine.VFS.AddProvider(new FileProvider("./content", "content"));
+			Engine.VFS = new VirtualFileSystem(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+			Engine.VFS.Mount("/content/", "./content");
 
 			string[] SourceGameDirs = Engine.SourceGameDirs.Value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Where(Pth => Directory.Exists(Pth)).ToArray();
 
@@ -204,6 +201,15 @@ namespace libTech {
 
 				Engine.VFS.AddProvider(VPK);
 			}
+
+			if (Directory.Exists(Path.Combine(Engine.GamePath, "content")))
+				Engine.VFS.Mount("/content/", Path.Combine(Engine.GamePath, "content"));
+
+			List<string> ZipResources = new List<string>();
+			ZipResources.AddRange(Engine.VFS.GetFiles("/content/").Where(P => Path.GetExtension(P) == ".pk3" || Path.GetExtension(P) == ".zip"));
+
+			foreach (var ZipResource in ZipResources)
+				Engine.VFS.MountArchive("/content/", ZipResource);
 
 			FileWatcher.Init("content");
 			Importers.RegisterAll(Reflect.GetExeAssembly());
@@ -223,6 +229,7 @@ namespace libTech {
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
 			Engine.RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
+			Engine.LoadMaterialDefs();
 
 			GConsole.Color = FishGfx.Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)
