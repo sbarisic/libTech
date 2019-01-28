@@ -91,16 +91,7 @@ namespace libTech {
 
 				foreach (var MatDef in MatDefs) {
 					string[] KV = MatDef.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-					string TexPath = "/content/" + KV[1];
-					System.Drawing.Image Img = null;
-
-					if (Path.GetExtension(TexPath) == ".tga")
-						Img = MagickImg.ToImage(VFS.OpenFile(TexPath));
-					else
-						Img = System.Drawing.Image.FromStream(VFS.OpenFile(TexPath));
-
-					Img = new System.Drawing.Bitmap(Img).RemoveAlpha(FishGfx.Color.White);
-					Texture Texx = Texture.FromImage(Img);
+					Texture Texx = GetTexture("/content/" + KV[1]);
 					Texx.SetFilter(TextureFilter.Linear);
 					Texx.SetWrap(TextureWrap.Repeat);
 

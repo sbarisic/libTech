@@ -63,17 +63,24 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Facepunch.Parse">
-      <HintPath>..\..\SourceUtils\bin\Facepunch.Parse.dll</HintPath>
+    <Reference Include="Facepunch.Parse, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\managed\Facepunch.Parse.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\SourceUtils\bin\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\managed\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Magick.NET-Q8-x64, Version=7.10.1.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
       <HintPath>..\packages\Magick.NET-Q8-x64.7.10.1\lib\net40\Magick.NET-Q8-x64.dll</HintPath>
     </Reference>
-    <Reference Include="SourceUtils">
-      <HintPath>..\..\SourceUtils\bin\SourceUtils.dll</HintPath>
+    <Reference Include="SharpFileSystem, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\managed\SharpFileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="SourceUtils, Version=1.0.6960.25794, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\3rdParty\managed\SourceUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -124,7 +131,7 @@
     <Compile Include="GUI\NuklearGUI.cs" />
     <Compile Include="Importer\Importer.cs" />
     <Compile Include="Importer\Importer_ValveMaterialType_Material.cs" />
-    <Compile Include="Importer\Importer_ValveTextureFile_Texture.cs" />
+    <Compile Include="Importer\Importer_Texture.cs" />
     <Compile Include="Importer\Importer_SourceMdl_LibTechModel.cs" />
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
@@ -146,7 +153,6 @@
     <Compile Include="Scripting\Lua.cs" />
     <Compile Include="Textures\VTF.cs" />
     <Compile Include="Utilities\DDS.cs" />
-    <Compile Include="Utilities\MagickImage.cs" />
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />
     <Compile Include="Utilities\Utils.cs" />
@@ -326,10 +332,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\VirtualFileSystem\SharpFileSystem\SharpFileSystem.csproj">
-      <Project>{3c4d07ba-23b5-4a63-92cf-f3bf892b7329}</Project>
-      <Name>SharpFileSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FishGfx\FishGfx\FishGfx.csproj">
       <Project>{9d55cabd-ba2d-4fb2-8156-82cea30b15b9}</Project>
       <Name>FishGfx</Name>
