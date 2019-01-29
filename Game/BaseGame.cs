@@ -33,9 +33,9 @@ namespace Game {
 		Texture MenuMeshTex;*/
 
 		libTechModel MenuModel;
-		libTechModel MapModel;
-
 		Texture MenuWallpaperTex;
+
+		libTechMap Map;
 
 		const float BtnPadding = 7;
 		const float BtnHeight = 30;
@@ -51,7 +51,11 @@ namespace Game {
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
 			//*/
 
-			MapModel = BSPMap.LoadAsModel("/content/maps/gm_construct.bsp");
+			Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+
+			if (Map != null)
+				Engine.Camera3D.Position = Map.GetEntities<PlayerSpawn>().Random().SpawnPosition + new Vector3(0, 164, 0);
+
 
 			/*Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);
@@ -169,7 +173,7 @@ namespace Game {
 				MenuModel.Draw();
 			}
 
-			MapModel?.Draw();
+			Map?.Draw();
 		}
 	}
 }

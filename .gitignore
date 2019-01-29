@@ -294,3 +294,5 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+3rdParty/managed/Facepunch\.Parse\.xml

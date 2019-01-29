@@ -2,6 +2,7 @@
 using FishGfx.Formats;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
+using libTech.Entities;
 //using SourceUtils;
 //using SourceUtils.ValveBsp;
 using libTech.Models;
@@ -258,10 +259,10 @@ namespace libTech.Map {
 			return Map;
 		}
 
-		public static libTechModel LoadAsModel(Stream BSPStream) {
+		public static libTechMap LoadMap(Stream BSPStream) {
 			Q3BSP Map = Q3BSP.FromStream(BSPStream);
 
-			libTechModel Model = new libTechModel();
+			libTechMap Q3Map = new libTechMap();
 			Dictionary<int, List<Vertex3>> TexturedMeshes = new Dictionary<int, List<Vertex3>>();
 
 			foreach (var FaceIdx in GetFaceIndices(Map)) {
@@ -282,6 +283,9 @@ namespace libTech.Map {
 
 			string[] TextureNames = Map.Textures.Select(T => T.GetName()).ToArray();
 
+			libTechModel Model = new libTechModel();
+			Q3Map.AddModel(Model);
+
 			foreach (var KV in TexturedMeshes) {
 				string TexName = TextureNames[KV.Key];
 
@@ -291,7 +295,7 @@ namespace libTech.Map {
 				Model.AddMesh(new libTechMesh(KV.Value.ToArray().Reverse().ToArray(), Engine.GetMaterial(TexName)));
 			}
 
-			return Model;
+			return Q3Map;
 		}
 
 		static IEnumerable<int> GetFaceIndices(Q3BSP Map) {
@@ -315,138 +319,152 @@ namespace libTech.Map {
 	}
 
 	public static class ValveBSP {
-		public static libTechModel LoadAsModel(string FilePath) {
+		public static libTechMap LoadMap(string FilePath) {
 			// TODO: Ugh, fix
 			FilePath = Path.GetFullPath("." + FilePath);
 
-			libTechModel libTechModel = new libTechModel();
-			Dictionary<string, List<Vertex3>> TexturedMeshes = new Dictionary<string, List<Vertex3>>();
+			libTechMap Map = new libTechMap();
+			libTechModel CurrentMapModel = null;
 
-			ValveBspFile BSP = new ValveBspFile(FilePath);
-			Engine.VFS.GetSourceProvider().Add(Path.GetFileName(FilePath), BSP.PakFile);
+			using (ValveBspFile BSP = new ValveBspFile(FilePath)) {
+				string BSPProviderPath = Path.GetFileName(FilePath);
+				Engine.VFS.GetSourceProvider().Add(BSPProviderPath, BSP.PakFile);
 
-			Face[] Faces = BSP.Faces.ToArray();
-			SVector3[] Verts = BSP.Vertices.ToArray();
-			BspModel[] Models = BSP.Models.ToArray();
-			Edge[] Edges = BSP.Edges.ToArray();
-			int[] SurfEdges = BSP.SurfEdges.ToArray();
-			TextureInfo[] TexInfos = BSP.TextureInfos.ToArray();
-			TextureData[] TexDatas = BSP.TextureData.ToArray();
-			var Entities = BSP.Entities.ToArray();
+				Face[] Faces = BSP.Faces.ToArray();
+				SVector3[] Verts = BSP.Vertices.ToArray();
+				BspModel[] Models = BSP.Models.ToArray();
+				Edge[] Edges = BSP.Edges.ToArray();
+				int[] SurfEdges = BSP.SurfEdges.ToArray();
+				TextureInfo[] TexInfos = BSP.TextureInfos.ToArray();
+				TextureData[] TexDatas = BSP.TextureData.ToArray();
 
-			for (int ModelIdx = 0; ModelIdx < Models.Length; ModelIdx++) {
-				if (ModelIdx > 0)
-					continue;
+				string[] SpawnEntityNames = new string[] { "info_player_start", "info_player_deathmatch", "info_player_terrorist", "info_player_counterterrorist", "info_coop_spawn" };
 
-				ref BspModel Model = ref Models[ModelIdx];
+				foreach (var VEnt in BSP.Entities) {
+					if (SpawnEntityNames.Contains(VEnt.ClassName)) {
+						Vector3 Angles = ToVec3(VEnt.Angles);
+						Vector3 Origin = ToVec3(VEnt.Origin);
+						Map.SpawnEntity(new PlayerSpawn(Origin, Quaternion.CreateFromYawPitchRoll(Angles.X, Angles.Y, Angles.Z)));
+					}
+				}
 
-				for (int FaceIdx = Model.FirstFace; FaceIdx < Model.FirstFace + Model.NumFaces; FaceIdx++) {
-					ref Face Face = ref Faces[FaceIdx];
-					ref TextureInfo TexInfo = ref TexInfos[Face.TexInfo];
-					ref TextureData TexData = ref TexDatas[TexInfo.TexData];
-					string MatName = "/" + BSP.GetTextureString(TexData.NameStringTableId);
-					SVector2 TexScale = new SVector2(1f / Math.Max(TexData.Width, 1), 1f / Math.Max(TexData.Height, 1));
+				List<Vertex3> DispTriangleStrip = new List<Vertex3>();
 
-					if (MatName == "/GLASS/REFLECTIVEGLASS001")
-						Debugger.Break();
+				for (int ModelIdx = 0; ModelIdx < Models.Length; ModelIdx++) {
+					ref BspModel Model = ref Models[ModelIdx];
 
-					if (!MatName.StartsWith("/materials"))
-						MatName = "/materials" + MatName;
-					if (!MatName.EndsWith(".vmt"))
-						MatName += ".vmt";
+					CurrentMapModel = new libTechModel();
+					if (ModelIdx > 0)
+						CurrentMapModel.Enabled = false;
 
-					if ((TexInfo.Flags & (SurfFlags.NODRAW | SurfFlags.LIGHT | SurfFlags.SKY | SurfFlags.SKY2D)) != 0)
-						continue;
+					Map.AddModel(CurrentMapModel);
+					Dictionary<string, List<Vertex3>> TexturedMeshes = new Dictionary<string, List<Vertex3>>();
 
-					/*if ((TexInfo.Flags & SurfFlags.TRANS) != 0)
-						Debugger.Break();*/
+					for (int FaceIdx = Model.FirstFace; FaceIdx < Model.FirstFace + Model.NumFaces; FaceIdx++) {
+						ref Face Face = ref Faces[FaceIdx];
+						ref TextureInfo TexInfo = ref TexInfos[Face.TexInfo];
 
-					// Displacements
-					if (Face.DispInfo != -1) {
-						Displacement Disp = BSP.DisplacementManager[Face.DispInfo];
-						Disp.GetCorners(out SVector3 C0, out SVector3 C1, out SVector3 C2, out SVector3 C3);
+						if ((TexInfo.Flags & (SurfFlags.NODRAW | SurfFlags.LIGHT | SurfFlags.SKY | SurfFlags.SKY2D)) != 0)
+							continue;
 
-						SVector2 UV00 = GetUV(C0, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
-						SVector2 UV10 = GetUV(C3, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
-						SVector2 UV01 = GetUV(C1, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
-						SVector2 UV11 = GetUV(C2, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+						ref TextureData TexData = ref TexDatas[TexInfo.TexData];
+						SVector2 TexScale = new SVector2(1f / Math.Max(TexData.Width, 1), 1f / Math.Max(TexData.Height, 1));
 
-						float SubDivMul = 1f / Disp.Subdivisions;
+						// TODO: Is this correct? A better way to fix?
+						string MatName = "/" + BSP.GetTextureString(TexData.NameStringTableId);
+						if (!MatName.StartsWith("/materials"))
+							MatName = "/materials" + MatName;
+						if (!MatName.EndsWith(".vmt"))
+							MatName += ".vmt";
 
-						for (int Y = 0; Y < Disp.Subdivisions; Y++) {
-							List<Vertex3> TriangleStrip = new List<Vertex3>();
+						// Displacements
+						if (Face.DispInfo != -1) {
+							Displacement Disp = BSP.DisplacementManager[Face.DispInfo];
+							Disp.GetCorners(out SVector3 C0, out SVector3 C1, out SVector3 C2, out SVector3 C3);
 
-							var V0 = (Y + 0) * SubDivMul;
-							var V1 = (Y + 1) * SubDivMul;
+							SVector2 UV00 = GetUV(C0, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+							SVector2 UV10 = GetUV(C3, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+							SVector2 UV01 = GetUV(C1, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+							SVector2 UV11 = GetUV(C2, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
 
-							for (int X = 0; X < Disp.Size; X++) {
-								var U = X * SubDivMul;
+							float SubDivMul = 1f / Disp.Subdivisions;
 
-								SVector3 Pos1 = Disp.GetPosition(X, Y + 0);
-								SVector2 UV1 = (UV00 * (1f - U) + UV10 * U) * (1f - V0) + (UV01 * (1f - U) + UV11 * U) * V0;
-								float Alpha1 = Disp.GetAlpha(X, Y + 0);
-								TriangleStrip.Add(new Vertex3(ToVec3(Pos1), ToVec2(UV1)));
+							for (int Y = 0; Y < Disp.Subdivisions; Y++) {
+								DispTriangleStrip.Clear();
 
-								SVector3 Pos2 = Disp.GetPosition(X, Y + 1);
-								SVector2 UV2 = (UV00 * (1f - U) + UV10 * U) * (1f - V1) + (UV01 * (1f - U) + UV11 * U) * V1;
-								float Alpha2 = Disp.GetAlpha(X, Y + 1);
-								TriangleStrip.Add(new Vertex3(ToVec3(Pos2), ToVec2(UV2)));
+								var V0 = (Y + 0) * SubDivMul;
+								var V1 = (Y + 1) * SubDivMul;
+
+								for (int X = 0; X < Disp.Size; X++) {
+									var U = X * SubDivMul;
+
+									SVector3 Pos1 = Disp.GetPosition(X, Y + 0);
+									SVector2 UV1 = (UV00 * (1f - U) + UV10 * U) * (1f - V0) + (UV01 * (1f - U) + UV11 * U) * V0;
+									float Alpha1 = Disp.GetAlpha(X, Y + 0);
+									DispTriangleStrip.Add(new Vertex3(ToVec3(Pos1), ToVec2(UV1)));
+
+									SVector3 Pos2 = Disp.GetPosition(X, Y + 1);
+									SVector2 UV2 = (UV00 * (1f - U) + UV10 * U) * (1f - V1) + (UV01 * (1f - U) + UV11 * U) * V1;
+									float Alpha2 = Disp.GetAlpha(X, Y + 1);
+									DispTriangleStrip.Add(new Vertex3(ToVec3(Pos2), ToVec2(UV2)));
+								}
+
+								if (!TexturedMeshes.ContainsKey(MatName))
+									TexturedMeshes.Add(MatName, new List<Vertex3>());
+								List<Vertex3> VertList = TexturedMeshes[MatName];
+
+								for (int i = 2; i < DispTriangleStrip.Count; i++) {
+									if (i % 2 != 0) {
+										VertList.Add(DispTriangleStrip[i - 2]);
+										VertList.Add(DispTriangleStrip[i]);
+										VertList.Add(DispTriangleStrip[i - 1]);
+									} else {
+										VertList.Add(DispTriangleStrip[i - 2]);
+										VertList.Add(DispTriangleStrip[i - 1]);
+										VertList.Add(DispTriangleStrip[i]);
+									}
+								}
 							}
+						} else {
+							int TriangleVert = 0;
+							Vertex3[] Triangle = new Vertex3[3];
 
-							if (!TexturedMeshes.ContainsKey(MatName))
-								TexturedMeshes.Add(MatName, new List<Vertex3>());
-							List<Vertex3> VertList = TexturedMeshes[MatName];
+							for (int EdgeIdx = Face.FirstEdge; EdgeIdx < Face.FirstEdge + Face.NumEdges; EdgeIdx++) {
+								int SurfEdge = SurfEdges[EdgeIdx];
+								int VertIdx = SurfEdge < 0 ? VertIdx = Edges[-SurfEdge].B : VertIdx = Edges[SurfEdge].A;
 
-							for (int i = 2; i < TriangleStrip.Count; i++) {
-								if (i % 2 != 0) {
-									VertList.Add(TriangleStrip[i - 2]);
-									VertList.Add(TriangleStrip[i]);
-									VertList.Add(TriangleStrip[i - 1]);
-								} else {
-									VertList.Add(TriangleStrip[i - 2]);
-									VertList.Add(TriangleStrip[i - 1]);
-									VertList.Add(TriangleStrip[i]);
+								SVector3 Vert = Verts[VertIdx] + Model.Origin;
+								SVector2 UV = GetUV(Vert, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+
+								Triangle[TriangleVert++] = new Vertex3(ToVec3(Vert), ToVec2(UV));
+
+								if (TriangleVert > 2) {
+									if (!TexturedMeshes.ContainsKey(MatName))
+										TexturedMeshes.Add(MatName, new List<Vertex3>());
+
+									TexturedMeshes[MatName].AddRange(Triangle);
+
+									Triangle[1] = Triangle[2];
+									TriangleVert = 2;
 								}
 							}
 						}
-					} else {
-						int TriangleVert = 0;
-						Vertex3[] Triangle = new Vertex3[3];
+					}
 
-						for (int EdgeIdx = Face.FirstEdge; EdgeIdx < Face.FirstEdge + Face.NumEdges; EdgeIdx++) {
-							int SurfEdge = SurfEdges[EdgeIdx];
-							int VertIdx = SurfEdge < 0 ? VertIdx = Edges[-SurfEdge].B : VertIdx = Edges[SurfEdge].A;
+					foreach (var KV in TexturedMeshes) {
+						if (KV.Value.Count > 0) {
+							Materials.ValveMaterial Mat = (Materials.ValveMaterial)Engine.GetMaterial(KV.Key);
+							bool ErrorTexture = Mat.Texture == Engine.ErrorTexture;
 
-							SVector3 Vert = Verts[VertIdx] + Model.Origin;
-							SVector2 UV = GetUV(Vert, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
-
-							Triangle[TriangleVert++] = new Vertex3(ToVec3(Vert), ToVec2(UV));
-
-							if (TriangleVert > 2) {
-								if (!TexturedMeshes.ContainsKey(MatName))
-									TexturedMeshes.Add(MatName, new List<Vertex3>());
-
-								TexturedMeshes[MatName].AddRange(Triangle);
-
-								Triangle[1] = Triangle[2];
-								TriangleVert = 2;
-							}
+							CurrentMapModel.AddMesh(new libTechMesh(KV.Value.ToArray(), Mat));
 						}
 					}
 				}
+
+				Engine.VFS.GetSourceProvider().Remove(BSPProviderPath);
 			}
 
-			foreach (var KV in TexturedMeshes) {
-				if (KV.Value.Count > 0) {
-					Materials.ValveMaterial Mat = (Materials.ValveMaterial)Engine.GetMaterial(KV.Key);
-					bool ErrorTexture = Mat.Texture == Engine.ErrorTexture;
-
-					libTechModel.AddMesh(new libTechMesh(KV.Value.ToArray(), Mat));
-				}
-			}
-
-			libTechModel.CenterModel();
-			return libTechModel;
+			return Map;
 		}
 
 		static SVector2 GetUV(SVector3 Pos, TexAxis UAxis, TexAxis VAxis) {
@@ -482,7 +500,7 @@ namespace libTech.Map {
 	}
 
 	public static class BSPMap {
-		public static libTechModel LoadAsModel(string FilePath) {
+		public static libTechMap LoadMap(string FilePath) {
 			string HeaderVer;
 
 			using (Stream BSPStream = Engine.VFS.OpenFile(FilePath)) {
@@ -495,11 +513,11 @@ namespace libTech.Map {
 				}
 
 				if (HeaderVer == "IBSP46" || HeaderVer == "IBSP47")
-					return Q3BSP.LoadAsModel(BSPStream);
+					return Q3BSP.LoadMap(BSPStream);
 			}
 
 			if (HeaderVer.StartsWith("VBSP"))
-				return ValveBSP.LoadAsModel(FilePath);
+				return ValveBSP.LoadMap(FilePath);
 
 			throw new Exception("Unsupported BSP format " + HeaderVer);
 		}

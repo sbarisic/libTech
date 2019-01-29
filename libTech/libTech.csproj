@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
+    <Compile Include="Entities\PlayerSpawn.cs" />
     <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
@@ -112,12 +113,7 @@
     <Compile Include="Graphics\Text.cs" />
     <Compile Include="Engine\ArgumentParser.cs" />
     <Compile Include="Engine\Attributes.cs" />
-    <Compile Include="Engine\EntityManagement.cs" />
-    <Compile Include="Engine\Physics.cs" />
-    <Compile Include="Entities\PhysicsEntity.cs" />
-    <Compile Include="Entities\Light.cs" />
     <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\Player.cs" />
     <Compile Include="Engine\FileWatcher.cs" />
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
@@ -136,6 +132,7 @@
     <Compile Include="Engine\LibTechGame.cs" />
     <Compile Include="Graphics\FreetypeFont.cs" />
     <Compile Include="Map\BSP.cs" />
+    <Compile Include="Map\libTechMap.cs" />
     <Compile Include="Materials\ValveMaterial.cs" />
     <Compile Include="Materials\TexturedShaderMaterial.cs" />
     <Compile Include="Materials\ShaderMaterial.cs" />

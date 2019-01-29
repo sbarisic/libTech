@@ -57,6 +57,7 @@ namespace libTech.Models {
 		public Vector3 Scale;
 		public Vector3 Position;
 		public Matrix4x4 Rotation;
+		public bool Enabled;
 
 		public libTechModel() {
 			Meshes = new List<libTechMesh>();
@@ -64,6 +65,7 @@ namespace libTech.Models {
 			Scale = new Vector3(1, 1, 1);
 			Position = new Vector3(0, 0, 0);
 			Rotation = Matrix4x4.Identity;
+			Enabled = true;
 		}
 
 		public void AddMesh(libTechMesh Mesh) {
@@ -89,6 +91,9 @@ namespace libTech.Models {
 		}
 
 		public void DrawOpaque() {
+			if (!Enabled)
+				return;
+
 			for (int i = 0; i < Meshes.Count; i++) {
 				if (Meshes[i].Material.Translucent)
 					continue;
@@ -101,6 +106,9 @@ namespace libTech.Models {
 		}
 
 		public void DrawTransparent() {
+			if (!Enabled)
+				return;
+
 			for (int i = 0; i < Meshes.Count; i++) {
 				if (!Meshes[i].Material.Translucent)
 					continue;
@@ -121,17 +129,7 @@ namespace libTech.Models {
 			if (Meshes.Count == 0)
 				return AABB.Empty;
 
-			Vector3 Min = Meshes[0].GetVertices()[0].Position;
-			Vector3 Max = Min;
-
-			foreach (var Mesh in Meshes) {
-				foreach (var Vert in Mesh.GetVertices()) {
-					Min = Min.Min(Vert.Position);
-					Max = Max.Max(Vert.Position);
-				}
-			}
-
-			return new AABB(Min, Max);
+			return AABB.CalculateAABB(Meshes.SelectMany(M => M.GetVertices().Select(V => V.Position)));
 		}
 
 		public static libTechModel FromSourceMdl(SourceMdl Mdl, string ShaderOverride = null) {
