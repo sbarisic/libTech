@@ -51,7 +51,7 @@ namespace Game {
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
 			//*/
 
-			MapModel = BSPMap.LoadAsModel("/content/maps/gm_flatgrass.bsp");
+			MapModel = BSPMap.LoadAsModel("/content/maps/gm_construct.bsp");
 
 			/*Camera Cam = Engine.Camera3D;
 			Cam.Position = new Vector3(40, 25, 40);

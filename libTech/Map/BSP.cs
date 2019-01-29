@@ -363,7 +363,52 @@ namespace libTech.Map {
 
 					// Displacements
 					if (Face.DispInfo != -1) {
+						Displacement Disp = BSP.DisplacementManager[Face.DispInfo];
+						Disp.GetCorners(out SVector3 C0, out SVector3 C1, out SVector3 C2, out SVector3 C3);
 
+						SVector2 UV00 = GetUV(C0, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+						SVector2 UV10 = GetUV(C3, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+						SVector2 UV01 = GetUV(C1, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+						SVector2 UV11 = GetUV(C2, TexInfo.TextureUAxis, TexInfo.TextureVAxis) * TexScale;
+
+						float SubDivMul = 1f / Disp.Subdivisions;
+
+						for (int Y = 0; Y < Disp.Subdivisions; Y++) {
+							List<Vertex3> TriangleStrip = new List<Vertex3>();
+
+							var V0 = (Y + 0) * SubDivMul;
+							var V1 = (Y + 1) * SubDivMul;
+
+							for (int X = 0; X < Disp.Size; X++) {
+								var U = X * SubDivMul;
+
+								SVector3 Pos1 = Disp.GetPosition(X, Y + 0);
+								SVector2 UV1 = (UV00 * (1f - U) + UV10 * U) * (1f - V0) + (UV01 * (1f - U) + UV11 * U) * V0;
+								float Alpha1 = Disp.GetAlpha(X, Y + 0);
+								TriangleStrip.Add(new Vertex3(ToVec3(Pos1), ToVec2(UV1)));
+
+								SVector3 Pos2 = Disp.GetPosition(X, Y + 1);
+								SVector2 UV2 = (UV00 * (1f - U) + UV10 * U) * (1f - V1) + (UV01 * (1f - U) + UV11 * U) * V1;
+								float Alpha2 = Disp.GetAlpha(X, Y + 1);
+								TriangleStrip.Add(new Vertex3(ToVec3(Pos2), ToVec2(UV2)));
+							}
+
+							if (!TexturedMeshes.ContainsKey(MatName))
+								TexturedMeshes.Add(MatName, new List<Vertex3>());
+							List<Vertex3> VertList = TexturedMeshes[MatName];
+
+							for (int i = 2; i < TriangleStrip.Count; i++) {
+								if (i % 2 != 0) {
+									VertList.Add(TriangleStrip[i - 2]);
+									VertList.Add(TriangleStrip[i]);
+									VertList.Add(TriangleStrip[i - 1]);
+								} else {
+									VertList.Add(TriangleStrip[i - 2]);
+									VertList.Add(TriangleStrip[i - 1]);
+									VertList.Add(TriangleStrip[i]);
+								}
+							}
+						}
 					} else {
 						int TriangleVert = 0;
 						Vertex3[] Triangle = new Vertex3[3];
@@ -395,7 +440,7 @@ namespace libTech.Map {
 				if (KV.Value.Count > 0) {
 					Materials.ValveMaterial Mat = (Materials.ValveMaterial)Engine.GetMaterial(KV.Key);
 					bool ErrorTexture = Mat.Texture == Engine.ErrorTexture;
-					
+
 					libTechModel.AddMesh(new libTechMesh(KV.Value.ToArray(), Mat));
 				}
 			}
