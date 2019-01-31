@@ -91,6 +91,9 @@ namespace libTech.Materials {
 					Texture.UpdateFromImage(Texture, Bmp);
 				}
 			}
+
+			/*if (Texture == Engine.ErrorTexture)
+				Debugger.Break();*/
 		}
 
 		public override void Bind() {

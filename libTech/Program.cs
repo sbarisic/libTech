@@ -33,12 +33,15 @@ namespace libTech {
 		public static Camera Camera3D;
 		public static Camera Camera2D;
 
+		public static RenderTexture ScreenRT;
+
 		public static ConVar<int> MaxFPS;
 		public static ConVar<string> GamePath;
 		public static ConVar<int> WindowWidth;
 		public static ConVar<int> WindowHeight;
 		public static ConVar<bool> WindowResizable;
 		public static ConVar<bool> WindowBorderless;
+		public static ConVar<int> MSAA;
 		public static ConVar<bool> ShowFPS;
 		public static ConVar<string> SourceGameDirs;
 
@@ -125,6 +128,8 @@ namespace libTech {
 			Engine.WindowBorderless = ConVar.Register("borderless", false, ConVarType.Archive);
 			Engine.WindowResizable = ConVar.Register("resizable", false, ConVarType.Archive);
 			Engine.ShowFPS = ConVar.Register("showfps", true, ConVarType.Archive);
+
+			Engine.MSAA = ConVar.Register("msaa", 32, ConVarType.Archive);
 
 			Engine.SourceGameDirs = ConVar.Register("source_game_dirs", "C:/Program Files (x86)/Steam/steamapps/common/GarrysMod", ConVarType.Archive);
 
@@ -217,6 +222,13 @@ namespace libTech {
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += Engine.GUI.OnChar;
 
+			// Screen framebuffer
+			OpenGL.Gl.Get(OpenGL.Gl.MAX_SAMPLES, out int MaxMSAA);
+			if (Engine.MSAA > MaxMSAA)
+				Engine.MSAA.Value = MaxMSAA;
+
+			Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, Engine.MSAA);
+
 			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 
 			Engine.UI = new libGUI(Engine.Window);
@@ -224,8 +236,8 @@ namespace libTech {
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
-			Engine.RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
-			Engine.LoadMaterialDefs();
+			Engine.LoadShaders();
+			Engine.LoadMaterials();
 
 			GConsole.Color = FishGfx.Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)
@@ -243,7 +255,7 @@ namespace libTech {
 			Engine.Camera2D.SetOrthogonal(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
 			Engine.Camera3D = new Camera();
-			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
+			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, FarPlane: 16000);
 
 			LoadGameDll(Engine.GamePath);
 			Stopwatch SWatch = Stopwatch.StartNew();
@@ -282,14 +294,25 @@ namespace libTech {
 		static void Draw(float Dt) {
 			Gfx.Clear();
 
+			Engine.ScreenRT.Bind();
+			//Gfx.Clear();
+			//Engine.Framebuffer3D.Clear();
+
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
 			Game.Draw(Dt);
 			Game.DrawTransparent(Dt);
+
+			Engine.ScreenRT.Unbind();
+			//Engine.Framebuffer3D.Blit();
 
 			ShaderUniforms.Current.Camera = Engine.Camera2D;
 			RenderState State = Gfx.PeekRenderState();
 			State.EnableDepthTest = false;
 			Gfx.PushRenderState(State);
+
+			ShaderUniforms.Current.TextureSize = Engine.ScreenRT.Color.Size;
+			ShaderUniforms.Current.MultisampleCount = Engine.ScreenRT.Color.Multisamples;
+			Gfx.TexturedRectangle(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, Texture: Engine.ScreenRT.Color, Shader: Engine.GetShader("framebuffer"));
 
 			Engine.GUI.Draw(() => {
 				Engine.UI.Draw();

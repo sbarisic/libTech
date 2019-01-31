@@ -51,7 +51,9 @@ namespace Game {
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
 			//*/
 
+			Console.WriteLine("Loading map");
 			Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+			Console.WriteLine("Done!");
 
 			if (Map != null)
 				Engine.Camera3D.Position = Map.GetEntities<PlayerSpawn>().Random().SpawnPosition + new Vector3(0, 164, 0);

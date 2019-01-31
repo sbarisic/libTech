@@ -81,8 +81,17 @@ namespace libTech {
 			return Materials[Name];
 		}
 
-		internal static void LoadMaterialDefs() {
-			// TODO: Move this to a separate file and make a proper definition thing?
+		// TODO: Move these to a separate file and make a proper definition thing?	
+		internal static void LoadShaders() {
+			RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
+			RegisterShader("water", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/water.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/water.frag")));
+			RegisterShader("framebuffer", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/fb.frag")));
+		}
+
+		internal static void LoadMaterials() {
+			ShaderMaterial WaterMaterial = new ShaderMaterial("water");
+			WaterMaterial.Translucent = true;
+			RegisterMaterial("water", WaterMaterial);
 
 			string[] MaterialDefs = VFS.GetFiles("/content/materials/").Where(FName => Path.GetExtension(FName) == ".ltm").ToArray();
 

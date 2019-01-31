@@ -17,8 +17,10 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Plane = System.Numerics.Plane;
 using SVector2 = SourceUtils.Vector2;
 using SVector3 = SourceUtils.Vector3;
+using VBSPPlane = SourceUtils.ValveBsp.Plane;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 
@@ -337,9 +339,10 @@ namespace libTech.Map {
 				int[] SurfEdges = BSP.SurfEdges.ToArray();
 				TextureInfo[] TexInfos = BSP.TextureInfos.ToArray();
 				TextureData[] TexDatas = BSP.TextureData.ToArray();
+				Brush[] Brushes = BSP.Brushes.ToArray();
+				BrushSide[] Sides = BSP.BrushSides.ToArray();
 
 				string[] SpawnEntityNames = new string[] { "info_player_start", "info_player_deathmatch", "info_player_terrorist", "info_player_counterterrorist", "info_coop_spawn" };
-
 				foreach (var VEnt in BSP.Entities) {
 					if (SpawnEntityNames.Contains(VEnt.ClassName)) {
 						Vector3 Angles = ToVec3(VEnt.Angles);
@@ -376,6 +379,10 @@ namespace libTech.Map {
 							MatName = "/materials" + MatName;
 						if (!MatName.EndsWith(".vmt"))
 							MatName += ".vmt";
+
+						// TODO: Better way to add water
+						if (MatName.ToLower().Contains("water"))
+							MatName = "water";
 
 						// Displacements
 						if (Face.DispInfo != -1) {
@@ -453,9 +460,7 @@ namespace libTech.Map {
 
 					foreach (var KV in TexturedMeshes) {
 						if (KV.Value.Count > 0) {
-							Materials.ValveMaterial Mat = (Materials.ValveMaterial)Engine.GetMaterial(KV.Key);
-							bool ErrorTexture = Mat.Texture == Engine.ErrorTexture;
-
+							Materials.Material Mat = Engine.GetMaterial(KV.Key);
 							CurrentMapModel.AddMesh(new libTechMesh(KV.Value.ToArray(), Mat));
 						}
 					}
