@@ -222,6 +222,9 @@ namespace libTech {
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += Engine.GUI.OnChar;
 
+			GConsole.Init();
+			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
+
 			// Screen framebuffer
 			OpenGL.Gl.Get(OpenGL.Gl.MAX_SAMPLES, out int MaxMSAA);
 			if (Engine.MSAA > MaxMSAA)
@@ -233,8 +236,6 @@ namespace libTech {
 
 			Engine.UI = new libGUI(Engine.Window);
 			Lua.Init();
-			GConsole.Init();
-			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
 
 			Engine.LoadShaders();
 			Engine.LoadMaterials();

@@ -1,4 +1,5 @@
-﻿using FishGfx;
+﻿using BulletSharp;
+using FishGfx;
 using libTech;
 using libTech.Entities;
 using libTech.Models;
@@ -10,13 +11,142 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.Map {
+	public class libTechCollisionShape {
+		internal CollisionShape CollisionShape;
+
+		internal libTechCollisionShape(CollisionShape CollisionShape) {
+			this.CollisionShape = CollisionShape;
+		}
+
+		public static libTechCollisionShape FromVertices(IEnumerable<Vector3> Verts) {
+			ConvexHullShape HullShape = new ConvexHullShape(Verts);
+			HullShape.InitializePolyhedralFeatures();
+			return new libTechCollisionShape(HullShape);
+		}
+
+		public static libTechCollisionShape FromVerticesConcave(IEnumerable<Vector3> Verts) {
+			Vector3[] VertsArray = Verts.ToArray();
+			TriangleMesh TriMesh = new TriangleMesh();
+
+			for (int i = 0; i < VertsArray.Length; i += 3)
+				TriMesh.AddTriangle(VertsArray[i + 0], VertsArray[i + 1], VertsArray[i + 2]);
+
+			BvhTriangleMeshShape TriShape = new BvhTriangleMeshShape(TriMesh, false);
+			return new libTechCollisionShape(TriShape);
+		}
+
+		public static libTechCollisionShape CreateBoxShape(float X, float Y, float Z) {
+			BoxShape Box = new BoxShape(X / 2, Y / 2, Z / 2);
+			return new libTechCollisionShape(Box);
+		}
+	}
+
+	public class libTechRigidBody {
+		internal RigidBody Body;
+
+		internal libTechRigidBody(RigidBody Body) {
+			this.Body = Body;
+		}
+
+		public static libTechRigidBody CreateRigidBody(float Mass, Matrix4x4 StartTransform, libTechCollisionShape ColShape) {
+			bool IsDynamic = Mass != 0;
+
+			Vector3 LocalInertia = Vector3.Zero;
+			if (IsDynamic)
+				ColShape.CollisionShape.CalculateLocalInertia(Mass, out LocalInertia);
+
+			DefaultMotionState MotionState = new DefaultMotionState(StartTransform);
+			RigidBody Body = null;
+
+			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(Mass, MotionState, ColShape.CollisionShape, LocalInertia))
+				Body = new RigidBody(RBInfo);
+
+
+			return new libTechRigidBody(Body);
+		}
+	}
+
+	public struct SweepResult {
+		public bool HasHit;
+		public float Fraction;
+		public float Distance;
+
+		public Vector3 SweepFrom;
+		public Vector3 HitPoint;
+		public Vector3 HitCenterOfMass;
+		public Vector3 Normal;
+
+		public override string ToString() {
+			return string.Format("{0} {1} {2}", HasHit, (int)Distance, Fraction);
+		}
+	}
+
 	public class libTechMap {
+		const float UnitMeterScale = 52.5f;
+
+		public static float UnitToMeter(float Unit) {
+			return Unit / UnitMeterScale;
+		}
+
+		public static float MeterToUnit(float Meter) {
+			return Meter * UnitMeterScale;
+		}
+
+		public static Vector3 UnitToMeter(Vector3 Unit) {
+			return Unit / UnitMeterScale;
+		}
+
+		public static Vector3 MeterToUnit(Vector3 Meter) {
+			return Meter * UnitMeterScale;
+		}
+
 		libTechModel[] MapModels;
 		Entity[] Entities;
+
+		// Physics
+		internal DynamicsWorld World;
+		internal CollisionConfiguration CollisionConf;
+		internal CollisionDispatcher Dispatcher;
+		internal BroadphaseInterface Broadphase;
+		internal ConstraintSolver Solver;
+
+		internal ClosestConvexResultCallback ClosestConvexResult;
+
+		public Vector3 Gravity {
+			get {
+				return World.Gravity;
+			}
+
+			set {
+				World.Gravity = value;
+			}
+		}
 
 		public libTechMap() {
 			MapModels = new libTechModel[] { };
 			Entities = new Entity[] { };
+		}
+
+		public void InitPhysics() {
+			CollisionConf = new DefaultCollisionConfiguration();
+			Dispatcher = new CollisionDispatcher(CollisionConf);
+
+			Broadphase = new DbvtBroadphase();
+			Broadphase.OverlappingPairCache.SetInternalGhostPairCallback(new GhostPairCallback());
+
+			Solver = new SequentialImpulseConstraintSolver();
+
+			World = new DiscreteDynamicsWorld(Dispatcher, Broadphase, Solver, CollisionConf);
+			World.SolverInfo.SolverMode |= SolverModes.Use2FrictionDirections | SolverModes.RandomizeOrder;
+			World.SolverInfo.NumIterations = 20;
+			World.DispatchInfo.AllowedCcdPenetration = 0.0001f;
+			World.DispatchInfo.UseContinuous = true;
+			World.Gravity = new Vector3(0, -600, 0);
+
+			ClosestConvexResult = new ClosestConvexResultCallback();
+
+			EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(GetModels().First().Meshes.SelectMany(M => M.GetVertices().Select(V => V.Position))), 0);
+			SpawnEntity(MapPhysics);
 		}
 
 		public void AddModel(libTechModel Model) {
@@ -37,10 +167,79 @@ namespace libTech.Map {
 			return Bounds;
 		}
 
+		public bool RayCast(Vector3 From, Vector3 To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body) {
+			using (ClosestRayResultCallback RayResult = new ClosestRayResultCallback(ref From, ref To)) {
+				World.RayTestRef(ref From, ref To, RayResult);
+
+				if (RayResult.HasHit) {
+					HitPos = RayResult.HitPointWorld;
+					HitNormal = RayResult.HitNormalWorld;
+					Body = RayResult.CollisionObject as RigidBody;
+					return true;
+				}
+			}
+
+			Body = null;
+			HitPos = HitNormal = Vector3.Zero;
+			return false;
+		}
+
+		public bool RayCast(Vector3 From, Vector3 To) {
+			return RayCast(From, To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body);
+		}
+
+		public float RayCastDistance(Vector3 From, Vector3 To) {
+			if (RayCast(From, To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body))
+				return Vector3.Distance(From, HitPos);
+
+			return Vector3.Distance(From, To);
+		}
+
+		public RigidBody RayCastBody(Vector3 From, Vector3 To, out Vector3 PickPoint) {
+			RayCast(From, To, out PickPoint, out Vector3 HitNormal, out RigidBody Body);
+			return Body;
+		}
+
+		public SweepResult Sweep(ConvexShape Shape, Vector3 From, Vector3 To) {
+			ClosestConvexResult.ClosestHitFraction = 1.0f;
+			ClosestConvexResult.ConvexFromWorld = From;
+			ClosestConvexResult.ConvexToWorld = To;
+
+			World.ConvexSweepTest(Shape, Matrix4x4.CreateTranslation(From), Matrix4x4.CreateTranslation(To), ClosestConvexResult);
+			SweepResult Result = new SweepResult();
+			Result.SweepFrom = From;
+			Result.HasHit = ClosestConvexResult.HasHit;
+			Result.Fraction = 1;
+			Result.HitPoint = Result.HitCenterOfMass = To;
+
+			if (ClosestConvexResult.HasHit) {
+				Result.Fraction = ClosestConvexResult.ClosestHitFraction;
+				Result.Normal = Vector3.Normalize(ClosestConvexResult.HitNormalWorld);
+
+				Result.HitPoint = ClosestConvexResult.HitPointWorld;
+				Result.HitCenterOfMass = Vector3.Lerp(From, To, Result.Fraction);
+
+				Result.Distance = Vector3.Distance(From, Result.HitCenterOfMass);
+			} else
+				Result.Distance = Vector3.Distance(From, To);
+
+			return Result;
+		}
+
+		public SweepResult Sweep(ConvexShape Shape, Vector3 Pos, Vector3 Normal, float Dist) {
+			return Sweep(Shape, Pos, Pos + Normal * Dist);
+		}
+
+		void InitEntity(Entity Ent) {
+			Ent.Map = this;
+			Ent.Spawned();
+		}
+
 		public void SpawnEntity(Entity Ent) {
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++) {
 				if (Entities[EntityIdx] == null) {
 					Entities[EntityIdx] = Ent;
+					InitEntity(Ent);
 					return;
 				}
 			}
@@ -73,6 +272,13 @@ namespace libTech.Map {
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				if (Entities[EntityIdx] != null && Entities[EntityIdx].GetType() == typeof(T))
 					yield return (T)Entities[EntityIdx];
+		}
+
+		public void Update(float Dt) {
+			World.StepSimulation(Dt);
+
+			for (int i = 0; i < Entities.Length; i++)
+				Entities[i].Update(Dt);
 		}
 
 		public void DrawOpaque() {

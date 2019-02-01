@@ -1,12 +1,18 @@
-﻿using System;
+﻿using libTech.Map;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using System.Numerics;
 
 namespace libTech.Entities {
 	public abstract class Entity {
+		public libTechMap Map;
+
+		public virtual void Spawned() {
+		}
+
 		public virtual void Update(float Dt) {
 		}
 

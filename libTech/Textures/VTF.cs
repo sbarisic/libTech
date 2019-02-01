@@ -94,9 +94,13 @@ namespace libTech.Textures {
 			if ((VTF.Header.Flags & TextureFlags.CLAMPS) != 0)
 				WrapU = WrapV = TextureWrap.ClampToBorder;
 
-			Texture T = Texture.FromImage(Img);
-			T.SetFilter((VTF.Header.Flags & TextureFlags.POINTSAMPLE) != 0 ? TextureFilter.Nearest : TextureFilter.Linear);
+			TextureFilter MinFilter = TextureFilter.LinearMipmapLinear;
+			if ((VTF.Header.Flags & TextureFlags.POINTSAMPLE) != 0)
+				MinFilter = TextureFilter.NearestMipmapNearest;
+
+			Texture T = Texture.FromImage(Img, MipmapLevels: 4);
 			T.SetWrap(WrapU, WrapV);
+			T.SetFilter(MinFilter, TextureFilter.Nearest);
 			return T;
 		}
 	}

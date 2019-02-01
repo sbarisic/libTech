@@ -35,13 +35,15 @@ namespace Game {
 		libTechModel MenuModel;
 		Texture MenuWallpaperTex;
 
+		libTechModel BarrelModel;
+
 		libTechMap Map;
+
+		Texture CrosshairTex;
 
 		const float BtnPadding = 7;
 		const float BtnHeight = 30;
 		const float BtnWidth = 200;
-
-		bool W, A, S, D;
 
 		public override void Load() {
 			/*MenuModel = Engine.Load<libTechModel>(new[] { "logo_gmod_b.mdl", "dynamite.mdl", "armchair.mdl" }.Random());
@@ -51,12 +53,26 @@ namespace Game {
 			MenuWallpaperTex = Texture.FromFile("content/textures/wallpaper.png");
 			//*/
 
+			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
+
 			Console.WriteLine("Loading map");
 			Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+			Map.InitPhysics();
 			Console.WriteLine("Done!");
 
-			if (Map != null)
-				Engine.Camera3D.Position = Map.GetEntities<PlayerSpawn>().Random().SpawnPosition + new Vector3(0, 164, 0);
+			PlayerSpawn[] SpawnPositions = Map.GetEntities<PlayerSpawn>().ToArray();
+			Player PlayerEnt = new Player();
+			PlayerEnt.Position = SpawnPositions.Random().SpawnPosition + new Vector3(0, 100, 0);
+			Map.SpawnEntity(PlayerEnt);
+
+			BarrelModel = Engine.Load<libTechModel>("models/props_c17/oildrum001_explosive.mdl");
+			BarrelModel.CenterModel();
+
+			/*for (int i = 0; i < 5; i++) {
+				EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1);
+				Barrel.SetPosition(new Vector3(0, 30 + i * 20, 0));
+				Map.SpawnEntity(Barrel);
+			}*/
 
 
 			/*Camera Cam = Engine.Camera3D;
@@ -87,18 +103,11 @@ namespace Game {
 			Engine.Window.CaptureCursor = true;
 
 			Engine.Window.OnMouseMoveDelta += (Wnd, X, Y) => {
-				Engine.Camera3D.Update(-new Vector2(X, Y));
+				PlayerEnt.MouseMove(new Vector2(-X, -Y));
 			};
 
 			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => {
-				if (Key == Key.W)
-					W = Pressed;
-				if (Key == Key.A)
-					A = Pressed;
-				if (Key == Key.S)
-					S = Pressed;
-				if (Key == Key.D)
-					D = Pressed;
+				PlayerEnt.OnKey(Key, Pressed, Mods);
 				if (Key == Key.Escape && Pressed)
 					Environment.Exit(0);
 			};
@@ -142,17 +151,7 @@ namespace Game {
 
 		public override void Update(float Dt) {
 			base.Update(Dt);
-
-			const int MoveSpeed = 600;
-
-			if (W)
-				Engine.Camera3D.Position += Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
-			if (A)
-				Engine.Camera3D.Position += -Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
-			if (S)
-				Engine.Camera3D.Position += -Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
-			if (D)
-				Engine.Camera3D.Position += Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
+			Map.Update(Dt);
 		}
 
 		public override void Draw(float Dt) {
@@ -164,7 +163,9 @@ namespace Game {
 				RenderState RS = Gfx.PeekRenderState();
 				RS.EnableDepthMask = false;
 				Gfx.PushRenderState(RS);
+
 				Gfx.TexturedRectangle(0, 0, Engine.WindowWidth, Engine.WindowHeight, Texture: MenuWallpaperTex);
+
 				Gfx.PopRenderState();
 			}
 
@@ -176,6 +177,14 @@ namespace Game {
 			}
 
 			Map?.Draw();
+		}
+
+		public override void DrawGUI(float Dt) {
+			if (CrosshairTex != null) {
+				float CW = CrosshairTex.Width;
+				float CH = CrosshairTex.Height;
+				Gfx.TexturedRectangle(Engine.Window.WindowWidth / 2 - CW / 2, Engine.Window.WindowHeight / 2 - CH / 2, CW, CH, Texture: CrosshairTex);
+			}
 		}
 	}
 }

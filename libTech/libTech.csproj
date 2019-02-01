@@ -61,8 +61,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BulletSharp">
+      <HintPath>..\3rdParty\managed\BulletSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Facepunch.Parse, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\3rdParty\managed\Facepunch.Parse.dll</HintPath>
@@ -110,6 +114,9 @@
   <ItemGroup>
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\EntPhysics.cs" />
+    <Compile Include="Entities\EntStatic.cs" />
     <Compile Include="Entities\PlayerSpawn.cs" />
     <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
@@ -637,6 +644,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="content\materials\" />
+    <Folder Include="Physics\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets" Condition="Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" />
