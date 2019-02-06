@@ -3,6 +3,7 @@ using FishGfx;
 using FishGfx.Graphics;
 using libTech.Map;
 using libTech.Models;
+using libTech.Weapons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,27 +14,28 @@ using System.Threading.Tasks;
 namespace libTech.Entities {
 	public class Player : Entity {
 		public Vector3 Position { get; set; }
+		public Camera Camera { get; set; }
+		public Camera ViewModelCamera { get; set; }
 
-		bool W, A, S, D, PerformPick;
+		bool W, A, S, D;
 		SphereShape PlayerShape;
 
-		RigidBody PickedBody;
-		Point2PointConstraint PointCst;
-		float PickDist;
+		bool LastPrimaryFire, LastSecondaryFire, LastReload;
+		bool PrimaryFire, SecondaryFire, Reload;
+		List<BaseWeapon> Weapons;
+		BaseWeapon CurrentWeapon;
 
 		public Player() {
-			//PlayerShape = new CapsuleShape(30, 44);
+			Weapons = new List<BaseWeapon>();
+			Camera = Engine.Camera3D;
+
+			// TODO: Convar the view model FOV
+			ViewModelCamera = new Camera();
+			ViewModelCamera.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, 54 * ((float)Math.PI / 180));
+
 			PlayerShape = new SphereShape(20);
-
 			PlayerShape.GetAabb(Matrix4x4.Identity, out Vector3 AABBMin, out Vector3 AABBMax);
-
-			// TODO: Remove
-			BarrelModel = Engine.Load<libTechModel>("models/props_c17/oildrum001_explosive.mdl");
-			BarrelModel.CenterModel();
 		}
-
-		// TODO: Remove
-		libTechModel BarrelModel;
 
 		public virtual void OnKey(Key Key, bool Pressed, KeyMods Mods) {
 			if (Key == Key.W)
@@ -46,77 +48,95 @@ namespace libTech.Entities {
 				D = Pressed;
 
 			if (Key == Key.MouseLeft)
-				PerformPick = Pressed;
+				PrimaryFire = Pressed;
+			if (Key == Key.MouseRight)
+				SecondaryFire = Pressed;
+			if (Key == Key.R)
+				Reload = Pressed;
+		}
 
-			// TODO: Remove
-			if (Pressed && Key == Key.MouseRight) {
-				if (Map.RayCast(Position, Position + Engine.Camera3D.WorldForwardNormal * 1000, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body)) {
-					EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1);
-					Barrel.SetPosition(HitPos + new Vector3(0, 20, 0));
-					Map.SpawnEntity(Barrel);
+		public virtual bool WeaponPickUp(BaseWeapon Weapon) {
+			for (int i = 0; i < Weapons.Count; i++) {
+				if (Weapons[i].GetType() == Weapon.GetType()) {
+					if (Weapons[i].PickUpDuplicate(Weapon))
+						return true;
+
+					return false;
 				}
 			}
+
+			if (CurrentWeapon == null)
+				CurrentWeapon = Weapon;
+
+			//Weapon.Player = this;
+			Weapons.Add(Weapon);
+			return true;
+		}
+
+		public virtual bool WeaponDrop(BaseWeapon Weapon) {
+			if (Weapons.Contains(Weapon)) {
+				Weapons.Remove(Weapon);
+
+				if (CurrentWeapon == Weapon)
+					CurrentWeapon = null;
+
+				//Weapon.Player = null;
+				return true;
+			}
+
+			return false;
 		}
 
 		public virtual void MouseMove(Vector2 Dt) {
-			Engine.Camera3D.Update(Dt);
+			Camera.Update(Dt);
 		}
 
 		public override void Update(float Dt) {
 			const int MoveSpeed = 600;
 
-			if (PerformPick) {
-				if (PickedBody == null) {
-					Console.WriteLine("Picking!");
+			if (CurrentWeapon != null) {
+				CurrentWeapon.FireOrigin = Position;
+				CurrentWeapon.FireDirection = Camera.WorldForwardNormal;
 
-					PickedBody = Map.RayCastBody(Position, Position + Engine.Camera3D.WorldForwardNormal * 1000, out Vector3 PickPoint);
-					if (PickedBody != null) {
-						PickDist = Vector3.Distance(Position, PickPoint);
-						Console.WriteLine("Distance: {0}", PickDist);
-
-						Matrix4x4.Invert(PickedBody.CenterOfMassTransform, out Matrix4x4 InvCenterOfMass);
-						PickPoint = Vector3.Transform(PickPoint, InvCenterOfMass);
-
-						PickedBody.ActivationState = ActivationState.DisableDeactivation;
-
-						PointCst = new Point2PointConstraint(PickedBody, PickPoint);
-						PointCst.Setting.ImpulseClamp = 30;
-						PointCst.Setting.Tau = 0.001f;
-						Map.World.AddConstraint(PointCst);
-					}
+				if (PrimaryFire != LastPrimaryFire) {
+					CurrentWeapon.PrimaryFire(PrimaryFire);
+					LastPrimaryFire = PrimaryFire;
 				}
-			} else {
-				if (PointCst != null) {
-					Console.WriteLine("Dropping!");
 
-					Map.World.RemoveConstraint(PointCst);
-					PointCst.Dispose();
-					PointCst = null;
+				if (SecondaryFire != LastSecondaryFire) {
+					CurrentWeapon.SecondaryFire(SecondaryFire);
+					LastSecondaryFire = SecondaryFire;
+				}
 
-					PickedBody.ForceActivationState(ActivationState.ActiveTag);
-					PickedBody.DeactivationTime = 0;
-					PickedBody = null;
+				if (Reload != LastReload) {
+					CurrentWeapon.Reload(Reload);
+					LastReload = Reload;
 				}
 			}
 
-			if (PointCst != null) {
-				//PointCst.PivotInA = Position;
-				PointCst.PivotInB = Position + Engine.Camera3D.WorldForwardNormal * PickDist;
-			}
+			if (W && Map.Sweep(PlayerShape, Position, Camera.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
+				Position += Camera.WorldForwardNormal * MoveSpeed * Dt;
 
-			if (W && Map.Sweep(PlayerShape, Position, Engine.Camera3D.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
-				Position += Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
+			if (A && Map.Sweep(PlayerShape, Position, -Camera.WorldRightNormal, 100).Distance > PlayerShape.Radius)
+				Position += -Camera.WorldRightNormal * MoveSpeed * Dt;
 
-			if (A && Map.Sweep(PlayerShape, Position, -Engine.Camera3D.WorldRightNormal, 100).Distance > PlayerShape.Radius)
-				Position += -Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
+			if (S && Map.Sweep(PlayerShape, Position, -Camera.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
+				Position += -Camera.WorldForwardNormal * MoveSpeed * Dt;
 
-			if (S && Map.Sweep(PlayerShape, Position, -Engine.Camera3D.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
-				Position += -Engine.Camera3D.WorldForwardNormal * MoveSpeed * Dt;
+			if (D && Map.Sweep(PlayerShape, Position, Camera.WorldRightNormal, 100).Distance > PlayerShape.Radius)
+				Position += Camera.WorldRightNormal * MoveSpeed * Dt;
 
-			if (D && Map.Sweep(PlayerShape, Position, Engine.Camera3D.WorldRightNormal, 100).Distance > PlayerShape.Radius)
-				Position += Engine.Camera3D.WorldRightNormal * MoveSpeed * Dt;
+			Camera.Position = Position;
+		}
 
-			Engine.Camera3D.Position = Position;
+		public virtual void DrawViewModel() {
+			ViewModelCamera.Position = Camera.Position;
+			ViewModelCamera.Rotation = Camera.Rotation;
+
+			Camera OldCam = ShaderUniforms.Current.Camera;
+			ShaderUniforms.Current.Camera = ViewModelCamera;
+			CurrentWeapon?.DrawViewModel(this);
+			ShaderUniforms.Current.Camera = OldCam;
 		}
 	}
 }

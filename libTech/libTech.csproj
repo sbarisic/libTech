@@ -149,6 +149,7 @@
     <Compile Include="Materials\TexturedShaderMaterial.cs" />
     <Compile Include="Materials\ShaderMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
+    <Compile Include="Models\Bone.cs" />
     <Compile Include="Models\libTechModel.cs" />
     <Compile Include="Models\SourceMdl.cs" />
     <Compile Include="native\libNative\libNative.cs" />
@@ -165,6 +166,8 @@
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />
     <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Weapons\BaseWeapon.cs" />
+    <Compile Include="Weapons\UtilityGun.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\bin\data\fonts\proggy.fnt">
@@ -276,9 +279,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\maps\gm_flatgrass.bsp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\maps\gm_modern_house_a.bsp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">

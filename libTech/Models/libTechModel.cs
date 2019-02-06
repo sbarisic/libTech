@@ -56,15 +56,19 @@ namespace libTech.Models {
 
 		public Vector3 Scale;
 		public Vector3 Position;
-		public Matrix4x4 Rotation;
+		public Quaternion Rotation;
 		public bool Enabled;
 
+
+		public Dictionary<string, libTechBone> Bones;
+
 		public libTechModel() {
+			Bones = new Dictionary<string, libTechBone>();
 			Meshes = new List<libTechMesh>();
 
 			Scale = new Vector3(1, 1, 1);
 			Position = new Vector3(0, 0, 0);
-			Rotation = Matrix4x4.Identity;
+			Rotation = Quaternion.Identity;
 			Enabled = true;
 		}
 
@@ -86,6 +90,13 @@ namespace libTech.Models {
 			}
 		}
 
+		public libTechBone? GetBone(string Name) {
+			if (Bones.ContainsKey(Name))
+				return Bones[Name];
+
+			return null;
+		}
+
 		public void ScaleToSize(float MaxSize) {
 			Scale = new Vector3(MaxSize / Vector3.Distance(Vector3.Zero, CalculateAABB().Bounds));
 		}
@@ -98,7 +109,7 @@ namespace libTech.Models {
 				if (Meshes[i].Material.Translucent)
 					continue;
 
-				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Rotation * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
+				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
 				Meshes[i].Draw();
 			}
 
@@ -113,7 +124,7 @@ namespace libTech.Models {
 				if (!Meshes[i].Material.Translucent)
 					continue;
 
-				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Rotation * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
+				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
 				Meshes[i].Draw();
 			}
 
@@ -136,6 +147,13 @@ namespace libTech.Models {
 			libTechModel Model = new libTechModel();
 			string[] MaterialNames = Mdl.GetMaterialNames();
 			string[] BodyNames = Mdl.GetBodyNames();
+
+			StudioModelFile.StudioBone[] Bones = Mdl.Mdl.GetBones();
+			string[] BoneNames = Mdl.Mdl.GetBoneNames();
+
+			for (int i = 0; i < Bones.Length; i++)
+				Model.Bones.Add(BoneNames[i], new libTechBone(BoneNames[i], Bones[i]));
+
 
 			// BODIES
 			for (int BodyPartIdx = 0; BodyPartIdx < Mdl.Mdl.BodyPartCount; BodyPartIdx++) {

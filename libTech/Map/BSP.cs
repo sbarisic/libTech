@@ -374,7 +374,12 @@ namespace libTech.Map {
 						SVector2 TexScale = new SVector2(1f / Math.Max(TexData.Width, 1), 1f / Math.Max(TexData.Height, 1));
 
 						// TODO: Is this correct? A better way to fix?
-						string MatName = "/" + BSP.GetTextureString(TexData.NameStringTableId);
+
+						string TexName = BSP.GetTextureString(TexData.NameStringTableId);
+						if (TexName.ToLower().EndsWith("nodraw"))
+							continue;
+
+						string MatName = "/" + TexName;
 						if (!MatName.StartsWith("/materials"))
 							MatName = "/materials" + MatName;
 						if (!MatName.EndsWith(".vmt"))

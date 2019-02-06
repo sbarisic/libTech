@@ -12,6 +12,7 @@ using libTech.libNative;
 using libTech.Map;
 using libTech.Models;
 using libTech.Scripting;
+using libTech.Weapons;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,10 +37,10 @@ namespace Game {
 		Texture MenuWallpaperTex;
 
 		libTechModel BarrelModel;
-
 		libTechMap Map;
-
 		Texture CrosshairTex;
+
+		Player PlayerEnt;
 
 		const float BtnPadding = 7;
 		const float BtnHeight = 30;
@@ -54,25 +55,30 @@ namespace Game {
 			//*/
 
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
+			UtilityGun UtilGun = new UtilityGun();
 
 			Console.WriteLine("Loading map");
-			Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+			Map = BSPMap.LoadMap("/content/maps/gm_flatgrass.bsp");
 			Map.InitPhysics();
 			Console.WriteLine("Done!");
 
 			PlayerSpawn[] SpawnPositions = Map.GetEntities<PlayerSpawn>().ToArray();
-			Player PlayerEnt = new Player();
+			PlayerEnt = new Player();
 			PlayerEnt.Position = SpawnPositions.Random().SpawnPosition + new Vector3(0, 100, 0);
+
+			Map.SpawnEntity(UtilGun);
 			Map.SpawnEntity(PlayerEnt);
+			PlayerEnt.WeaponPickUp(UtilGun);
 
 			BarrelModel = Engine.Load<libTechModel>("models/props_c17/oildrum001_explosive.mdl");
 			BarrelModel.CenterModel();
+			Vector3 BarrelSpawn = SpawnPositions.Random().SpawnPosition;
 
-			/*for (int i = 0; i < 5; i++) {
-				EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1);
-				Barrel.SetPosition(new Vector3(0, 30 + i * 20, 0));
+			for (int i = 0; i < 10; i++) {
+				EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1 + 5 * i);
+				Barrel.SetPosition(BarrelSpawn + new Vector3(0, 30 + i * 20, 0));
 				Map.SpawnEntity(Barrel);
-			}*/
+			}
 
 
 			/*Camera Cam = Engine.Camera3D;
@@ -154,8 +160,7 @@ namespace Game {
 			Map.Update(Dt);
 		}
 
-		public override void Draw(float Dt) {
-			base.Draw(Dt);
+		public override void DrawWorld(float Dt) {
 			Gfx.Clear(new Color(80, 90, 100));
 
 			if (MenuWallpaperTex != null) {
@@ -171,12 +176,15 @@ namespace Game {
 
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
 			if (MenuModel != null) {
-				MenuModel.Rotation = Matrix4x4.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
+				MenuModel.Rotation = Quaternion.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
 				MenuModel.Position = new Vector3(7, -10, -25);
 				MenuModel.Draw();
 			}
 
 			Map?.Draw();
+
+			Gfx.ClearDepth();
+			PlayerEnt?.DrawViewModel();
 		}
 
 		public override void DrawGUI(float Dt) {

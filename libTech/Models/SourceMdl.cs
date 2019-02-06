@@ -18,18 +18,6 @@ namespace libTech.Models {
 		public ValveVertexFile Verts;
 		public ValveTriangleFile Tris;
 
-		/*public GenericMesh Load(string Pth) {
-			List<Vertex3> Verts = new List<Vertex3>();
-			StudioVertex[] Vtx = LoadMdl(Pth, Engine.VFS).ToArray()[0];
-
-			for (int i = 0; i < Vtx.Length; i++) {
-				ref StudioVertex V = ref Vtx[i];
-				Verts.Add(new Vertex3(new Vector3(V.Position.X, V.Position.Y, V.Position.Z), new Vector2(V.TexCoordX, 1.0f - V.TexCoordY), Color.White));
-			}
-
-			return new GenericMesh(Verts.ToArray());
-		}*/
-
 		public Dictionary<string, Texture> GetTextures() {
 			Dictionary<string, Texture> Textures = new Dictionary<string, Texture>();
 
@@ -54,11 +42,10 @@ namespace libTech.Models {
 			for (int i = 0; i < ModNames.Length; i++)
 				ModNames[i] = Mdl.GetBodyPartName(i);
 
-
 			return ModNames;
 		}
 
-		IEnumerable<StudioVertex[]> LoadMdl(IResourceProvider Res) {
+		/*IEnumerable<StudioVertex[]> LoadMdl(IResourceProvider Res) {
 			for (int BodyPartIdx = 0; BodyPartIdx < Mdl.BodyPartCount; BodyPartIdx++) {
 				StudioModelFile.StudioModel[] Models = Mdl.GetModels(BodyPartIdx).ToArray();
 
@@ -83,7 +70,7 @@ namespace libTech.Models {
 					}
 				}
 			}
-		}
+		}*/
 
 		public static SourceMdl FromFile(string FilePath, IResourceProvider Res) {
 			FilePath = FilePath.Substring(0, FilePath.Length - Path.GetExtension(FilePath).Length);
@@ -92,7 +79,7 @@ namespace libTech.Models {
 			Model.Mdl = StudioModelFile.FromProvider(FilePath + ".mdl", Res);
 			Model.Verts = ValveVertexFile.FromProvider(FilePath + ".vvd", Res);
 			Model.Tris = ValveTriangleFile.FromProvider(FilePath + ".dx90.vtx", Model.Mdl, Model.Verts, Res);
-
+			
 			return Model;
 		}
 	}

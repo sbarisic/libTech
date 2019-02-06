@@ -118,7 +118,7 @@ namespace libTech {
 			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
 			//Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
-			Engine.MaxFPS = ConVar.Register("maxfps", 0, ConVarType.Archive);
+			Engine.MaxFPS = ConVar.Register("maxfps", 60, ConVarType.Archive);
 			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
 			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
 
@@ -195,6 +195,7 @@ namespace libTech {
 
 			Engine.VFS = new VirtualFileSystem(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 			Engine.VFS.Mount("/content/", "./content");
+			Engine.VFS.Mount("/materials/", "C:/Program Files (x86)/Steam/steamapps/common/GarrysMod/garrysmod/addons/quake_3_gmod_160207505/materials");
 
 			string[] SourceGameDirs = Engine.SourceGameDirs.Value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Where(Pth => Directory.Exists(Pth)).ToArray();
 
@@ -300,8 +301,7 @@ namespace libTech {
 			//Engine.Framebuffer3D.Clear();
 
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
-			Game.Draw(Dt);
-			Game.DrawTransparent(Dt);
+			Game.DrawWorld(Dt);
 
 			Engine.ScreenRT.Unbind();
 			//Engine.Framebuffer3D.Blit();

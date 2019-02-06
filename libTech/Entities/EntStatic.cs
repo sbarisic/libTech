@@ -22,12 +22,11 @@ namespace libTech.Entities {
 
 		public virtual Quaternion Rotation {
 			get {
-				Matrix4x4.Decompose(Model.Rotation, out Vector3 S, out Quaternion Rot, out Vector3 T);
-				return Rot;
+				return Model.Rotation;
 			}
 
 			set {
-				Model.Rotation = Matrix4x4.CreateFromQuaternion(value);
+				Model.Rotation = value;
 			}
 		}
 

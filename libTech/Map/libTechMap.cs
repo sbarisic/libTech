@@ -11,61 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.Map {
-	public class libTechCollisionShape {
-		internal CollisionShape CollisionShape;
-
-		internal libTechCollisionShape(CollisionShape CollisionShape) {
-			this.CollisionShape = CollisionShape;
-		}
-
-		public static libTechCollisionShape FromVertices(IEnumerable<Vector3> Verts) {
-			ConvexHullShape HullShape = new ConvexHullShape(Verts);
-			HullShape.InitializePolyhedralFeatures();
-			return new libTechCollisionShape(HullShape);
-		}
-
-		public static libTechCollisionShape FromVerticesConcave(IEnumerable<Vector3> Verts) {
-			Vector3[] VertsArray = Verts.ToArray();
-			TriangleMesh TriMesh = new TriangleMesh();
-
-			for (int i = 0; i < VertsArray.Length; i += 3)
-				TriMesh.AddTriangle(VertsArray[i + 0], VertsArray[i + 1], VertsArray[i + 2]);
-
-			BvhTriangleMeshShape TriShape = new BvhTriangleMeshShape(TriMesh, false);
-			return new libTechCollisionShape(TriShape);
-		}
-
-		public static libTechCollisionShape CreateBoxShape(float X, float Y, float Z) {
-			BoxShape Box = new BoxShape(X / 2, Y / 2, Z / 2);
-			return new libTechCollisionShape(Box);
-		}
-	}
-
-	public class libTechRigidBody {
-		internal RigidBody Body;
-
-		internal libTechRigidBody(RigidBody Body) {
-			this.Body = Body;
-		}
-
-		public static libTechRigidBody CreateRigidBody(float Mass, Matrix4x4 StartTransform, libTechCollisionShape ColShape) {
-			bool IsDynamic = Mass != 0;
-
-			Vector3 LocalInertia = Vector3.Zero;
-			if (IsDynamic)
-				ColShape.CollisionShape.CalculateLocalInertia(Mass, out LocalInertia);
-
-			DefaultMotionState MotionState = new DefaultMotionState(StartTransform);
-			RigidBody Body = null;
-
-			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(Mass, MotionState, ColShape.CollisionShape, LocalInertia))
-				Body = new RigidBody(RBInfo);
-
-
-			return new libTechRigidBody(Body);
-		}
-	}
-
 	public struct SweepResult {
 		public bool HasHit;
 		public float Fraction;
