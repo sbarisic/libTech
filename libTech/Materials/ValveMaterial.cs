@@ -13,7 +13,7 @@ namespace libTech.Materials {
 		public Texture Texture;
 		public string MaterialDefinition;
 
-		public ValveMaterial(string MaterialDefinition, string MaterialName) : base(Engine.GetShader("default"), MaterialName) {
+		public ValveMaterial(string MaterialDefinition, string MaterialName) : base(null, MaterialName) {
 			RETRY:
 			this.MaterialDefinition = MaterialDefinition;
 
@@ -92,6 +92,10 @@ namespace libTech.Materials {
 				}
 			}
 
+			if (Translucent)
+				Shader = Engine.GetShader("default");
+			else
+				Shader = Engine.GetShader("default_deferred");
 			/*if (Texture == Engine.ErrorTexture)
 				Debugger.Break();*/
 		}

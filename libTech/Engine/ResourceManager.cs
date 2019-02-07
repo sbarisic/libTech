@@ -84,6 +84,9 @@ namespace libTech {
 		// TODO: Move these to a separate file and make a proper definition thing?	
 		internal static void LoadShaders() {
 			RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
+			RegisterShader("default_deferred", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default_deferred.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_deferred.frag")));
+			RegisterShader("deferred_shading", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_shading.frag")));
+
 			RegisterShader("water", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/water.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/water.frag")));
 			RegisterShader("framebuffer", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/fb.frag")));
 		}

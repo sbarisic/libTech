@@ -18,8 +18,7 @@ vec4 sampleTex(vec2 uv) {
 	if (SampleCount > 0) {
 		vec4 clr = vec4(0.0);
 
-		for (int i = 0; i < SampleCount; i++)
-		{
+		for (int i = 0; i < SampleCount; i++) {
 			clr += texelFetch(TextureMS, ivec2(uv.x * TextureSize.x, uv.y * TextureSize.y), i);
 		}
 
@@ -31,6 +30,5 @@ vec4 sampleTex(vec2 uv) {
 
 void main() {
 	vec4 Fragment = sampleTex(UV);
-
 	OutClr = vec4(Fragment.rgb, 1.0f);
 }

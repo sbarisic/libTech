@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Vertex2 = FishGfx.Vertex2;
 /*using PhysVector3 = BEPUutilities.Vector3;
 using PhysMatrix = BEPUutilities.Matrix;
 using PhysQuat = BEPUutilities.Quaternion;*/
@@ -207,6 +208,19 @@ namespace libTech {
 			}
 
 			return Bmp;
+		}
+
+		internal static Vertex2[] EmitRectangleTris(Vertex2[] Verts, int Offset, float X, float Y, float W, float H, float U0 = 0, float V0 = 0, float U1 = 1, float V1 = 1, Color? Color = null) {
+			Color C = Color ?? FishGfx.Color.White;
+
+			Verts[Offset] = new Vertex2(new Vector2(X, Y), new Vector2(U0, V0), C);
+			Verts[Offset + 1] = new Vertex2(new Vector2(X + W, Y + H), new Vector2(U1, V1), C);
+			Verts[Offset + 2] = new Vertex2(new Vector2(X, Y + H), new Vector2(U0, V1), C);
+			Verts[Offset + 3] = new Vertex2(new Vector2(X, Y), new Vector2(U0, V0), C);
+			Verts[Offset + 4] = new Vertex2(new Vector2(X + W, Y), new Vector2(U1, V0), C);
+			Verts[Offset + 5] = new Vertex2(new Vector2(X + W, Y + H), new Vector2(U1, V1), C);
+
+			return Verts;
 		}
 	}
 

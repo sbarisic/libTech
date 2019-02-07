@@ -1,6 +1,7 @@
 ﻿using CARP;
 using FishGfx;
 using FishGfx.Graphics;
+using FishGfx.Graphics.Drawables;
 using libTech.FileSystem;
 using libTech.Graphics;
 using libTech.GUI;
@@ -20,6 +21,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Color = FishGfx.Color;
 
 namespace libTech {
 	static partial class Engine {
@@ -34,6 +36,8 @@ namespace libTech {
 		public static Camera Camera2D;
 
 		public static RenderTexture ScreenRT;
+		public static RenderTexture GBuffer;
+		internal static Mesh2D ScreenQuad;
 
 		public static ConVar<int> MaxFPS;
 		public static ConVar<string> GamePath;
@@ -231,7 +235,14 @@ namespace libTech {
 			if (Engine.MSAA > MaxMSAA)
 				Engine.MSAA.Value = MaxMSAA;
 
-			Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, Engine.MSAA);
+			{
+				Engine.GBuffer = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, IsGBuffer: true);
+				Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, Engine.MSAA);
+
+				Engine.ScreenQuad = new Mesh2D();
+				Engine.ScreenQuad.PrimitiveType = PrimitiveType.Triangles;
+				Engine.ScreenQuad.SetVertices(Utils.EmitRectangleTris(new Vertex2[6], 0, 0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, 0, 0, 1, 1, Color.White));
+			}
 
 			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 
@@ -294,34 +305,75 @@ namespace libTech {
 		}
 
 		static void Draw(float Dt) {
-			Gfx.Clear();
 
-			Engine.ScreenRT.Bind();
-			//Gfx.Clear();
-			//Engine.Framebuffer3D.Clear();
 
-			ShaderUniforms.Current.Camera = Engine.Camera3D;
-			Game.DrawWorld(Dt);
+			Engine.GBuffer.Bind();
+			{
+				RenderState RS = Gfx.PeekRenderState();
+				RS.EnableBlend = false;
+				Gfx.PushRenderState(RS);
+				Gfx.Clear();
 
-			Engine.ScreenRT.Unbind();
+				//Engine.Framebuffer3D.Clear();
+
+				ShaderUniforms.Current.Camera = Engine.Camera3D;
+				Game.DrawOpaque();
+
+				Gfx.PopRenderState();
+			}
+			Engine.GBuffer.Unbind();
+
+			/*FishGfx.Color[] Colors;
+			Colors = Engine.GBuffer.Position.GetPixels();
+			Colors = Engine.GBuffer.Normal.GetPixels();*/
+
 			//Engine.Framebuffer3D.Blit();
 
 			ShaderUniforms.Current.Camera = Engine.Camera2D;
 			RenderState State = Gfx.PeekRenderState();
 			State.EnableDepthTest = false;
 			Gfx.PushRenderState(State);
+			{
+				Engine.ScreenRT.Bind();
+				{
+					ShaderProgram DefaultShader = Engine.GetShader("deferred_shading");
+					DefaultShader.Uniform3f("ViewPos", Engine.Camera3D.Position);
 
-			ShaderUniforms.Current.TextureSize = Engine.ScreenRT.Color.Size;
-			ShaderUniforms.Current.MultisampleCount = Engine.ScreenRT.Color.Multisamples;
-			Gfx.TexturedRectangle(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, Texture: Engine.ScreenRT.Color, Shader: Engine.GetShader("framebuffer"));
+					State = Gfx.PeekRenderState();
+					State.FrontFace = FrontFace.CounterClockwise;
+					State.EnableBlend = false;
+					Gfx.PushRenderState(State);
+					{
+						Engine.GBuffer.Color.BindTextureUnit(0);
+						Engine.GBuffer.Position.BindTextureUnit(1);
+						Engine.GBuffer.Normal.BindTextureUnit(2);
+						{
+							DefaultShader.Bind(ShaderUniforms.Current);
+							Engine.ScreenQuad.Draw();
+							DefaultShader.Unbind();
+						}
+						Engine.GBuffer.Normal.UnbindTextureUnit(2);
+						Engine.GBuffer.Position.UnbindTextureUnit(1);
+						Engine.GBuffer.Color.UnbindTextureUnit(0);
+					}
+					Gfx.PopRenderState();
 
-			Engine.GUI.Draw(() => {
-				Engine.UI.Draw();
-				Game.DrawGUI(Dt);
-			});
+					Game.DrawTransparent();
+				}
+				Engine.ScreenRT.Unbind();
 
+				Gfx.Clear();
+				ShaderUniforms.Current.TextureSize = Engine.ScreenRT.Color.Size;
+				ShaderUniforms.Current.MultisampleCount = Engine.ScreenRT.Color.Multisamples;
+				Gfx.TexturedRectangle(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, Texture: Engine.ScreenRT.Color, Shader: Engine.GetShader("framebuffer"));
+
+				Engine.GUI.Draw(() => {
+					Engine.UI.Draw();
+					Game.DrawGUI(Dt);
+				});//*/
+
+			}
 			Gfx.PopRenderState();
-
 			Engine.Window.SwapBuffers();
 		}
 

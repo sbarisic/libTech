@@ -19,9 +19,12 @@ namespace libTech {
 		public virtual void Update(float Dt) {
 		}
 
-		public virtual void DrawWorld(float Dt) {
+		public virtual void DrawOpaque() {
 		}
 		
+		public virtual void DrawTransparent() {
+		}
+
 		public virtual void DrawGUI(float Dt) {
 		}
 	}
