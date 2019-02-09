@@ -117,6 +117,7 @@
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\EntPhysics.cs" />
     <Compile Include="Entities\EntStatic.cs" />
+    <Compile Include="Entities\DynamicLight.cs" />
     <Compile Include="Entities\PlayerSpawn.cs" />
     <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
@@ -293,6 +294,9 @@
     <None Include="content\models\skull.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\models\sphere.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\phantq3ctf1_rev.pk3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -306,6 +310,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\rustgrad.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\nop.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\deferred_ambient.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\deferred_shading.vert">

@@ -27,13 +27,11 @@ namespace libTech.Materials {
 		float OldAlphaTest;
 
 		public virtual void Bind() {
-			RenderState RS = Gfx.PeekRenderState();
-
 			if (NoCull) {
+				RenderState RS = Gfx.PeekRenderState();
 				RS.EnableCullFace = false;
+				Gfx.PushRenderState(RS);
 			}
-
-			Gfx.PushRenderState(RS);
 
 			OldAlphaTest = ShaderUniforms.Current.AlphaTest;
 			ShaderUniforms.Current.AlphaTest = AlphaTest ? 0.5f : 0.0f;
@@ -43,7 +41,9 @@ namespace libTech.Materials {
 		public virtual void Unbind() {
 			Shader.Unbind();
 			ShaderUniforms.Current.AlphaTest = OldAlphaTest;
-			Gfx.PopRenderState();
+
+			if (NoCull)
+				Gfx.PopRenderState();
 		}
 	}
 }

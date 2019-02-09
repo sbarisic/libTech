@@ -31,7 +31,6 @@ namespace Game {
 		Texture MenuWallpaperTex;
 
 		libTechModel BarrelModel;
-		libTechMap Map;
 		Texture CrosshairTex;
 
 		Player PlayerEnt;
@@ -45,16 +44,17 @@ namespace Game {
 			UtilityGun UtilGun = new UtilityGun();
 
 			Console.WriteLine("Loading map");
-			Map = BSPMap.LoadMap("/content/maps/gm_flatgrass.bsp");
-			Map.InitPhysics();
+			Engine.Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+			Engine.Map.InitPhysics();
 			Console.WriteLine("Done!");
 
-			PlayerSpawn[] SpawnPositions = Map.GetEntities<PlayerSpawn>().ToArray();
+			PlayerSpawn[] SpawnPositions = Engine.Map.GetEntities<PlayerSpawn>().ToArray();
 			PlayerEnt = new Player();
-			PlayerEnt.Position = SpawnPositions.Random().SpawnPosition + new Vector3(0, 100, 0);
+			PlayerEnt.SetPosition(SpawnPositions.Random().SpawnPosition + new Vector3(0, 100, 0));
+			PlayerEnt.Camera.LookAt(Vector3.Zero);
 
-			Map.SpawnEntity(UtilGun);
-			Map.SpawnEntity(PlayerEnt);
+			Engine.Map.SpawnEntity(UtilGun);
+			Engine.Map.SpawnEntity(PlayerEnt);
 			PlayerEnt.WeaponPickUp(UtilGun);
 
 			BarrelModel = Engine.Load<libTechModel>("models/props_c17/oildrum001_explosive.mdl");
@@ -66,6 +66,16 @@ namespace Game {
 				Barrel.SetPosition(BarrelSpawn + new Vector3(0, 30 + i * 20, 0));
 				Map.SpawnEntity(Barrel);
 			}*/
+
+			/*
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-1274, -12396, 568), new Color(66, 244, 83)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-1151, -12396, 1123), new Color(221, 63, 226)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-675, -12396, 1415), new Color(204, 204, 42)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-866, -12067, 1078), new Color(33, 154, 160)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-211, -12555, 872), new Color(18, 28, 132)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-375, -12500, 926), new Color(170, 18, 33)));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-466, -12504, 1028), new Color(214, 124, 0)));
+			//*/
 
 			Engine.Camera3D.MouseMovement = true;
 			Engine.Window.CaptureCursor = true;
@@ -83,9 +93,8 @@ namespace Game {
 
 		public override void Update(float Dt) {
 			base.Update(Dt);
-			Map.Update(Dt);
 
-			//Console.WriteLine(PlayerEnt.Position);
+			//Console.WriteLine(string.Format("new DynamicLight(new Vector3({0}, {1}, {2}), Color.White)", (int)PlayerEnt.Position.X, (int)PlayerEnt.Position.Y, (int)PlayerEnt.Position.Z));
 		}
 
 		public override void DrawOpaque() {
@@ -107,14 +116,14 @@ namespace Game {
 				MenuModel.Draw();
 			}
 
-			Map?.DrawOpaque();
+			Engine.Map?.DrawOpaque();
 
 			//Gfx.ClearDepth();
 			PlayerEnt?.DrawViewModel();
 		}
 
 		public override void DrawTransparent() {
-			Map?.DrawTransparent();
+			Engine.Map?.DrawTransparent();
 		}
 
 		public override void DrawGUI(float Dt) {

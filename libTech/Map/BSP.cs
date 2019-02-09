@@ -344,10 +344,21 @@ namespace libTech.Map {
 
 				string[] SpawnEntityNames = new string[] { "info_player_start", "info_player_deathmatch", "info_player_terrorist", "info_player_counterterrorist", "info_coop_spawn" };
 				foreach (var VEnt in BSP.Entities) {
-					if (SpawnEntityNames.Contains(VEnt.ClassName)) {
-						Vector3 Angles = ToVec3(VEnt.Angles);
-						Vector3 Origin = ToVec3(VEnt.Origin);
+					Vector3 Angles = ToVec3(VEnt.Angles);
+					Vector3 Origin = ToVec3(VEnt.Origin);
+
+					if (SpawnEntityNames.Contains(VEnt.ClassName))
 						Map.SpawnEntity(new PlayerSpawn(Origin, Quaternion.CreateFromYawPitchRoll(Angles.X, Angles.Y, Angles.Z)));
+					else if (VEnt.ClassName == "light") {
+						float Radius = VEnt["_distance"];
+
+						if (Radius == 0)
+							Radius = 250;
+
+						//DynamicLight Light = new DynamicLight(Origin, Color.White, Radius);
+						DynamicLight Light = new DynamicLight(Origin, Utils.RandomColor(), Radius);
+
+						Map.SpawnEntity(Light);
 					}
 				}
 

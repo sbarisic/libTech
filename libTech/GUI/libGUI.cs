@@ -197,9 +197,7 @@ namespace libTech.GUI {
 			RS.EnableScissorTest = true;
 			RS.ScissorRegion = new AABB(new Vector2(Engine.WindowWidth, Engine.WindowHeight));
 			Gfx.PushRenderState(RS);
-
-			Gfx.DrawText(DebugFont, new Vector2(2, Engine.WindowHeight - DebugFont.ScaledLineHeight * 2 - 2), string.Format("{0} ms\n{1} FPS", FT, FPS), Color.White);
-
+			
 			/*Color[] Colors = new Color[] { Color.White, Color.Black, Color.Yellow, Color.Cyan, Color.Red };
 
 			for (int i = 0; i < Colors.Length; i++) {

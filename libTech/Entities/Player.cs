@@ -91,6 +91,11 @@ namespace libTech.Entities {
 			Camera.Update(Dt);
 		}
 
+		public virtual void SetPosition(Vector3 Pos) {
+			Position = Pos;
+			Camera.Position = Pos;
+		}
+
 		public override void Update(float Dt) {
 			const int MoveSpeed = 600;
 

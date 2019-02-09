@@ -2,10 +2,13 @@
 using FishGfx;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
+using libTech.Entities;
 using libTech.FileSystem;
 using libTech.Graphics;
 using libTech.GUI;
 using libTech.Importer;
+using libTech.Materials;
+using libTech.Models;
 using libTech.Reflection;
 using libTech.Scripting;
 using System;
@@ -37,7 +40,10 @@ namespace libTech {
 
 		public static RenderTexture ScreenRT;
 		public static RenderTexture GBuffer;
+
 		internal static Mesh2D ScreenQuad;
+		internal static libTechMesh PointLightMesh;
+		internal static OcclusionQuery LightQuery;
 
 		public static ConVar<int> MaxFPS;
 		public static ConVar<string> GamePath;
@@ -48,6 +54,8 @@ namespace libTech {
 		public static ConVar<int> MSAA;
 		public static ConVar<bool> ShowFPS;
 		public static ConVar<string> SourceGameDirs;
+
+		public static Map.libTechMap Map;
 
 		public static float Time;
 		public static RunningAverage FrameTime = new RunningAverage(30);
@@ -122,7 +130,7 @@ namespace libTech {
 			Engine.GamePath = ConVar.Register("game", "basegame", ConVarType.Replicated | ConVarType.Init);
 			//Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
-			Engine.MaxFPS = ConVar.Register("maxfps", 60, ConVarType.Archive);
+			Engine.MaxFPS = ConVar.Register("maxfps", 200, ConVarType.Archive);
 			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
 			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
 
@@ -236,12 +244,43 @@ namespace libTech {
 				Engine.MSAA.Value = MaxMSAA;
 
 			{
+				Engine.LightQuery = new OcclusionQuery(QueryTgt.AnySamplesPassed);
+				Engine.LightQuery.IsOcclusionTest = true;
+
 				Engine.GBuffer = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, IsGBuffer: true);
 				Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, Engine.MSAA);
 
 				Engine.ScreenQuad = new Mesh2D();
 				Engine.ScreenQuad.PrimitiveType = PrimitiveType.Triangles;
 				Engine.ScreenQuad.SetVertices(Utils.EmitRectangleTris(new Vertex2[6], 0, 0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, 0, 0, 1, 1, Color.White));
+
+				/*List<Vertex3> CircleVerts = new List<Vertex3>();
+				Vertex3[] CirclePoints = new Vertex3[20];
+
+				for (int i = 0; i < CirclePoints.Length; i++) {
+					const float Radius = 2000;
+					float Angle = (float)(Math.PI * 2 / CirclePoints.Length * i);
+
+					CirclePoints[i] = new Vertex3((float)Math.Sin(Angle) * Radius, (float)Math.Cos(Angle) * Radius, 0);
+
+					if (i > 0) {
+						CircleVerts.Add(new Vertex3(0, 0, 0));
+						CircleVerts.Add(CirclePoints[i]);
+						CircleVerts.Add(CirclePoints[i - 1]);
+					}
+				}*/
+
+
+
+				var Msh = FishGfx.Formats.Obj.Load("content/models/sphere.obj").First();
+				Vertex3[] MshVerts = Msh.Vertices.ToArray();
+				AABB PointLightBound = AABB.CalculateAABB(MshVerts.Select(V => V.Position));
+
+				for (int i = 0; i < MshVerts.Length; i++)
+					MshVerts[i].Position /= PointLightBound.Size;
+
+				Engine.PointLightMesh = new libTechMesh();
+				Engine.PointLightMesh.SetVertices(MshVerts);
 			}
 
 			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
@@ -301,11 +340,12 @@ namespace libTech {
 
 			Engine.UI.Update(Dt);
 			Game.Update(Dt);
+			Engine.Map?.Update(Dt);
 			GConsole.Update();
 		}
 
 		static void Draw(float Dt) {
-
+			ShaderUniforms.Current.Resolution = Engine.Window.WindowSize;
 
 			Engine.GBuffer.Bind();
 			{
@@ -329,53 +369,123 @@ namespace libTech {
 
 			//Engine.Framebuffer3D.Blit();
 
-			ShaderUniforms.Current.Camera = Engine.Camera2D;
-			RenderState State = Gfx.PeekRenderState();
-			State.EnableDepthTest = false;
-			Gfx.PushRenderState(State);
+			Engine.ScreenRT.Bind();
 			{
-				Engine.ScreenRT.Bind();
+				Gfx.Clear(Color.Transparent);
+				Engine.GBuffer.Framebuffer.Blit(false, true, false, Destination: Engine.ScreenRT.Framebuffer);
+
+				Engine.GBuffer.Color.BindTextureUnit(0);
+				Engine.GBuffer.Position.BindTextureUnit(1);
+				Engine.GBuffer.Normal.BindTextureUnit(2);
+
 				{
-					ShaderProgram DefaultShader = Engine.GetShader("deferred_shading");
-					DefaultShader.Uniform3f("ViewPos", Engine.Camera3D.Position);
-
-					State = Gfx.PeekRenderState();
+					RenderState State = Gfx.PeekRenderState();
 					State.FrontFace = FrontFace.CounterClockwise;
-					State.EnableBlend = false;
+					State.EnableBlend = true;
+					State.BlendFunc_Src = BlendFactor.SrcAlpha;
+					State.BlendFunc_Dst = BlendFactor.One;
+					State.EnableDepthTest = false;
+
 					Gfx.PushRenderState(State);
-					{
-						Engine.GBuffer.Color.BindTextureUnit(0);
-						Engine.GBuffer.Position.BindTextureUnit(1);
-						Engine.GBuffer.Normal.BindTextureUnit(2);
-						{
-							DefaultShader.Bind(ShaderUniforms.Current);
-							Engine.ScreenQuad.Draw();
-							DefaultShader.Unbind();
-						}
-						Engine.GBuffer.Normal.UnbindTextureUnit(2);
-						Engine.GBuffer.Position.UnbindTextureUnit(1);
-						Engine.GBuffer.Color.UnbindTextureUnit(0);
-					}
+
+					// Ambient lighting
+					ShaderUniforms.Current.Camera = Engine.Camera2D;
+					ShaderProgram AmbientShader = Engine.GetShader("deferred_ambient");
+					AmbientShader.Bind(ShaderUniforms.Current);
+					Engine.ScreenQuad.Draw();
+					AmbientShader.Unbind();
+
 					Gfx.PopRenderState();
+					//*/
+					State.FrontFace = FrontFace.CounterClockwise;
+					State.EnableDepthMask = false;
+					State.EnableDepthTest = true;
+					State.EnableCullFace = false;
+					State.SetColorMask(false);
+					Gfx.PushRenderState(State);
 
-					Game.DrawTransparent();
+
+
+					ShaderUniforms.Current.Camera = Engine.Camera3D;
+					if (Engine.Map != null) {
+						DynamicLight[] Lights = Engine.Map.GetLights();
+
+						for (int i = 0; i < Lights.Length; i++) {
+							Engine.LightQuery.Bind();
+							DrawPointLight(Lights[i].Position, Lights[i].Color, Lights[i].LightRadius);
+							Engine.LightQuery.Unbind();
+
+							Engine.LightQuery.BeginConditional(true);
+							{
+								State.EnableDepthTest = false;
+								State.EnableCullFace = true;
+								State.SetColorMask(true);
+
+								Gfx.PushRenderState(State);
+								DrawPointLight(Lights[i].Position, Lights[i].Color, Lights[i].LightRadius);
+								Gfx.PopRenderState();
+							}
+							Engine.LightQuery.EndConditional();
+						}
+					}
+
+					Gfx.PopRenderState();
 				}
-				Engine.ScreenRT.Unbind();
 
-				Gfx.Clear();
-				ShaderUniforms.Current.TextureSize = Engine.ScreenRT.Color.Size;
-				ShaderUniforms.Current.MultisampleCount = Engine.ScreenRT.Color.Multisamples;
-				Gfx.TexturedRectangle(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, Texture: Engine.ScreenRT.Color, Shader: Engine.GetShader("framebuffer"));
+				Engine.GBuffer.Normal.UnbindTextureUnit(2);
+				Engine.GBuffer.Position.UnbindTextureUnit(1);
+				Engine.GBuffer.Color.UnbindTextureUnit(0);
 
-				Engine.GUI.Draw(() => {
-					Engine.UI.Draw();
-					Game.DrawGUI(Dt);
-				});//*/
-
+				Game.DrawTransparent();
 			}
-			Gfx.PopRenderState();
+			Engine.ScreenRT.Unbind();
+
+			{
+				RenderState State = Gfx.PeekRenderState();
+				State.EnableDepthTest = false;
+				Gfx.PushRenderState(State);
+				{
+					Gfx.Clear();
+					ShaderUniforms.Current.Camera = Engine.Camera2D;
+					ShaderUniforms.Current.TextureSize = Engine.ScreenRT.Color.Size;
+					ShaderUniforms.Current.MultisampleCount = Engine.ScreenRT.Color.Multisamples;
+					Gfx.TexturedRectangle(0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, Texture: Engine.ScreenRT.Color, Shader: Engine.GetShader("framebuffer"));
+
+					Engine.GUI.Draw(() => {
+						float FT = Engine.FrameTime.Average();
+						float FPS = 1.0f / FT;
+						string DebugString = string.Format("{0} ms\n{1} FPS\n{2} Lights", FT, FPS, Engine.Map.GetLights().Length);
+						int Lines = 3;
+
+						Gfx.DrawText(Engine.UI.DebugFont, new Vector2(2, Engine.WindowHeight - Engine.UI.DebugFont.ScaledLineHeight * Lines - 2), DebugString, Color.White);
+
+						Engine.UI.Draw();
+						Game.DrawGUI(Dt);
+					});//*/
+				}
+				Gfx.PopRenderState();
+			}
+
 			Engine.Window.SwapBuffers();
 		}
+
+		static void DrawPointLight(Vector3 Pos, Color Clr, float Radius) {
+			if (Engine.PointLightMesh.Material == null)
+				Engine.PointLightMesh.Material = new ShaderMaterial("deferred_shading", Engine.GetShader("deferred_shading"));
+
+			ShaderProgram Shader = Engine.PointLightMesh.Material.Shader;
+			Shader.Uniform3f("LightPosition", Pos);
+			Shader.Uniform3f("LightColor", (Vector3)Clr);
+			Shader.Uniform1f("LightRadius", Radius);
+
+			ShaderUniforms.Current.Model = Matrix4x4.CreateScale(Radius) * Matrix4x4.CreateTranslation(Pos);
+			Engine.PointLightMesh.Draw();
+		}
+
+		/*static float CalcLightRadius(Color Clr, float Constant, float Linear, float Quadratic) {
+			float LightMax = Math.Max(Math.Max(Clr.R, Clr.G), Clr.B) / 255.0f;
+			return ((-Linear + (float)Math.Sqrt(Linear * Linear - 4 * Quadratic * (Constant - (256.0 / 5.0) * LightMax))) / (2 * Quadratic));
+		}*/
 
 		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			if (Key == Key.F1 && Pressed) {

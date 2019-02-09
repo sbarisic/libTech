@@ -47,6 +47,7 @@ namespace libTech.Map {
 
 		libTechModel[] MapModels;
 		Entity[] Entities;
+		DynamicLight[] Lights;
 
 		// Physics
 		internal DynamicsWorld World;
@@ -70,6 +71,7 @@ namespace libTech.Map {
 		public libTechMap() {
 			MapModels = new libTechModel[] { };
 			Entities = new Entity[] { };
+			Lights = new DynamicLight[] { };
 		}
 
 		public void InitPhysics() {
@@ -191,6 +193,11 @@ namespace libTech.Map {
 
 			Array.Resize(ref Entities, Entities.Length + 1);
 			SpawnEntity(Ent);
+
+			if (Ent is DynamicLight L) {
+				Array.Resize(ref Lights, Lights.Length + 1);
+				Lights[Lights.Length - 1] = L;
+			}
 		}
 
 		public void RemoveEntity(Entity Ent) {
@@ -199,6 +206,24 @@ namespace libTech.Map {
 					Entities[i] = null;
 					break;
 				}
+			}
+
+			if (Ent is DynamicLight L) {
+				for (int i = 0; i < Lights.Length; i++) {
+					if (Lights[i] == L)
+						Lights[i] = null;
+				}
+
+				for (int i = 0; i < Lights.Length; i++) {
+					if (Lights[i] == null) {
+						Lights[i] = Lights[i + 1];
+
+						if (i + 1 < Lights.Length)
+							Lights[i + 1] = null;
+					}
+				}
+
+				Array.Resize(ref Lights, Lights.Length - 1);
 			}
 		}
 
@@ -217,6 +242,10 @@ namespace libTech.Map {
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				if (Entities[EntityIdx] != null && Entities[EntityIdx].GetType() == typeof(T))
 					yield return (T)Entities[EntityIdx];
+		}
+
+		public DynamicLight[] GetLights() {
+			return Lights;
 		}
 
 		public void Update(float Dt) {
