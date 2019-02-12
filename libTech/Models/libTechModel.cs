@@ -131,9 +131,18 @@ namespace libTech.Models {
 			ShaderUniforms.Current.Model = Matrix4x4.Identity;
 		}
 
-		public void Draw() {
-			DrawOpaque();
-			DrawTransparent();
+		public void DrawShadowVolume(Material ShadowVolumeMat) {
+			for (int i = 0; i < Meshes.Count; i++) {
+				if (Meshes[i].Material.Translucent)
+					continue;
+
+				ShaderUniforms.Current.Model = (Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position)) * Meshes[i].MeshMatrix;
+
+				Material Old = Meshes[i].Material;
+				Meshes[i].Material = ShadowVolumeMat;
+				Meshes[i].Draw();
+				Meshes[i].Material = Old;
+			}
 		}
 
 		public AABB CalculateAABB() {

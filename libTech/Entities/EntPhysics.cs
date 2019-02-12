@@ -1,5 +1,6 @@
 ﻿using BulletSharp;
 using libTech.Map;
+using libTech.Materials;
 using libTech.Models;
 using System;
 using System.Collections.Generic;
@@ -134,6 +135,13 @@ namespace libTech.Entities {
 			if (RenderModel != null) {
 				SetRenderModelData();
 				RenderModel.DrawTransparent();
+			}
+		}
+
+		public override void DrawShadowVolume(ShaderMaterial ShadowVolume) {
+			if (RenderModel != null) {
+				SetRenderModelData();
+				RenderModel.DrawShadowVolume(ShadowVolume);
 			}
 		}
 	}

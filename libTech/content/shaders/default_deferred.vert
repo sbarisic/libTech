@@ -18,10 +18,12 @@ void main() {
 	frag_UV = UV;
 	
 	mat4 MV = View * Model;
+	mat4 MVP = Project * View * Model;
+	vec4 Pos4 = vec4(Pos, 1.0);
 	
-	vec4 ModelPos = MV * vec4(Pos, 1.0);
+	vec4 ModelPos = MV * Pos4;
 	frag_ViewPosition = -ModelPos.xyz;
 	
-	frag_Pos = Pos;
+	frag_Pos = (Model * Pos4).xyz;
 	gl_Position = Project * ModelPos;
 }

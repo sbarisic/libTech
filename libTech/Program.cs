@@ -43,7 +43,6 @@ namespace libTech {
 
 		internal static Mesh2D ScreenQuad;
 		internal static libTechMesh PointLightMesh;
-		internal static OcclusionQuery LightQuery;
 
 		public static ConVar<int> MaxFPS;
 		public static ConVar<string> GamePath;
@@ -244,11 +243,8 @@ namespace libTech {
 				Engine.MSAA.Value = MaxMSAA;
 
 			{
-				Engine.LightQuery = new OcclusionQuery(QueryTgt.AnySamplesPassed);
-				Engine.LightQuery.IsOcclusionTest = true;
-
 				Engine.GBuffer = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, IsGBuffer: true);
-				Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, Engine.MSAA);
+				Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
 
 				Engine.ScreenQuad = new Mesh2D();
 				Engine.ScreenQuad.PrimitiveType = PrimitiveType.Triangles;
@@ -272,7 +268,7 @@ namespace libTech {
 
 
 
-				var Msh = FishGfx.Formats.Obj.Load("content/models/sphere.obj").First();
+				var Msh = FishGfx.Formats.Obj.Load("content/models/sphere_2.obj").First();
 				Vertex3[] MshVerts = Msh.Vertices.ToArray();
 				AABB PointLightBound = AABB.CalculateAABB(MshVerts.Select(V => V.Position));
 
@@ -377,12 +373,13 @@ namespace libTech {
 				Engine.GBuffer.Color.BindTextureUnit(0);
 				Engine.GBuffer.Position.BindTextureUnit(1);
 				Engine.GBuffer.Normal.BindTextureUnit(2);
+				Engine.GBuffer.DepthStencil.BindTextureUnit(3);
 
 				{
 					RenderState State = Gfx.PeekRenderState();
 					State.FrontFace = FrontFace.CounterClockwise;
 					State.EnableBlend = true;
-					State.BlendFunc_Src = BlendFactor.SrcAlpha;
+					State.BlendFunc_Src = BlendFactor.One;
 					State.BlendFunc_Dst = BlendFactor.One;
 					State.EnableDepthTest = false;
 
@@ -395,15 +392,14 @@ namespace libTech {
 					Engine.ScreenQuad.Draw();
 					AmbientShader.Unbind();
 
+					// Point lighting
 					Gfx.PopRenderState();
-					//*/
 					State.FrontFace = FrontFace.CounterClockwise;
 					State.EnableDepthMask = false;
 					State.EnableDepthTest = true;
-					State.EnableCullFace = false;
-					State.SetColorMask(false);
+					State.EnableStencilTest = true;
 					Gfx.PushRenderState(State);
-
+					Gfx.ClearStencil(0);
 
 
 					ShaderUniforms.Current.Camera = Engine.Camera3D;
@@ -411,27 +407,44 @@ namespace libTech {
 						DynamicLight[] Lights = Engine.Map.GetLights();
 
 						for (int i = 0; i < Lights.Length; i++) {
-							Engine.LightQuery.Bind();
-							DrawPointLight(Lights[i].Position, Lights[i].Color, Lights[i].LightRadius);
-							Engine.LightQuery.Unbind();
+							State.SetColorMask(false);
+							State.EnableDepthTest = true;
+							State.EnableCullFace = false;
+							State.StencilFunc(StencilFunction.Always, 0, 0);
 
-							Engine.LightQuery.BeginConditional(true);
-							{
-								State.EnableDepthTest = false;
-								State.EnableCullFace = true;
-								State.SetColorMask(true);
+							State.StencilFrontSFail = StencilOperation.Keep;
+							State.StencilFrontDPFail = StencilOperation.IncrWrap;
+							State.StencilFrontDPPass = StencilOperation.Keep;
 
-								Gfx.PushRenderState(State);
-								DrawPointLight(Lights[i].Position, Lights[i].Color, Lights[i].LightRadius);
-								Gfx.PopRenderState();
-							}
-							Engine.LightQuery.EndConditional();
+							State.StencilBackSFail = StencilOperation.Keep;
+							State.StencilBackDPFail = StencilOperation.DecrWrap;
+							State.StencilBackDPPass = StencilOperation.Keep;
+
+							Gfx.PushRenderState(State);
+							Gfx.ClearStencil(0);
+							
+							DrawPointLightMask(Lights[i]);
+							DrawPointLightShadow(Lights[i]);
+
+							Gfx.PopRenderState();
+
+							State.SetColorMask(true);
+							State.EnableDepthTest = false;
+							State.EnableCullFace = true;
+							State.StencilFunc(StencilFunction.Equal, 1, 0xFF);
+							State.StencilOp(StencilOperation.Keep, StencilOperation.Keep, StencilOperation.Keep);
+							Gfx.PushRenderState(State);
+
+							ShadePointLight(Lights[i]);
+
+							Gfx.PopRenderState();
 						}
 					}
 
 					Gfx.PopRenderState();
 				}
 
+				Engine.GBuffer.DepthStencil.UnbindTextureUnit(3);
 				Engine.GBuffer.Normal.UnbindTextureUnit(2);
 				Engine.GBuffer.Position.UnbindTextureUnit(1);
 				Engine.GBuffer.Color.UnbindTextureUnit(0);
@@ -469,16 +482,42 @@ namespace libTech {
 			Engine.Window.SwapBuffers();
 		}
 
-		static void DrawPointLight(Vector3 Pos, Color Clr, float Radius) {
-			if (Engine.PointLightMesh.Material == null)
-				Engine.PointLightMesh.Material = new ShaderMaterial("deferred_shading", Engine.GetShader("deferred_shading"));
+		static void PreparePointLight(DynamicLight Light) {
+			ShaderUniforms.Current.Model = Matrix4x4.CreateScale(Light.LightRadius) * Matrix4x4.CreateTranslation(Light.Position);
+		}
 
-			ShaderProgram Shader = Engine.PointLightMesh.Material.Shader;
-			Shader.Uniform3f("LightPosition", Pos);
-			Shader.Uniform3f("LightColor", (Vector3)Clr);
-			Shader.Uniform1f("LightRadius", Radius);
+		static void DrawPointLightShadow(DynamicLight Light) {
+			ShaderMaterial ShadowVolume = (ShaderMaterial)Engine.GetMaterial("shadow_volume");
 
-			ShaderUniforms.Current.Model = Matrix4x4.CreateScale(Radius) * Matrix4x4.CreateTranslation(Pos);
+			RenderState RS = Gfx.PeekRenderState();
+			RS.FrontFace = FrontFace.Clockwise;
+			Gfx.PushRenderState(RS);
+
+			Light.SetUniforms(ShadowVolume.Shader);
+			Engine.Map.DrawEntityShadowVolume(ShadowVolume);
+
+			Gfx.PopRenderState();
+		}
+
+		static ShaderMaterial StencilMat;
+		static void DrawPointLightMask(DynamicLight Light) {
+			if (StencilMat == null)
+				StencilMat = new ShaderMaterial("nop", Engine.GetShader("nop"));
+
+			PreparePointLight(Light);
+			Engine.PointLightMesh.Material = StencilMat;
+			Engine.PointLightMesh.Draw();
+		}
+
+		static ShaderMaterial DeferredShadingMat;
+		static void ShadePointLight(DynamicLight Light) {
+			if (DeferredShadingMat == null)
+				DeferredShadingMat = new ShaderMaterial("deferred_shading", Engine.GetShader("deferred_shading"));
+
+			Light.SetUniforms(DeferredShadingMat.Shader);
+
+			PreparePointLight(Light);
+			Engine.PointLightMesh.Material = DeferredShadingMat;
 			Engine.PointLightMesh.Draw();
 		}
 

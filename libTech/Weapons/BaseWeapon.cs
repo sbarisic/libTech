@@ -39,7 +39,8 @@ namespace libTech.Weapons {
 		public virtual void DrawViewModel(Player Ply) {
 			if (Ply != null && ViewModel != null) {
 				CalcViewModelTranslation(Ply);
-				ViewModel.Draw();
+				ViewModel.DrawOpaque();
+				ViewModel.DrawTransparent();
 			}
 		}
 	}

@@ -122,6 +122,7 @@
     <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
+    <Compile Include="Graphics\IShaderArgumentative.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
     <Compile Include="Graphics\Text.cs" />
     <Compile Include="Engine\ArgumentParser.cs" />
@@ -297,6 +298,15 @@
     <None Include="content\models\sphere.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\models\sphere_2.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\models\sphere_3.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\models\sphere_4.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\phantq3ctf1_rev.pk3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -310,6 +320,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\rustgrad.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\shadow_volume.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\shadow_volume.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\shadow_volume.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\nop.frag">

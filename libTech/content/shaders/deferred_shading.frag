@@ -9,9 +9,14 @@ layout (location = 3) in vec3 Pos;
 layout (binding = 0) uniform sampler2D ColorTexture;
 layout (binding = 1) uniform sampler2D PositionTexture;
 layout (binding = 2) uniform sampler2D NormalTexture;
+layout (binding = 3) uniform sampler2D DepthTexture;
 
 uniform vec2 Resolution;
 uniform vec3 ViewPos;
+
+uniform mat4 Model;
+uniform mat4 View;
+uniform mat4 Project;
 
 uniform vec3 LightColor;
 uniform vec3 LightPosition;
@@ -29,7 +34,8 @@ void main() {
 
 	vec3 SurfaceToLight = LightPosition - FragPos;
 	float Brightness = smoothstep(LightRadius, 0, length(SurfaceToLight));
-
+	Brightness = Brightness * (dot(Normal, normalize(SurfaceToLight)) + 1) / 2;
 	OutClr = vec4(Diffuse * LightColor * Brightness, 1);
-	//OutClr = vec4(clamp(Brightness, 0.2, 1.0) * LightColor, 1.0f);
+	
+	//OutClr = vec4(0.1, 0.1, 0.1, 1.0);
 }

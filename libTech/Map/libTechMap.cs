@@ -2,6 +2,7 @@
 using FishGfx;
 using libTech;
 using libTech.Entities;
+using libTech.Materials;
 using libTech.Models;
 using System;
 using System.Collections.Generic;
@@ -271,9 +272,14 @@ namespace libTech.Map {
 				Entities[EntityIdx]?.DrawTransparent();
 		}
 
-		public void Draw() {
-			DrawOpaque();
-			DrawTransparent();
+		public void DrawShadowVolume(ShaderMaterial ShadowVolume) {
+			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
+				MapModels[ModelIdx].DrawShadowVolume(ShadowVolume);
+		}
+
+		public void DrawEntityShadowVolume(ShaderMaterial ShadowVolume) {
+			for (int i = 0; i < Entities.Length; i++)
+				Entities[i].DrawShadowVolume(ShadowVolume);
 		}
 	}
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using libTech.Materials;
 
 namespace libTech.Entities {
 	public abstract class Entity {
@@ -20,6 +21,9 @@ namespace libTech.Entities {
 		}
 
 		public virtual void DrawTransparent() {
+		}
+
+		public virtual void DrawShadowVolume(ShaderMaterial ShadowVolume) {
 		}
 	}
 }

@@ -88,9 +88,13 @@ namespace libTech {
 			RegisterShader("default_deferred", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default_deferred.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_deferred.frag")));
 			RegisterShader("deferred_shading", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_shading.frag")));
 			RegisterShader("deferred_ambient", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_ambient.frag")));
+			RegisterShader("shadow_volume", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/shadow_volume.vert"), new ShaderStage(ShaderType.GeometryShader, "content/shaders/shadow_volume.geom"),
+				new ShaderStage(ShaderType.FragmentShader, "content/shaders/shadow_volume.frag")));
 
 			RegisterShader("water", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/water.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/water.frag")));
 			RegisterShader("framebuffer", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/fb.frag")));
+
+			RegisterMaterial("shadow_volume", new ShaderMaterial("shadow_volume"));
 
 			// TODO: HAAAAAAAAAX
 			ShaderUniforms.NopShader = GetShader("nop");

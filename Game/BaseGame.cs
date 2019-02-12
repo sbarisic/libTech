@@ -10,6 +10,7 @@ using libTech.GUI.Controls;
 using libTech.Importer;
 using libTech.libNative;
 using libTech.Map;
+using libTech.Materials;
 using libTech.Models;
 using libTech.Scripting;
 using libTech.Weapons;
@@ -44,7 +45,7 @@ namespace Game {
 			UtilityGun UtilGun = new UtilityGun();
 
 			Console.WriteLine("Loading map");
-			Engine.Map = BSPMap.LoadMap("/content/maps/gm_construct.bsp");
+			Engine.Map = BSPMap.LoadMap("/content/maps/gm_flatgrass.bsp");
 			Engine.Map.InitPhysics();
 			Console.WriteLine("Done!");
 
@@ -57,9 +58,17 @@ namespace Game {
 			Engine.Map.SpawnEntity(PlayerEnt);
 			PlayerEnt.WeaponPickUp(UtilGun);
 
-			BarrelModel = Engine.Load<libTechModel>("models/props_c17/oildrum001_explosive.mdl");
+			string MdlName = /*"models/hunter/blocks/cube05x05x05.mdl";*/  "models/props_c17/oildrum001_explosive.mdl";
+			BarrelModel = Engine.Load<libTechModel>(MdlName);
 			BarrelModel.CenterModel();
 			Vector3 BarrelSpawn = SpawnPositions.Random().SpawnPosition;
+
+			/*ShaderProgram ShadowVolumeProg = Engine.GetShader("shadow_volume");
+			ShadowVolumeProg.Uniform3f("LightPosition", new Vector3(-20, -12103, 109));
+			ShadowVolumeProg.Uniform1f("LightRadius", 300.0f);
+
+			libTechMesh BarrelMesh = BarrelModel.Meshes.First();
+			BarrelMesh.Material = new ShaderMaterial("shadow_volume", ShadowVolumeProg);*/
 
 			/*for (int i = 0; i < 10; i++) {
 				EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1 + 5 * i);
@@ -67,15 +76,24 @@ namespace Game {
 				Map.SpawnEntity(Barrel);
 			}*/
 
-			/*
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-1274, -12396, 568), new Color(66, 244, 83)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-1151, -12396, 1123), new Color(221, 63, 226)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-675, -12396, 1415), new Color(204, 204, 42)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-866, -12067, 1078), new Color(33, 154, 160)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-211, -12555, 872), new Color(18, 28, 132)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-375, -12500, 926), new Color(170, 18, 33)));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-466, -12504, 1028), new Color(214, 124, 0)));
+			//*
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-20, -12103, 109), Color.White, 300));
+
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-237, -12150, 776), Color.Green, 600));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-44, -12150, 772), Color.Red, 600));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-75, -12249, 1016), Color.Blue, 600));
 			//*/
+			{
+				/*EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
+				Barrel.SetPosition(new Vector3(-20, -12103, 109));
+				Engine.Map.SpawnEntity(Barrel);*/
+
+				for (int i = 0; i < 5; i++) {
+					EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
+					Barrel.SetPosition(new Vector3(-20, -12103, 109) + new Vector3(0, 20, 0) * i);
+					Engine.Map.SpawnEntity(Barrel);
+				}
+			}
 
 			Engine.Camera3D.MouseMovement = true;
 			Engine.Window.CaptureCursor = true;
@@ -94,7 +112,7 @@ namespace Game {
 		public override void Update(float Dt) {
 			base.Update(Dt);
 
-			//Console.WriteLine(string.Format("new DynamicLight(new Vector3({0}, {1}, {2}), Color.White)", (int)PlayerEnt.Position.X, (int)PlayerEnt.Position.Y, (int)PlayerEnt.Position.Z));
+			//Console.WriteLine(string.Format("Engine.Map.SpawnEntity(new DynamicLight(new Vector3({0}, {1}, {2}), Color.White, 600))", (int)PlayerEnt.Position.X, (int)PlayerEnt.Position.Y, (int)PlayerEnt.Position.Z));
 		}
 
 		public override void DrawOpaque() {
@@ -113,7 +131,8 @@ namespace Game {
 			if (MenuModel != null) {
 				MenuModel.Rotation = Quaternion.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
 				MenuModel.Position = new Vector3(7, -10, -25);
-				MenuModel.Draw();
+				MenuModel.DrawOpaque();
+				MenuModel.DrawTransparent();
 			}
 
 			Engine.Map?.DrawOpaque();
