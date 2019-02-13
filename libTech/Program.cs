@@ -379,7 +379,7 @@ namespace libTech {
 					RenderState State = Gfx.PeekRenderState();
 					State.FrontFace = FrontFace.CounterClockwise;
 					State.EnableBlend = true;
-					State.BlendFunc_Src = BlendFactor.One;
+					State.BlendFunc_Src = BlendFactor.SrcAlpha;
 					State.BlendFunc_Dst = BlendFactor.One;
 					State.EnableDepthTest = false;
 
@@ -408,6 +408,7 @@ namespace libTech {
 
 						for (int i = 0; i < Lights.Length; i++) {
 							State.SetColorMask(false);
+							State.EnableBlend = false;
 							State.EnableDepthTest = true;
 							State.EnableCullFace = false;
 							State.StencilFunc(StencilFunction.Always, 0, 0);
@@ -420,6 +421,8 @@ namespace libTech {
 							State.StencilBackDPFail = StencilOperation.DecrWrap;
 							State.StencilBackDPPass = StencilOperation.Keep;
 
+							State.DepthFunc = DepthFunc.LessOrEqual;
+
 							Gfx.PushRenderState(State);
 							Gfx.ClearStencil(0);
 							
@@ -428,6 +431,7 @@ namespace libTech {
 
 							Gfx.PopRenderState();
 
+							State.EnableBlend = true;
 							State.SetColorMask(true);
 							State.EnableDepthTest = false;
 							State.EnableCullFace = true;
@@ -494,7 +498,8 @@ namespace libTech {
 			Gfx.PushRenderState(RS);
 
 			Light.SetUniforms(ShadowVolume.Shader);
-			Engine.Map.DrawEntityShadowVolume(ShadowVolume);
+			//Engine.Map.DrawShadowVolume(ShadowVolume);
+			Engine.Map.DrawEntityShadowVolume(Light, ShadowVolume);
 
 			Gfx.PopRenderState();
 		}

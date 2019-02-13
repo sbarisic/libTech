@@ -18,7 +18,7 @@ uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Project;
 
-uniform vec3 LightColor;
+uniform vec4 LightColor;
 uniform vec3 LightPosition;
 uniform float LightRadius;
 
@@ -34,8 +34,16 @@ void main() {
 
 	vec3 SurfaceToLight = LightPosition - FragPos;
 	float Brightness = smoothstep(LightRadius, 0, length(SurfaceToLight));
-	Brightness = Brightness * (dot(Normal, normalize(SurfaceToLight)) + 1) / 2;
-	OutClr = vec4(Diffuse * LightColor * Brightness, 1);
+
+	float AngleAmount = dot(Normal, normalize(SurfaceToLight));
+
+	if (AngleAmount > 0)
+		Brightness = Brightness * AngleAmount;
+	else
+		Brightness = 0;
+
+	//Brightness = Brightness * () + 1) / 2;
+	OutClr = vec4(Diffuse * LightColor.rgb * Brightness, LightColor.a);
 	
 	//OutClr = vec4(0.1, 0.1, 0.1, 1.0);
 }

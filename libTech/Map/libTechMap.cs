@@ -184,6 +184,22 @@ namespace libTech.Map {
 		}
 
 		public void SpawnEntity(Entity Ent) {
+			if (Ent is DynamicLight L) {
+				bool AddedLight = false;
+
+				for (int i = 0; i < Lights.Length; i++) {
+					if (Lights[i] == null) {
+						Lights[i] = L;
+						AddedLight = true;
+					}
+				}
+
+				if (!AddedLight) {
+					Array.Resize(ref Lights, Lights.Length + 1);
+					Lights[Lights.Length - 1] = L;
+				}
+			}
+
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++) {
 				if (Entities[EntityIdx] == null) {
 					Entities[EntityIdx] = Ent;
@@ -194,11 +210,6 @@ namespace libTech.Map {
 
 			Array.Resize(ref Entities, Entities.Length + 1);
 			SpawnEntity(Ent);
-
-			if (Ent is DynamicLight L) {
-				Array.Resize(ref Lights, Lights.Length + 1);
-				Lights[Lights.Length - 1] = L;
-			}
 		}
 
 		public void RemoveEntity(Entity Ent) {
@@ -217,10 +228,10 @@ namespace libTech.Map {
 
 				for (int i = 0; i < Lights.Length; i++) {
 					if (Lights[i] == null) {
-						Lights[i] = Lights[i + 1];
-
-						if (i + 1 < Lights.Length)
+						if (i + 1 < Lights.Length) {
+							Lights[i] = Lights[i + 1];
 							Lights[i + 1] = null;
+						}
 					}
 				}
 
@@ -277,9 +288,11 @@ namespace libTech.Map {
 				MapModels[ModelIdx].DrawShadowVolume(ShadowVolume);
 		}
 
-		public void DrawEntityShadowVolume(ShaderMaterial ShadowVolume) {
-			for (int i = 0; i < Entities.Length; i++)
+		public void DrawEntityShadowVolume(DynamicLight Light, ShaderMaterial ShadowVolume) {
+			for (int i = 0; i < Entities.Length; i++) {
+
 				Entities[i].DrawShadowVolume(ShadowVolume);
+			}
 		}
 	}
 }

@@ -76,21 +76,27 @@ namespace Game {
 				Map.SpawnEntity(Barrel);
 			}*/
 
+			foreach (var L in Engine.Map.GetLights())
+				Engine.Map.RemoveEntity(L);
+
 			//*
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-20, -12103, 109), Color.White, 300));
+			//Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-20, -12103, 109), Color.White, 300));
 
 			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-237, -12150, 776), Color.Green, 600));
 			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-44, -12150, 772), Color.Red, 600));
 			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-75, -12249, 1016), Color.Blue, 600));
+			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(470, -12448, 1022), Color.White, 600));
+
 			//*/
 			{
 				/*EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
 				Barrel.SetPosition(new Vector3(-20, -12103, 109));
 				Engine.Map.SpawnEntity(Barrel);*/
 
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 2; i++) {
 					EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
-					Barrel.SetPosition(new Vector3(-20, -12103, 109) + new Vector3(0, 20, 0) * i);
+					//Barrel.SetPosition(new Vector3(-20, -12103, 109) + new Vector3(0, 20, 0) * i);
+					Barrel.SetPosition(BarrelSpawn + new Vector3(0, 20, 0) * i);
 					Engine.Map.SpawnEntity(Barrel);
 				}
 			}

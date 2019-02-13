@@ -96,6 +96,10 @@ namespace libTech {
 			return new Vector2(RandomFloat() * ScaleX, RandomFloat() * ScaleY);
 		}
 
+		public static Vector3 RandomVec3(float ScaleX = 1, float ScaleY = 1, float ScaleZ = 1) {
+			return new Vector3(RandomFloat() * ScaleX, RandomFloat() * ScaleY, RandomFloat() * ScaleZ);
+		}
+
 		public static float ToRad(this float Deg) {
 			return Deg * (float)Math.PI / 180;
 		}
@@ -208,6 +212,10 @@ namespace libTech {
 			}
 
 			return Bmp;
+		}
+
+		public static Vector3 RandomPointOnSphere(this Vector3 Center, float Radius) {
+			return Center + Vector3.Normalize(RandomVec3()) * Radius;
 		}
 
 		internal static Vertex2[] EmitRectangleTris(Vertex2[] Verts, int Offset, float X, float Y, float W, float H, float U0 = 0, float V0 = 0, float U1 = 1, float V1 = 1, Color? Color = null) {

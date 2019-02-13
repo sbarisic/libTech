@@ -28,7 +28,7 @@ namespace libTech.Entities {
 
 			SetUniformsAction = (Shader) => {
 				Shader.Uniform3f("LightPosition", this.Position);
-				Shader.Uniform3f("LightColor", (Vector3)this.Color);
+				Shader.Uniform4f("LightColor", (Vector4)this.Color);
 				Shader.Uniform1f("LightRadius", this.LightRadius);
 			};
 		}
