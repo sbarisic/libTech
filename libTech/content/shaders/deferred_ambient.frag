@@ -22,5 +22,5 @@ void main() {
 	vec3 Normal = texture(NormalTexture, UV).rgb;
 	vec3 Diffuse = texture(ColorTexture, UV).rgb;
 
-	OutClr = vec4(Diffuse * 0.5f * (vec3(66, 134, 244) / 255), 1.0f);
+	OutClr = vec4(Diffuse, 0.8f);
 }

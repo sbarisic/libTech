@@ -37,6 +37,10 @@ namespace libTech.Entities {
 			SetUniformsAction(Shader);
 		}
 
+		public override BoundSphere GetBoundingSphere() {
+			return new BoundSphere(Position, LightRadius);
+		}
+
 		public override string ToString() {
 			return string.Format("DynamicLight({0})", Position);
 		}

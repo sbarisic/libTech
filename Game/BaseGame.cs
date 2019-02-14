@@ -45,7 +45,7 @@ namespace Game {
 			UtilityGun UtilGun = new UtilityGun();
 
 			Console.WriteLine("Loading map");
-			Engine.Map = BSPMap.LoadMap("/content/maps/gm_flatgrass.bsp");
+			Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
 			Engine.Map.InitPhysics();
 			Console.WriteLine("Done!");
 
@@ -58,48 +58,8 @@ namespace Game {
 			Engine.Map.SpawnEntity(PlayerEnt);
 			PlayerEnt.WeaponPickUp(UtilGun);
 
-			string MdlName = /*"models/hunter/blocks/cube05x05x05.mdl";*/  "models/props_c17/oildrum001_explosive.mdl";
-			BarrelModel = Engine.Load<libTechModel>(MdlName);
-			BarrelModel.CenterModel();
-			Vector3 BarrelSpawn = SpawnPositions.Random().SpawnPosition;
-
-			/*ShaderProgram ShadowVolumeProg = Engine.GetShader("shadow_volume");
-			ShadowVolumeProg.Uniform3f("LightPosition", new Vector3(-20, -12103, 109));
-			ShadowVolumeProg.Uniform1f("LightRadius", 300.0f);
-
-			libTechMesh BarrelMesh = BarrelModel.Meshes.First();
-			BarrelMesh.Material = new ShaderMaterial("shadow_volume", ShadowVolumeProg);*/
-
-			/*for (int i = 0; i < 10; i++) {
-				EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 1 + 5 * i);
-				Barrel.SetPosition(BarrelSpawn + new Vector3(0, 30 + i * 20, 0));
-				Map.SpawnEntity(Barrel);
-			}*/
-
-			foreach (var L in Engine.Map.GetLights())
-				Engine.Map.RemoveEntity(L);
-
-			//*
-			//Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-20, -12103, 109), Color.White, 300));
-
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-237, -12150, 776), Color.Green, 600));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-44, -12150, 772), Color.Red, 600));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(-75, -12249, 1016), Color.Blue, 600));
-			Engine.Map.SpawnEntity(new DynamicLight(new Vector3(470, -12448, 1022), Color.White, 600));
-
-			//*/
-			{
-				/*EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
-				Barrel.SetPosition(new Vector3(-20, -12103, 109));
-				Engine.Map.SpawnEntity(Barrel);*/
-
-				for (int i = 0; i < 2; i++) {
-					EntPhysics Barrel = EntPhysics.FromModel(BarrelModel, 10);
-					//Barrel.SetPosition(new Vector3(-20, -12103, 109) + new Vector3(0, 20, 0) * i);
-					Barrel.SetPosition(BarrelSpawn + new Vector3(0, 20, 0) * i);
-					Engine.Map.SpawnEntity(Barrel);
-				}
-			}
+			/*foreach (var L in Engine.Map.GetLights())
+				Engine.Map.RemoveEntity(L);*/
 
 			Engine.Camera3D.MouseMovement = true;
 			Engine.Window.CaptureCursor = true;

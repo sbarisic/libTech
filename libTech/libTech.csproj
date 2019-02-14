@@ -283,6 +283,9 @@
     <None Include="content\maps\gm_flatgrass.bsp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\maps\lt_test.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

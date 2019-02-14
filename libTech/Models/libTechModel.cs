@@ -59,8 +59,10 @@ namespace libTech.Models {
 		public Quaternion Rotation;
 		public bool Enabled;
 
-
 		public Dictionary<string, libTechBone> Bones;
+
+		public BoundSphere BoundingSphere { get; private set; }
+		public AABB BoundingBox { get; private set; }
 
 		public libTechModel() {
 			Bones = new Dictionary<string, libTechBone>();
@@ -72,13 +74,24 @@ namespace libTech.Models {
 			Enabled = true;
 		}
 
+		void CalcBounds() {
+			if (Meshes.Count == 0) {
+				BoundingBox = AABB.Empty;
+				BoundingSphere = BoundSphere.Empty;
+			}
+
+			BoundingBox = AABB.CalculateAABB(Meshes.SelectMany(M => M.GetVertices().Select(V => V.Position)));
+			BoundingSphere = BoundSphere.FromAABB(BoundingBox);
+		}
+
 		public void AddMesh(libTechMesh Mesh) {
 			Meshes.Add(Mesh);
+			CalcBounds();
 		}
 
 		public void CenterModel() {
-			AABB BBox = CalculateAABB();
-			Vector3 XYZ = BBox.Position + (BBox.Bounds / 2);
+			CalcBounds();
+			Vector3 XYZ = BoundingBox.Position + (BoundingBox.Bounds / 2);
 
 			foreach (var Mesh in Meshes) {
 				Vertex3[] Verts = Mesh.GetVertices();
@@ -88,6 +101,8 @@ namespace libTech.Models {
 
 				Mesh.SetVertices(Verts);
 			}
+
+			CalcBounds();
 		}
 
 		public libTechBone? GetBone(string Name) {
@@ -98,7 +113,7 @@ namespace libTech.Models {
 		}
 
 		public void ScaleToSize(float MaxSize) {
-			Scale = new Vector3(MaxSize / Vector3.Distance(Vector3.Zero, CalculateAABB().Bounds));
+			Scale = new Vector3(MaxSize / Vector3.Distance(Vector3.Zero, BoundingBox.Bounds));
 		}
 
 		public void DrawOpaque() {
@@ -143,13 +158,6 @@ namespace libTech.Models {
 				Meshes[i].Draw();
 				Meshes[i].Material = Old;
 			}
-		}
-
-		public AABB CalculateAABB() {
-			if (Meshes.Count == 0)
-				return AABB.Empty;
-
-			return AABB.CalculateAABB(Meshes.SelectMany(M => M.GetVertices().Select(V => V.Position)));
 		}
 
 		public static libTechModel FromSourceMdl(SourceMdl Mdl, string ShaderOverride = null) {

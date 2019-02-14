@@ -1,4 +1,5 @@
 ﻿using BulletSharp;
+using FishGfx;
 using libTech.Map;
 using libTech.Materials;
 using libTech.Models;
@@ -87,7 +88,7 @@ namespace libTech.Entities {
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
-			RigidBody.WorldTransform = Matrix4x4.CreateTranslation(Position) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateScale(Scale);
+			RigidBody.WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
 		}
 
 		public void SetPosition(Vector3 Pos) {
@@ -115,7 +116,6 @@ namespace libTech.Entities {
 		}
 
 		public override void Update(float Dt) {
-			base.Update(Dt);
 			GetWorldTransform(out UpdatedScale, out UpdatedRotation, out UpdatedPosition);
 		}
 
@@ -138,10 +138,12 @@ namespace libTech.Entities {
 			}
 		}
 
-		public override void DrawShadowVolume(ShaderMaterial ShadowVolume) {
+		public override void DrawShadowVolume(BoundSphere Light, ShaderMaterial ShadowVolume) {
 			if (RenderModel != null) {
-				SetRenderModelData();
-				RenderModel.DrawShadowVolume(ShadowVolume);
+				if (Light.Collide(RenderModel.BoundingSphere + UpdatedPosition)) {
+					SetRenderModelData();
+					RenderModel.DrawShadowVolume(ShadowVolume);
+				}
 			}
 		}
 	}

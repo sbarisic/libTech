@@ -59,6 +59,8 @@ namespace libTech.Map {
 
 		internal ClosestConvexResultCallback ClosestConvexResult;
 
+		internal Dictionary<string, libTechModel> LoadedModels;
+
 		public Vector3 Gravity {
 			get {
 				return World.Gravity;
@@ -73,6 +75,8 @@ namespace libTech.Map {
 			MapModels = new libTechModel[] { };
 			Entities = new Entity[] { };
 			Lights = new DynamicLight[] { };
+
+			LoadedModels = new Dictionary<string, libTechModel>();
 		}
 
 		public void InitPhysics() {
@@ -102,13 +106,26 @@ namespace libTech.Map {
 			MapModels[MapModels.Length - 1] = Model;
 		}
 
+		public libTechModel LoadModel(string Pth) {
+			if (LoadedModels.ContainsKey(Pth))
+				return LoadedModels[Pth];
+
+			libTechModel Mdl = Engine.Load<libTechModel>(Pth);
+
+			if (Mdl == null)
+				throw new Exception("Could not load model " + Pth);
+
+			LoadedModels.Add(Pth, Mdl);
+			return Mdl;
+		}
+
 		public AABB CalculateAABB() {
-			AABB Bounds = MapModels[0].CalculateAABB();
+			AABB Bounds = MapModels[0].BoundingBox;
 
 			for (int ModelIdx = 1; ModelIdx < MapModels.Length; ModelIdx++) {
 				Vector3[] Verts = new Vector3[16];
 				Array.Copy(Bounds.GetVertices().ToArray(), 0, Verts, 0, 8);
-				Array.Copy(MapModels[ModelIdx].CalculateAABB().GetVertices().ToArray(), 0, Verts, 8, 8);
+				Array.Copy(MapModels[ModelIdx].BoundingBox.GetVertices().ToArray(), 0, Verts, 8, 8);
 				Bounds = AABB.CalculateAABB(Verts);
 			}
 
@@ -181,9 +198,12 @@ namespace libTech.Map {
 		void InitEntity(Entity Ent) {
 			Ent.Map = this;
 			Ent.Spawned();
+			Ent.HasSpawned = true;
 		}
 
 		public void SpawnEntity(Entity Ent) {
+			Ent.HasSpawned = false;
+
 			if (Ent is DynamicLight L) {
 				bool AddedLight = false;
 
@@ -203,7 +223,6 @@ namespace libTech.Map {
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++) {
 				if (Entities[EntityIdx] == null) {
 					Entities[EntityIdx] = Ent;
-					InitEntity(Ent);
 					return;
 				}
 			}
@@ -263,8 +282,12 @@ namespace libTech.Map {
 		public void Update(float Dt) {
 			World.StepSimulation(Dt);
 
-			for (int i = 0; i < Entities.Length; i++)
+			for (int i = 0; i < Entities.Length; i++) {
+				if (!Entities[i].HasSpawned)
+					InitEntity(Entities[i]);
+
 				Entities[i].Update(Dt);
+			}
 		}
 
 		public void DrawOpaque() {
@@ -289,10 +312,8 @@ namespace libTech.Map {
 		}
 
 		public void DrawEntityShadowVolume(DynamicLight Light, ShaderMaterial ShadowVolume) {
-			for (int i = 0; i < Entities.Length; i++) {
-
-				Entities[i].DrawShadowVolume(ShadowVolume);
-			}
+			for (int i = 0; i < Entities.Length; i++) 
+				Entities[i].DrawShadowVolume(Light.GetBoundingSphere(), ShadowVolume);
 		}
 	}
 }

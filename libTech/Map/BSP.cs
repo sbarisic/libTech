@@ -344,21 +344,37 @@ namespace libTech.Map {
 
 				string[] SpawnEntityNames = new string[] { "info_player_start", "info_player_deathmatch", "info_player_terrorist", "info_player_counterterrorist", "info_coop_spawn" };
 				foreach (var VEnt in BSP.Entities) {
-					Vector3 Angles = ToVec3(VEnt.Angles);
+					Vector3 Angles = ToVec3(VEnt.Angles) * ((float)Math.PI / 360) + new Vector3(-((float)Math.PI / 2), 0, 0); ;
 					Vector3 Origin = ToVec3(VEnt.Origin);
+
+					Quaternion QAngles = Quaternion.CreateFromYawPitchRoll(Angles.Y, Angles.X, Angles.Z);
 
 					if (SpawnEntityNames.Contains(VEnt.ClassName))
 						Map.SpawnEntity(new PlayerSpawn(Origin, Quaternion.CreateFromYawPitchRoll(Angles.X, Angles.Y, Angles.Z)));
 					else if (VEnt.ClassName == "light") {
 						float Radius = VEnt["_distance"];
+						float Dist50 = VEnt["_fifty_percent_distance"];
+						float Dist0 = VEnt["_zero_percent_distance"];
 
-						if (Radius == 0)
-							Radius = 250;
+						if (Radius == 0) {
+							if (Dist0 == 0)
+								Radius = 250;
+							else
+								Radius = Dist0;
+						}
 
 						//DynamicLight Light = new DynamicLight(Origin, Color.White, Radius);
-						DynamicLight Light = new DynamicLight(Origin, Utils.RandomColor(), Radius);
+						DynamicLight Light = new DynamicLight(Origin, Color.White, Radius);
 
 						Map.SpawnEntity(Light);
+					} else if (VEnt.ClassName == "prop_physics") {
+						string ModelName = VEnt["model"];
+						libTechModel Model = Map.LoadModel(ModelName);
+						EntPhysics PhysEnt = EntPhysics.FromModel(Model, 18);
+
+						PhysEnt.SetWorldTransform(Vector3.One, QAngles, Origin);
+
+						Map.SpawnEntity(PhysEnt);
 					}
 				}
 
