@@ -20,7 +20,7 @@ void main() {
 
 	vec3 FragPos = texture(PositionTexture, UV).rgb;
 	vec3 Normal = texture(NormalTexture, UV).rgb;
-	vec3 Diffuse = texture(ColorTexture, UV).rgb;
+	vec4 Diffuse = texture(ColorTexture, UV);
 
-	OutClr = vec4(Diffuse, 0.8f);
+	OutClr = vec4(Diffuse.rgb * 0.8, Diffuse.a);
 }

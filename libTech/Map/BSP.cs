@@ -387,14 +387,15 @@ namespace libTech.Map {
 					if (ModelIdx > 0)
 						CurrentMapModel.Enabled = false;
 
-					Map.AddModel(CurrentMapModel);
 					Dictionary<string, List<Vertex3>> TexturedMeshes = new Dictionary<string, List<Vertex3>>();
 
 					for (int FaceIdx = Model.FirstFace; FaceIdx < Model.FirstFace + Model.NumFaces; FaceIdx++) {
 						ref Face Face = ref Faces[FaceIdx];
 						ref TextureInfo TexInfo = ref TexInfos[Face.TexInfo];
 
-						if ((TexInfo.Flags & (SurfFlags.NODRAW | SurfFlags.LIGHT | SurfFlags.SKY | SurfFlags.SKY2D)) != 0)
+						bool IsSkybox = (TexInfo.Flags & (SurfFlags.SKY | SurfFlags.SKY2D)) != 0;
+
+						if ((TexInfo.Flags & (SurfFlags.NODRAW | SurfFlags.LIGHT)) != 0 || IsSkybox)
 							continue;
 
 						ref TextureData TexData = ref TexDatas[TexInfo.TexData];
@@ -496,6 +497,8 @@ namespace libTech.Map {
 							CurrentMapModel.AddMesh(new libTechMesh(KV.Value.ToArray(), Mat));
 						}
 					}
+
+					Map.AddModel(CurrentMapModel);
 				}
 
 				Engine.VFS.GetSourceProvider().Remove(BSPProviderPath);

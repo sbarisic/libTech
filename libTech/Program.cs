@@ -284,13 +284,12 @@ namespace libTech {
 			Engine.UI = new libGUI(Engine.Window);
 			Lua.Init();
 
-			Engine.LoadShaders();
-			Engine.LoadMaterials();
+			Engine.LoadContent();
 
-			GConsole.Color = FishGfx.Color.Orange;
+			GConsole.Color = Color.Orange;
 			foreach (var DllName in FailedToLoadDLLs)
 				GConsole.WriteLine("Failed to load '{0}'", DllName);
-			GConsole.Color = FishGfx.Color.White;
+			GConsole.Color = Color.White;
 
 			// Graphics init
 			Gfx.ShadersDirectory = "content/shaders";
@@ -340,19 +339,22 @@ namespace libTech {
 			GConsole.Update();
 		}
 
-		static void Draw(float Dt) {
+		static void Draw(float Dt, bool AmbientLighting = true, bool PointLighting = true) {
 			ShaderUniforms.Current.Resolution = Engine.Window.WindowSize;
+			Engine.GetTexture("skybox").BindTextureUnit(10);
 
 			Engine.GBuffer.Bind();
 			{
 				RenderState RS = Gfx.PeekRenderState();
 				RS.EnableBlend = false;
 				Gfx.PushRenderState(RS);
-				Gfx.Clear();
+				Gfx.Clear(Color.Transparent);
 
 				//Engine.Framebuffer3D.Clear();
 
 				ShaderUniforms.Current.Camera = Engine.Camera3D;
+
+				Engine.Map?.DrawOpaque();
 				Game.DrawOpaque();
 
 				Gfx.PopRenderState();
@@ -367,8 +369,12 @@ namespace libTech {
 
 			Engine.ScreenRT.Bind();
 			{
-				Gfx.Clear(Color.Transparent);
+				Gfx.Clear(Color.Black);
+				//Engine.Map?.DrawSkybox();
+
 				Engine.GBuffer.Framebuffer.Blit(false, true, false, Destination: Engine.ScreenRT.Framebuffer);
+
+				Engine.Map?.DrawSkybox();
 
 				Engine.GBuffer.Color.BindTextureUnit(0);
 				Engine.GBuffer.Position.BindTextureUnit(1);
@@ -384,13 +390,15 @@ namespace libTech {
 					State.EnableDepthTest = false;
 
 					Gfx.PushRenderState(State);
-
-					// Ambient lighting
 					ShaderUniforms.Current.Camera = Engine.Camera2D;
-					ShaderProgram AmbientShader = Engine.GetShader("deferred_ambient");
-					AmbientShader.Bind(ShaderUniforms.Current);
-					Engine.ScreenQuad.Draw();
-					AmbientShader.Unbind();
+
+					if (AmbientLighting) {
+						// Ambient lighting
+						ShaderProgram AmbientShader = Engine.GetShader("deferred_ambient");
+						AmbientShader.Bind(ShaderUniforms.Current);
+						Engine.ScreenQuad.Draw();
+						AmbientShader.Unbind();
+					}
 
 					// Point lighting
 					Gfx.PopRenderState();
@@ -399,11 +407,9 @@ namespace libTech {
 					State.EnableDepthTest = true;
 					State.EnableStencilTest = true;
 					Gfx.PushRenderState(State);
-					Gfx.ClearStencil(0);
-
-
 					ShaderUniforms.Current.Camera = Engine.Camera3D;
-					if (Engine.Map != null) {
+
+					if (Engine.Map != null && PointLighting) {
 						DynamicLight[] Lights = Engine.Map.GetLights();
 
 						for (int i = 0; i < Lights.Length; i++) {
@@ -425,7 +431,7 @@ namespace libTech {
 
 							Gfx.PushRenderState(State);
 							Gfx.ClearStencil(0);
-							
+
 							DrawPointLightMask(Lights[i]);
 							DrawPointLightShadow(Lights[i]);
 
@@ -453,6 +459,7 @@ namespace libTech {
 				Engine.GBuffer.Position.UnbindTextureUnit(1);
 				Engine.GBuffer.Color.UnbindTextureUnit(0);
 
+				Engine.Map?.DrawTransparent();
 				Game.DrawTransparent();
 			}
 			Engine.ScreenRT.Unbind();
@@ -491,6 +498,9 @@ namespace libTech {
 		}
 
 		static void DrawPointLightShadow(DynamicLight Light) {
+			if (!Light.CastShadows)
+				return;
+
 			ShaderMaterial ShadowVolume = (ShaderMaterial)Engine.GetMaterial("shadow_volume");
 
 			RenderState RS = Gfx.PeekRenderState();

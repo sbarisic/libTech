@@ -29,6 +29,11 @@ namespace libTech {
 			return Shaders[Name];
 		}
 
+		public static void RegisterTexture(string Name, Texture Tex) {
+			Textures.Add(Name, Tex);
+		}
+
+		// TODO: Remove automatic loading
 		public static Texture GetTexture(string Name) {
 			if (Name == "error") {
 				if (ErrorTexture == null) {
@@ -46,7 +51,7 @@ namespace libTech {
 					Console.WriteLine("Could not find texture '{0}'", Name);
 					T = GetTexture("error");
 				} else
-					Textures.Add(Name, T);
+					RegisterTexture(Name, T);
 
 				return T;
 			}
@@ -82,8 +87,12 @@ namespace libTech {
 		}
 
 		// TODO: Move these to a separate file and make a proper definition thing?	
-		internal static void LoadShaders() {
+		internal static void LoadContent() {
+			// Shaders
+
 			RegisterShader("nop", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/nop.frag")));
+			ShaderUniforms.NopShader = GetShader("nop");    // TODO: HAAAAAAAAAX
+
 			RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
 			RegisterShader("default_deferred", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default_deferred.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_deferred.frag")));
 			RegisterShader("deferred_shading", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_shading.frag")));
@@ -94,13 +103,13 @@ namespace libTech {
 			RegisterShader("water", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/water.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/water.frag")));
 			RegisterShader("framebuffer", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/fb.frag")));
 
+			RegisterShader("skybox", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/skybox.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/skybox.frag")));
+
+			// Materials
+
 			RegisterMaterial("shadow_volume", new ShaderMaterial("shadow_volume"));
+			RegisterMaterial("skybox", new ShaderMaterial("skybox"));
 
-			// TODO: HAAAAAAAAAX
-			ShaderUniforms.NopShader = GetShader("nop");
-		}
-
-		internal static void LoadMaterials() {
 			ShaderMaterial WaterMaterial = new ShaderMaterial("water");
 			WaterMaterial.Translucent = true;
 			RegisterMaterial("water", WaterMaterial);
@@ -120,6 +129,11 @@ namespace libTech {
 					RegisterMaterial(KV[0], Mat);
 				}
 			}
+
+			// Textures
+
+			Texture SkyboxTex = Texture.FromFileCubemap("content/textures/skybox/cloudtop/cloudtop");
+			RegisterTexture("skybox", SkyboxTex);
 		}
 	}
 }

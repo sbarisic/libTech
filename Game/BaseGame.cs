@@ -40,6 +40,9 @@ namespace Game {
 		const float BtnHeight = 30;
 		const float BtnWidth = 200;
 
+		EntPhysics LightEmitter;
+		DynamicLight Light;
+
 		public override void Load() {
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
 			UtilityGun UtilGun = new UtilityGun();
@@ -61,6 +64,10 @@ namespace Game {
 			/*foreach (var L in Engine.Map.GetLights())
 				Engine.Map.RemoveEntity(L);*/
 
+			LightEmitter = Engine.Map.GetEntities<EntPhysics>().Skip(5).First();
+			Light = new DynamicLight(Vector3.Zero, Color.Red);
+			Engine.Map.SpawnEntity(Light);
+
 			Engine.Camera3D.MouseMovement = true;
 			Engine.Window.CaptureCursor = true;
 
@@ -76,8 +83,10 @@ namespace Game {
 		}
 
 		public override void Update(float Dt) {
-			base.Update(Dt);
+			LightEmitter.GetWorldTransform(out Vector3 S, out Quaternion R, out Vector3 Pos);
+			Light.Position = Pos;
 
+			base.Update(Dt);
 			//Console.WriteLine(string.Format("Engine.Map.SpawnEntity(new DynamicLight(new Vector3({0}, {1}, {2}), Color.White, 600))", (int)PlayerEnt.Position.X, (int)PlayerEnt.Position.Y, (int)PlayerEnt.Position.Z));
 		}
 
@@ -100,17 +109,11 @@ namespace Game {
 				MenuModel.DrawOpaque();
 				MenuModel.DrawTransparent();
 			}
-
-			Engine.Map?.DrawOpaque();
-
+			
 			//Gfx.ClearDepth();
 			PlayerEnt?.DrawViewModel();
 		}
-
-		public override void DrawTransparent() {
-			Engine.Map?.DrawTransparent();
-		}
-
+		
 		public override void DrawGUI(float Dt) {
 			if (CrosshairTex != null) {
 				float CW = CrosshairTex.Width;

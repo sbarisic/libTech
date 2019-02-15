@@ -1,5 +1,6 @@
 ﻿using BulletSharp;
 using FishGfx;
+using FishGfx.Graphics;
 using libTech;
 using libTech.Entities;
 using libTech.Materials;
@@ -58,8 +59,8 @@ namespace libTech.Map {
 		internal ConstraintSolver Solver;
 
 		internal ClosestConvexResultCallback ClosestConvexResult;
-
 		internal Dictionary<string, libTechModel> LoadedModels;
+		internal libTechModel SkyboxModel;
 
 		public Vector3 Gravity {
 			get {
@@ -97,7 +98,7 @@ namespace libTech.Map {
 
 			ClosestConvexResult = new ClosestConvexResultCallback();
 
-			EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(GetModels().First().Meshes.SelectMany(M => M.GetVertices().Select(V => V.Position))), 0);
+			EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(GetModels().First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position))), 0);
 			SpawnEntity(MapPhysics);
 		}
 
@@ -290,6 +291,28 @@ namespace libTech.Map {
 			}
 		}
 
+		public void DrawSkybox() {
+			if (SkyboxModel == null) {
+				SkyboxModel = new libTechModel();
+				libTechMesh CubeMesh = new libTechMesh(FishGfx.Formats.Obj.Load("content/models/cube.obj").First().Vertices.ToArray(), Engine.GetMaterial("skybox"));
+				SkyboxModel.AddMesh(CubeMesh);
+
+				SkyboxModel.Scale = new Vector3(5000);
+			}
+
+			RenderState RS = Gfx.PeekRenderState();
+			RS.EnableCullFace = false;
+			RS.EnableDepthMask = false;
+			RS.EnableDepthTest = true;
+			RS.EnableBlend = false;
+			Gfx.PushRenderState(RS);
+
+			SkyboxModel.Position = Engine.Camera3D.Position;
+			SkyboxModel.DrawOpaque();
+
+			Gfx.PopRenderState();
+		}
+
 		public void DrawOpaque() {
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawOpaque();
@@ -312,7 +335,7 @@ namespace libTech.Map {
 		}
 
 		public void DrawEntityShadowVolume(DynamicLight Light, ShaderMaterial ShadowVolume) {
-			for (int i = 0; i < Entities.Length; i++) 
+			for (int i = 0; i < Entities.Length; i++)
 				Entities[i].DrawShadowVolume(Light.GetBoundingSphere(), ShadowVolume);
 		}
 	}

@@ -286,6 +286,9 @@
     <None Include="content\maps\lt_test.bsp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\models\cube.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -323,6 +326,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\rustgrad.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\skybox.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\shadow_volume.frag">
@@ -633,40 +639,40 @@
     <Content Include="content\textures\proggy_small_32_0.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\back.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_bk.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\bottom.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_bt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\front.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_ft.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\left.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_lt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\right.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_rt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\interstellar\top.png">
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_tp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\back.png">
+    <Content Include="content\textures\skybox\test\test_bk.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\bottom.png">
+    <Content Include="content\textures\skybox\test\test_bt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\front.png">
+    <Content Include="content\textures\skybox\test\test_ft.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\left.png">
+    <Content Include="content\textures\skybox\test\test_lt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\right.png">
+    <Content Include="content\textures\skybox\test\test_rt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="content\textures\skybox\test\top.png">
+    <Content Include="content\textures\skybox\test\test_tp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="content\textures\wallpaper.png">

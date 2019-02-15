@@ -52,8 +52,6 @@ namespace libTech.Models {
 	}
 
 	public class libTechModel {
-		public List<libTechMesh> Meshes;
-
 		public Vector3 Scale;
 		public Vector3 Position;
 		public Quaternion Rotation;
@@ -63,6 +61,8 @@ namespace libTech.Models {
 
 		public BoundSphere BoundingSphere { get; private set; }
 		public AABB BoundingBox { get; private set; }
+
+		List<libTechMesh> Meshes;
 
 		public libTechModel() {
 			Bones = new Dictionary<string, libTechBone>();
@@ -87,6 +87,15 @@ namespace libTech.Models {
 		public void AddMesh(libTechMesh Mesh) {
 			Meshes.Add(Mesh);
 			CalcBounds();
+		}
+
+		public void RemoveMesh(libTechMesh Mesh) {
+			Meshes.Remove(Mesh);
+			CalcBounds();
+		}
+
+		public IEnumerable<libTechMesh> GetMeshes() {
+			return Meshes.ToArray();
 		}
 
 		public void CenterModel() {

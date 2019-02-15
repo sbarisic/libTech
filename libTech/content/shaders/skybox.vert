@@ -16,14 +16,12 @@ uniform mat4 Project;
 void main() {
 	frag_Clr = Clr;
 	frag_UV = UV;
-	
+
 	mat4 MV = View * Model;
-	mat4 MVP = Project * View * Model;
-	vec4 Pos4 = vec4(Pos, 1.0);
 	
-	vec4 ModelPos = MV * Pos4;
+	vec4 ModelPos = MV * vec4(Pos, 1.0);
 	frag_ViewPosition = -ModelPos.xyz;
 	
-	frag_Pos = (Model * Pos4).xyz;
+	frag_Pos = Pos;
 	gl_Position = Project * ModelPos;
 }

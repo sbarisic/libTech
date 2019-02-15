@@ -43,7 +43,7 @@ namespace libTech.Entities {
 
 	public class EntPhysics : Entity {
 		public static EntPhysics FromModel(libTechModel Model, float Mass) {
-			EntPhysics PhysEnt = new EntPhysics(Model.Meshes.First().GetVertices().Select(V => V.Position), Mass);
+			EntPhysics PhysEnt = new EntPhysics(Model.GetMeshes().First().GetVertices().Select(V => V.Position), Mass);
 			PhysEnt.RenderModel = Model;
 			return PhysEnt;
 		}

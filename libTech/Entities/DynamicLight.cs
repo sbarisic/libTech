@@ -19,7 +19,7 @@ namespace libTech.Entities {
 
 		Action<ShaderProgram> SetUniformsAction;
 
-		public DynamicLight(Vector3 Position, Color Color, float LightRadius = 250, bool CastShadows = true) {
+		public DynamicLight(Vector3 Position, Color Color, float LightRadius = 250, bool CastShadows = false) {
 			Enabled = true;
 			this.Position = Position;
 			this.Color = Color;
