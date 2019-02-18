@@ -53,6 +53,7 @@ namespace libTech {
 		public static ConVar<int> MSAA;
 		public static ConVar<bool> ShowFPS;
 		public static ConVar<string> SourceGameDirs;
+		public static ConVar<bool> DebugDraw;
 
 		public static Map.libTechMap Map;
 
@@ -143,6 +144,7 @@ namespace libTech {
 			Engine.MSAA = ConVar.Register("msaa", 32, ConVarType.Archive);
 
 			Engine.SourceGameDirs = ConVar.Register("source_game_dirs", "C:/Program Files (x86)/Steam/steamapps/common/GarrysMod", ConVarType.Archive);
+			Engine.DebugDraw = ConVar.Register("debugdraw", true, ConVarType.Cheat);
 
 			// Parse all arguments and set CVars
 			foreach (var Arg in ArgumentParser.All) {
@@ -244,29 +246,15 @@ namespace libTech {
 
 			{
 				Engine.GBuffer = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight, IsGBuffer: true);
+				Engine.GBuffer.Framebuffer.SetLabel(OpenGL.ObjectIdentifier.Framebuffer, "GBuffer");
+
 				Engine.ScreenRT = new RenderTexture(Engine.Window.WindowWidth, Engine.Window.WindowHeight);
+				Engine.ScreenRT.Framebuffer.SetLabel(OpenGL.ObjectIdentifier.Framebuffer, "ScreenRT");
 
 				Engine.ScreenQuad = new Mesh2D();
 				Engine.ScreenQuad.PrimitiveType = PrimitiveType.Triangles;
 				Engine.ScreenQuad.SetVertices(Utils.EmitRectangleTris(new Vertex2[6], 0, 0, 0, Engine.Window.WindowWidth, Engine.Window.WindowHeight, 0, 0, 1, 1, Color.White));
-
-				/*List<Vertex3> CircleVerts = new List<Vertex3>();
-				Vertex3[] CirclePoints = new Vertex3[20];
-
-				for (int i = 0; i < CirclePoints.Length; i++) {
-					const float Radius = 2000;
-					float Angle = (float)(Math.PI * 2 / CirclePoints.Length * i);
-
-					CirclePoints[i] = new Vertex3((float)Math.Sin(Angle) * Radius, (float)Math.Cos(Angle) * Radius, 0);
-
-					if (i > 0) {
-						CircleVerts.Add(new Vertex3(0, 0, 0));
-						CircleVerts.Add(CirclePoints[i]);
-						CircleVerts.Add(CirclePoints[i - 1]);
-					}
-				}*/
-
-
+				Engine.ScreenQuad.VAO.SetLabel(OpenGL.ObjectIdentifier.VertexArray, "Screen Quad");
 
 				var Msh = FishGfx.Formats.Obj.Load("content/models/sphere_2.obj").First();
 				Vertex3[] MshVerts = Msh.Vertices.ToArray();
@@ -277,11 +265,15 @@ namespace libTech {
 
 				Engine.PointLightMesh = new libTechMesh();
 				Engine.PointLightMesh.SetVertices(MshVerts);
+				Engine.PointLightMesh.SetLabel("Point Light Volume");
 			}
 
-			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 
+
+			Engine.GUI.Init(Engine.Window, new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/gui.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/gui.frag")));
 			Engine.UI = new libGUI(Engine.Window);
+
+			DbgDraw.Init();
 			Lua.Init();
 
 			Engine.LoadContent();
@@ -340,6 +332,8 @@ namespace libTech {
 		}
 
 		static void Draw(float Dt, bool AmbientLighting = true, bool PointLighting = true) {
+			DbgDraw.Enabled = Engine.DebugDraw;
+
 			ShaderUniforms.Current.Resolution = Engine.Window.WindowSize;
 			Engine.GetTexture("skybox").BindTextureUnit(10);
 
@@ -413,6 +407,8 @@ namespace libTech {
 						DynamicLight[] Lights = Engine.Map.GetLights();
 
 						for (int i = 0; i < Lights.Length; i++) {
+							DbgDraw.DrawCross(Lights[i].Position);
+
 							State.SetColorMask(false);
 							State.EnableBlend = false;
 							State.EnableDepthTest = true;
@@ -461,6 +457,7 @@ namespace libTech {
 
 				Engine.Map?.DrawTransparent();
 				Game.DrawTransparent();
+				DbgDraw.FinalizeDraw((long)(Engine.Time * 1000));
 			}
 			Engine.ScreenRT.Unbind();
 

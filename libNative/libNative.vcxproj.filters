@@ -27,12 +27,18 @@
     <ClInclude Include="im3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="debug_draw.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="libNative.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="im3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

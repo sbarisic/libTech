@@ -218,6 +218,28 @@ namespace libTech {
 			return Center + Vector3.Normalize(RandomVec3()) * Radius;
 		}
 
+		public static void Insert<T>(ref T[] Arr, T Element) {
+			for (int i = 0; i < Arr.Length; i++) {
+				if (Arr[i] == null) {
+					Arr[i] = Element;
+					return;
+				}
+			}
+
+			Array.Resize(ref Arr, Arr.Length + 1);
+			Arr[Arr.Length - 1] = Element;
+		}
+
+		public static void Remove<T>(ref T[] Arr, T Element) {
+			for (int i = 0; i < Arr.Length; i++) {
+				if (Arr[i].Equals(Element)) {
+					Arr[i] = Arr[Arr.Length - 1];
+					Array.Resize(ref Arr, Arr.Length - 1);
+					return;
+				}
+			}
+		}
+
 		internal static Vertex2[] EmitRectangleTris(Vertex2[] Verts, int Offset, float X, float Y, float W, float H, float U0 = 0, float V0 = 0, float U1 = 1, float V1 = 1, Color? Color = null) {
 			Color C = Color ?? FishGfx.Color.White;
 

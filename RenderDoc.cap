@@ -7,19 +7,21 @@
         ],
         "executable": ".\\build_dbg\\libTech.exe",
         "inject": false,
+        "numQueuedFrames": 0,
         "options": {
             "allowFullscreen": true,
             "allowVSync": true,
-            "apiValidation": false,
-            "captureAllCmdLists": false,
+            "apiValidation": true,
+            "captureAllCmdLists": true,
             "captureCallstacks": false,
             "captureCallstacksOnlyDraws": false,
             "debugOutputMute": true,
             "delayForDebugger": 0,
             "hookIntoChildren": false,
-            "refAllResources": false,
-            "verifyMapWrites": false
+            "refAllResources": true,
+            "verifyBufferAccess": true
         },
+        "queuedFrameCap": 0,
         "workingDir": ""
     }
 }

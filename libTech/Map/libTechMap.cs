@@ -105,6 +105,8 @@ namespace libTech.Map {
 		public void AddModel(libTechModel Model) {
 			Array.Resize(ref MapModels, MapModels.Length + 1);
 			MapModels[MapModels.Length - 1] = Model;
+
+			Model.SetLabel(string.Format("Map model {0}", MapModels.Length - 1));
 		}
 
 		public libTechModel LoadModel(string Pth) {
@@ -116,6 +118,7 @@ namespace libTech.Map {
 			if (Mdl == null)
 				throw new Exception("Could not load model " + Pth);
 
+			Mdl.SetLabel(Pth);
 			LoadedModels.Add(Pth, Mdl);
 			return Mdl;
 		}
@@ -205,58 +208,17 @@ namespace libTech.Map {
 		public void SpawnEntity(Entity Ent) {
 			Ent.HasSpawned = false;
 
-			if (Ent is DynamicLight L) {
-				bool AddedLight = false;
+			if (Ent is DynamicLight L)
+				Utils.Insert(ref Lights, L);
 
-				for (int i = 0; i < Lights.Length; i++) {
-					if (Lights[i] == null) {
-						Lights[i] = L;
-						AddedLight = true;
-					}
-				}
-
-				if (!AddedLight) {
-					Array.Resize(ref Lights, Lights.Length + 1);
-					Lights[Lights.Length - 1] = L;
-				}
-			}
-
-			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++) {
-				if (Entities[EntityIdx] == null) {
-					Entities[EntityIdx] = Ent;
-					return;
-				}
-			}
-
-			Array.Resize(ref Entities, Entities.Length + 1);
-			SpawnEntity(Ent);
+			Utils.Insert(ref Entities, Ent);
 		}
 
 		public void RemoveEntity(Entity Ent) {
-			for (int i = 0; i < Entities.Length; i++) {
-				if (Entities[i] == Ent) {
-					Entities[i] = null;
-					break;
-				}
-			}
+			Utils.Remove(ref Entities, Ent);
 
-			if (Ent is DynamicLight L) {
-				for (int i = 0; i < Lights.Length; i++) {
-					if (Lights[i] == L)
-						Lights[i] = null;
-				}
-
-				for (int i = 0; i < Lights.Length; i++) {
-					if (Lights[i] == null) {
-						if (i + 1 < Lights.Length) {
-							Lights[i] = Lights[i + 1];
-							Lights[i + 1] = null;
-						}
-					}
-				}
-
-				Array.Resize(ref Lights, Lights.Length - 1);
-			}
+			if (Ent is DynamicLight L)
+				Utils.Remove(ref Lights, L);
 		}
 
 		public IEnumerable<libTechModel> GetModels() {
@@ -294,10 +256,12 @@ namespace libTech.Map {
 		public void DrawSkybox() {
 			if (SkyboxModel == null) {
 				SkyboxModel = new libTechModel();
-				libTechMesh CubeMesh = new libTechMesh(FishGfx.Formats.Obj.Load("content/models/cube.obj").First().Vertices.ToArray(), Engine.GetMaterial("skybox"));
-				SkyboxModel.AddMesh(CubeMesh);
-
 				SkyboxModel.Scale = new Vector3(5000);
+
+				libTechMesh CubeMesh = new libTechMesh(FishGfx.Formats.Obj.Load("content/models/cube.obj").First().Vertices.ToArray(), Engine.GetMaterial("skybox"));
+				CubeMesh.SetLabel("Skybox Cube");
+
+				SkyboxModel.AddMesh(CubeMesh);
 			}
 
 			RenderState RS = Gfx.PeekRenderState();

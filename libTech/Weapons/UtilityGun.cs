@@ -1,5 +1,6 @@
 ﻿using BulletSharp;
 using libTech.Entities;
+using libTech.Graphics;
 using libTech.Models;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace libTech.Weapons {
 
 		public UtilityGun() {
 			MaxPickDistance = 2000;
-			ViewModel = Engine.Load<libTechModel>("/models/weapons/v_physcannon.mdl");
+			//ViewModel = Engine.Load<libTechModel>("/models/weapons/v_physcannon.mdl");
 			ViewModelTranslation = new Vector3(0, 0, -20);
 		}
 
@@ -51,18 +52,64 @@ namespace libTech.Weapons {
 
 				if (Ent != null)
 					Ent.Unfreeze();
+
+				//DbgDraw.DrawFrustum(Engine.Camera3D, Time: 10000);
+				//DbgDraw.DrawFrustum(Engine.Map.GetEntities<Player>().First().ViewModelCamera, Time: 10000);
+
+				Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
+
+				/*// Near
+				DbgDraw.DrawLine(Pts[0], Pts[1], Time: 10000);
+				DbgDraw.DrawLine(Pts[1], Pts[2], Time: 10000);
+				DbgDraw.DrawLine(Pts[2], Pts[3], Time: 10000);
+				DbgDraw.DrawLine(Pts[3], Pts[0], Time: 10000);
+
+				// Far
+				DbgDraw.DrawLine(Pts[4], Pts[5], Time: 10000);
+				DbgDraw.DrawLine(Pts[5], Pts[6], Time: 10000);
+				DbgDraw.DrawLine(Pts[6], Pts[7], Time: 10000);
+				DbgDraw.DrawLine(Pts[7], Pts[4], Time: 10000);*/
+
+				// Connecting lines
+				Vector3 A = DrawRay(Pts[0], Pts[4]);
+				Vector3 B = DrawRay(Pts[1], Pts[5]);
+				Vector3 C = DrawRay(Pts[2], Pts[6]);
+				Vector3 D = DrawRay(Pts[3], Pts[7]);
+
+				DbgDraw.DrawLine(A, B, FishGfx.Color.Red, Time: 30000);
+				DbgDraw.DrawLine(B, C, FishGfx.Color.Red, Time: 30000);
+				DbgDraw.DrawLine(C, D, FishGfx.Color.Red, Time: 30000);
+				DbgDraw.DrawLine(D, A, FishGfx.Color.Red, Time: 30000);
 			}
 		}
 
+		Vector3 DrawRay(Vector3 From, Vector3 To) {
+			if (Map.RayCast(From, To, out Vector3 HitPos, out Vector3 Normal, out RigidBody Body)) {
+				DbgDraw.DrawLine(From, HitPos, Time: 30000);
+				return HitPos;
+			}
+
+			DbgDraw.DrawLine(From, To, Time: 30000);
+			return To;
+		}
+
+		EntPhysics RayCastEntity(out Vector3 PickPoint, out Vector3 Normal) {
+			Map.RayCast(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint, out Normal, out RigidBody Body);
+			return Body?.UserObject as EntPhysics;
+		}
+
 		EntPhysics RayCastEntity(out Vector3 PickPoint) {
-			return Map.RayCastBody(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint)?.UserObject as EntPhysics;
+			return RayCastEntity(out PickPoint, out Vector3 Normal);
 		}
 
 		void PickBody() {
 			DropBody();
-			PickedEntity = RayCastEntity(out Vector3 PickPoint);
+			PickedEntity = RayCastEntity(out Vector3 PickPoint, out Vector3 Normal);
 
 			if (PickedEntity != null) {
+				DbgDraw.DrawLine(FireOrigin, PickPoint, Time: 5000);
+				DbgDraw.DrawCircle(PickPoint + Normal * 0.1f, Normal, FishGfx.Color.Red, 5, 8, Time: 5000);
+
 				PickDist = Vector3.Distance(FireOrigin, PickPoint);
 				GlobalPickPoint = PickPoint;
 

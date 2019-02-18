@@ -121,6 +121,7 @@
     <Compile Include="Entities\PlayerSpawn.cs" />
     <Compile Include="FileSystem\SharpArchiveFileSystem.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
+    <Compile Include="Graphics\DbgDraw.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\IShaderArgumentative.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Models\Bone.cs" />
     <Compile Include="Models\libTechModel.cs" />
     <Compile Include="Models\SourceMdl.cs" />
+    <Compile Include="native\libNative\debug_draw.cs" />
     <Compile Include="native\libNative\libNative.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\Msdfgen.cs" />
@@ -326,6 +328,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\rustgrad.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\debug_draw.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\debug_draw.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\skybox.vert">

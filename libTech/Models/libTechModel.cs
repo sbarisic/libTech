@@ -44,6 +44,10 @@ namespace libTech.Models {
 			return Vertices;
 		}
 
+		public void SetLabel(string Label) {
+			Mesh.VAO.SetLabel(OpenGL.ObjectIdentifier.VertexArray, Label);
+		}
+
 		public void Draw() {
 			Material.Bind();
 			Mesh.Draw();
@@ -123,6 +127,15 @@ namespace libTech.Models {
 
 		public void ScaleToSize(float MaxSize) {
 			Scale = new Vector3(MaxSize / Vector3.Distance(Vector3.Zero, BoundingBox.Bounds));
+		}
+
+		public void SetLabel(string Label) {
+			for (int i = 0; i < Meshes.Count; i++) {
+				if (Meshes[i].Material.Translucent)
+					Meshes[i].SetLabel(string.Format("{0} Transparent", Label));
+				else
+					Meshes[i].SetLabel(string.Format("{0} Opaque", Label));
+			}
 		}
 
 		public void DrawOpaque() {
