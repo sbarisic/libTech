@@ -28,10 +28,10 @@ using Color = FishGfx.Color;
 
 namespace Game {
 	public unsafe class Game : LibTechGame {
-		libTechModel MenuModel;
-		Texture MenuWallpaperTex;
+		//libTechModel MenuModel;
+		//Texture MenuWallpaperTex;
 
-		libTechModel BarrelModel;
+		//libTechModel BarrelModel;
 		Texture CrosshairTex;
 
 		Player PlayerEnt;
@@ -59,6 +59,8 @@ namespace Game {
 			PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
 			PlayerEnt.Camera.LookAt(Vector3.Zero);
 
+			PlayerEnt.SetPosition(new Vector3(-285.1535f, -964.8776f, 229.2883f));
+
 			Engine.Map.SpawnEntity(UtilGun);
 			Engine.Map.SpawnEntity(PlayerEnt);
 			PlayerEnt.WeaponPickUp(UtilGun);
@@ -70,6 +72,24 @@ namespace Game {
 			Light = new DynamicLight(Vector3.Zero, Color.Red);
 			Engine.Map.SpawnEntity(Light);
 
+
+			EntStatic TestEntity = new EntStatic(new libTechModel(Obj.Load("content/models/cube.obj"), Engine.GetMaterial(FogMaterial.Name)));
+			TestEntity.Model.Scale = new Vector3(120); // 20
+			//DragonEnt.Model.Position = new Vector3(0, -1120, 0);
+			TestEntity.Model.Position = new Vector3(0, -1000, 0);
+			Engine.Map.SpawnEntity(TestEntity);
+
+			/*
+			EntStatic TestEntity2 = new EntStatic(new libTechModel(TestEntity.Model));
+			TestEntity2.Model.Position = new Vector3(240, -1000, 0);
+			Engine.Map.SpawnEntity(TestEntity2);
+			//*/
+
+			PlayerEnt.Camera.LookAt(TestEntity.Position);
+			
+
+
+
 			Engine.Camera3D.MouseMovement = true;
 			Engine.Window.CaptureCursor = true;
 
@@ -80,7 +100,7 @@ namespace Game {
 			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => {
 				PlayerEnt.OnKey(Key, Pressed, Mods);
 				if (Key == Key.Escape && Pressed)
-					Environment.Exit(0);
+					Engine.Exit();
 			};
 		}
 
@@ -92,10 +112,12 @@ namespace Game {
 
 			base.Update(Dt);
 			//Console.WriteLine(string.Format("Engine.Map.SpawnEntity(new DynamicLight(new Vector3({0}, {1}, {2}), Color.White, 600))", (int)PlayerEnt.Position.X, (int)PlayerEnt.Position.Y, (int)PlayerEnt.Position.Z));
+
+			//Console.WriteLine("{0} {1}", PlayerEnt.Position, PlayerEnt.Camera.Rotation);
 		}
 
 		public override void DrawOpaque() {
-			if (MenuWallpaperTex != null) {
+			/*if (MenuWallpaperTex != null) {
 				ShaderUniforms.Current.Camera = Engine.Camera2D;
 				RenderState RS = Gfx.PeekRenderState();
 				RS.EnableDepthMask = false;
@@ -104,15 +126,15 @@ namespace Game {
 				Gfx.TexturedRectangle(0, 0, Engine.WindowWidth, Engine.WindowHeight, Texture: MenuWallpaperTex);
 
 				Gfx.PopRenderState();
-			}
+			}*/
 
 			ShaderUniforms.Current.Camera = Engine.Camera3D;
-			if (MenuModel != null) {
+			/*if (MenuModel != null) {
 				MenuModel.Rotation = Quaternion.CreateFromYawPitchRoll(Engine.Time / 4, -(float)Math.PI / 2, 0);
 				MenuModel.Position = new Vector3(7, -10, -25);
 				MenuModel.DrawOpaque();
 				MenuModel.DrawTransparent();
-			}
+			}*/
 
 			//Gfx.ClearDepth();
 			PlayerEnt?.DrawViewModel();

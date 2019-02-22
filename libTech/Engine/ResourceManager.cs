@@ -13,10 +13,7 @@ namespace libTech {
 		static Dictionary<string, ShaderProgram> Shaders = new Dictionary<string, ShaderProgram>();
 		static Dictionary<string, Texture> Textures = new Dictionary<string, Texture>();
 		static Dictionary<string, Material> Materials = new Dictionary<string, Material>();
-
-		public static Texture ErrorTexture;
-		public static Material ErrorMaterial;
-
+		
 		public static T Load<T>(string Pth) {
 			return Importers.Get<T>(Pth).Load(Pth);
 		}
@@ -35,15 +32,6 @@ namespace libTech {
 
 		// TODO: Remove automatic loading
 		public static Texture GetTexture(string Name) {
-			if (Name == "error") {
-				if (ErrorTexture == null) {
-					ErrorTexture = Texture.FromFile("content/textures/error.png");
-					ErrorTexture.SetWrap(TextureWrap.Repeat);
-				}
-
-				return ErrorTexture;
-			}
-
 			if (!Textures.ContainsKey(Name)) {
 				Texture T = Load<Texture>(Name);
 
@@ -59,18 +47,11 @@ namespace libTech {
 			return Textures[Name];
 		}
 
-		public static void RegisterMaterial(string Name, Material Material) {
-			Materials.Add(Name, Material);
+		public static void RegisterMaterial(Material Material) {
+			Materials.Add(Material.MaterialName, Material);
 		}
 
 		public static Material GetMaterial(string Name) {
-			if (Name == "error") {
-				if (ErrorMaterial == null)
-					ErrorMaterial = new TexturedShaderMaterial("default", GetTexture("error"));
-
-				return ErrorMaterial;
-			}
-
 			if (!Materials.ContainsKey(Name)) {
 				Material M = Load<Material>(Name);
 
@@ -84,56 +65,6 @@ namespace libTech {
 			}
 
 			return Materials[Name];
-		}
-
-		// TODO: Move these to a separate file and make a proper definition thing?	
-		internal static void LoadContent() {
-			// Shaders
-
-			RegisterShader("nop", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/nop.frag")));
-			ShaderUniforms.NopShader = GetShader("nop");    // TODO: HAAAAAAAAAX
-
-			RegisterShader("default", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_tex_clr.frag")));
-			RegisterShader("default_deferred", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default_deferred.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/default_deferred.frag")));
-			RegisterShader("deferred_shading", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_shading.frag")));
-			RegisterShader("deferred_ambient", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/deferred_shading.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/deferred_ambient.frag")));
-			RegisterShader("shadow_volume", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/shadow_volume.vert"), new ShaderStage(ShaderType.GeometryShader, "content/shaders/shadow_volume.geom"),
-				new ShaderStage(ShaderType.FragmentShader, "content/shaders/shadow_volume.frag")));
-
-			RegisterShader("water", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/water.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/water.frag")));
-			RegisterShader("framebuffer", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/default.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/fb.frag")));
-
-			RegisterShader("skybox", new ShaderProgram(new ShaderStage(ShaderType.VertexShader, "content/shaders/skybox.vert"), new ShaderStage(ShaderType.FragmentShader, "content/shaders/skybox.frag")));
-
-			// Materials
-
-			RegisterMaterial("shadow_volume", new ShaderMaterial("shadow_volume"));
-			RegisterMaterial("skybox", new ShaderMaterial("skybox"));
-
-			ShaderMaterial WaterMaterial = new ShaderMaterial("water");
-			WaterMaterial.Translucent = true;
-			RegisterMaterial("water", WaterMaterial);
-
-			string[] MaterialDefs = VFS.GetFiles("/content/materials/").Where(FName => Path.GetExtension(FName) == ".ltm").ToArray();
-
-			foreach (var MatDefFile in MaterialDefs) {
-				string[] MatDefs = VFS.ReadAllText(MatDefFile).Replace("\r", "").Trim().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-				foreach (var MatDef in MatDefs) {
-					string[] KV = MatDef.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-					Texture Texx = GetTexture("/content/" + KV[1]);
-					Texx.SetFilter(TextureFilter.Linear);
-					Texx.SetWrap(TextureWrap.Repeat);
-
-					TexturedShaderMaterial Mat = new TexturedShaderMaterial("default", Texx);
-					RegisterMaterial(KV[0], Mat);
-				}
-			}
-
-			// Textures
-
-			Texture SkyboxTex = Texture.FromFileCubemap("content/textures/skybox/cloudtop/cloudtop");
-			RegisterTexture("skybox", SkyboxTex);
 		}
 	}
 }

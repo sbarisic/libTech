@@ -112,6 +112,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\EngineRenderer.cs" />
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
     <Compile Include="Entities\Player.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Graphics\FreetypeFont.cs" />
     <Compile Include="Map\BSP.cs" />
     <Compile Include="Map\libTechMap.cs" />
+    <Compile Include="Materials\FogMaterial.cs" />
     <Compile Include="Materials\ValveMaterial.cs" />
     <Compile Include="Materials\TexturedShaderMaterial.cs" />
     <Compile Include="Materials\ShaderMaterial.cs" />
@@ -157,6 +159,7 @@
     <Compile Include="Models\SourceMdl.cs" />
     <Compile Include="native\libNative\debug_draw.cs" />
     <Compile Include="native\libNative\libNative.cs" />
+    <Compile Include="native\RenderDoc.cs" />
     <Compile Include="native\UnsafeUtils.cs" />
     <Compile Include="native\Msdfgen.cs" />
     <Compile Include="native\WinAPI.cs" />
@@ -291,6 +294,12 @@
     <None Include="content\models\cube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="content\models\dragon.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\models\lucy.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="content\models\oildrum001_explosive_reference.smd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -334,6 +343,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\debug_draw.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\depth_thickness.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\depth_thickness.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\fog.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="content\shaders\fog.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="content\shaders\skybox.vert">

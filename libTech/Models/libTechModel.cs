@@ -1,4 +1,5 @@
 ﻿using FishGfx;
+using FishGfx.Formats;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
 using libTech.Materials;
@@ -31,6 +32,9 @@ namespace libTech.Models {
 			SetVertices(Verts);
 		}
 
+		public libTechMesh(libTechMesh Clone) : this(Clone.Vertices, Clone.Material) {
+		}
+		
 		public void SetVertices(Vertex3[] Verts) {
 			this.Vertices = Verts;
 
@@ -48,10 +52,15 @@ namespace libTech.Models {
 			Mesh.VAO.SetLabel(OpenGL.ObjectIdentifier.VertexArray, Label);
 		}
 
+		public void SetWireframe(bool Wireframe) {
+			if (Wireframe)
+				Mesh.PolygonMode = PolygonMode.Line;
+			else
+				Mesh.PolygonMode = PolygonMode.Fill;
+		}
+
 		public void Draw() {
-			Material.Bind();
-			Mesh.Draw();
-			Material.Unbind();
+			Material.DrawMesh(Mesh);
 		}
 	}
 
@@ -76,6 +85,26 @@ namespace libTech.Models {
 			Position = new Vector3(0, 0, 0);
 			Rotation = Quaternion.Identity;
 			Enabled = true;
+		}
+
+		public libTechModel(libTechModel Clone) : this() {
+			foreach (var B in Clone.Bones)
+				Bones.Add(B.Key, B.Value);
+
+			foreach (var M in Clone.GetMeshes())
+				AddMesh(new libTechMesh(M));
+
+			Scale = Clone.Scale;
+			Position = Clone.Position;
+			Rotation = Clone.Rotation;
+			Enabled = true;	
+		}
+
+		public libTechModel(GenericMesh[] Meshes, Material Mat) : this() {
+			for (int i = 0; i < Meshes.Length; i++) {
+				libTechMesh Msh = new libTechMesh(Meshes[i].Vertices.ToArray(), Mat);
+				AddMesh(Msh);
+			}
 		}
 
 		void CalcBounds() {
@@ -116,6 +145,11 @@ namespace libTech.Models {
 			}
 
 			CalcBounds();
+		}
+
+		public void SetWireframe(bool Wireframe) {
+			foreach (var Msh in GetMeshes())
+				Msh.SetWireframe(Wireframe);
 		}
 
 		public libTechBone? GetBone(string Name) {
@@ -222,11 +256,11 @@ namespace libTech.Models {
 						string MatName = MaterialNames[StudioMesh.Material];
 						Material Mat = Engine.GetMaterial(MatName);
 
-						if (Mat == Engine.ErrorMaterial) {
+						if (Mat == Engine.GetMaterial("error")) {
 							Mat = ValveMaterial.CreateMaterial(MatName);
 
-							if (Mat != Engine.ErrorMaterial)
-								Engine.RegisterMaterial(MatName, Mat);
+							if (Mat != Engine.GetMaterial("error"))
+								Engine.RegisterMaterial(Mat);
 						}
 
 						libTechMesh Msh = new libTechMesh(Vts.ToArray(), Mat);

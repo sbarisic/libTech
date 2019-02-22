@@ -105,8 +105,11 @@ namespace libTech.Map {
 		public void AddModel(libTechModel Model) {
 			Array.Resize(ref MapModels, MapModels.Length + 1);
 			MapModels[MapModels.Length - 1] = Model;
-
 			Model.SetLabel(string.Format("Map model {0}", MapModels.Length - 1));
+
+			/*foreach (var Msh in Model.GetMeshes())
+				if (Msh.Material.MaterialName == "water")
+					Msh.SetWireframe(true);*/
 		}
 
 		public libTechModel LoadModel(string Pth) {

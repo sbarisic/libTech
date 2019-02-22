@@ -20,5 +20,11 @@ namespace libTech {
 
 		[DllImport(DllName, CallingConvention = CConv)]
 		public static extern bool SetDllDirectory(string Path);
+
+		[DllImport(DllName, CallingConvention = CConv)]
+		public static extern IntPtr LoadLibrary(string Name);
+
+		[DllImport(DllName, CallingConvention = CConv)]
+		public static extern IntPtr GetProcAddress(IntPtr Handle, string Name);
 	}
 }

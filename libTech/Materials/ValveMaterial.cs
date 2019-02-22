@@ -100,14 +100,14 @@ namespace libTech.Materials {
 				Debugger.Break();*/
 		}
 
-		public override void Bind() {
-			base.Bind();
+		public override void BeginDraw(int PassNumber) {
+			base.BeginDraw(PassNumber);
 			Texture.BindTextureUnit();
 		}
 
-		public override void Unbind() {
+		public override void EndDraw(int PassNumber) {
 			Texture.UnbindTextureUnit();
-			base.Unbind();
+			base.EndDraw(PassNumber);
 		}
 
 		public static Material CreateMaterial(Stream MaterialStream, string MaterialName) {
