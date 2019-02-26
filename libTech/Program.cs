@@ -244,11 +244,12 @@ namespace libTech {
 
 			Engine.GUI = new NuklearGUI();
 
-			RenderDoc.Init();
 			Engine.Window = new RenderWindow(Engine.WindowWidth, Engine.WindowHeight, "libTech", Engine.WindowResizable);
 			Engine.Window.OnMouseMove += Engine.GUI.OnMouseMove;
 			Engine.Window.OnKey += OnKey;
 			Engine.Window.OnChar += Engine.GUI.OnChar;
+
+			RenderDoc.Init();
 
 			GConsole.Init();
 			GConsole.WriteLine("Running {0}", RenderAPI.Renderer, RenderAPI.Version);
@@ -323,11 +324,11 @@ namespace libTech {
 			if (Key == Key.F1 && Pressed) {
 				GConsole.Open = !GConsole.Open;
 				return;
-			} else if (Key == Key.F3 && Pressed) {
+			} /*else if (Key == Key.F3 && Pressed) {
 				Engine.Window.ShowCursor = false;
 			} else if (Key == Key.F2 && Pressed) {
 				Engine.Window.ShowCursor = true;
-			}
+			}*/
 
 			Engine.GUI.OnKey(Wnd, Key, Scancode, Pressed, Repeat, Mods);
 		}

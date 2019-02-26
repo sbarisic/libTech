@@ -38,6 +38,9 @@ namespace libTech.Materials {
 		}
 
 		public override void DrawMesh(Mesh3D Mesh) {
+			RenderAPI.DbgPushGroup("Fog DrawMesh");
+
+			RenderAPI.DbgPushGroup("Depth capture");
 			DepthCapture.Push();
 			{
 				Gfx.Clear(Color.Transparent);
@@ -50,36 +53,39 @@ namespace libTech.Materials {
 				RS.EnableCullFace = true;
 				RS.CullFace = CullFace.Back;
 				RS.SetColorMask(true, true, false, false);
-
-				DepthThicknessShader.Uniform1f("Near", Engine.Camera3D.Near);
-				DepthThicknessShader.Uniform1f("Far", Engine.Camera3D.Far);
+				
 				DepthThicknessShader.Bind(ShaderUniforms.Current);
 
 				// First pass
+				RenderAPI.DbgPushGroup("Draw front face");
 				Gfx.PushRenderState(RS);
 				{
 					DepthThicknessShader.Uniform1f("Scale", 1.0f);
 					Mesh.Draw();
 				}
 				Gfx.PopRenderState();
+				RenderAPI.DbgPopGroup();
 
 				// Second pass
 				RS.CullFace = CullFace.Front;
 				RS.SetColorMask(true, false, false, false);
+				RenderAPI.DbgPushGroup("Draw back face");
 				Gfx.PushRenderState(RS);
 				{
 					DepthThicknessShader.Uniform1f("Scale", -1.0f);
 					Mesh.Draw();
 				}
 				Gfx.PopRenderState();
+				RenderAPI.DbgPopGroup();
 
 				DepthThicknessShader.Unbind();
 			}
 			DepthCapture.Pop();
+			RenderAPI.DbgPopGroup();
 
+			RenderAPI.DbgPushGroup("Fog render");
 			FogShader.Bind(ShaderUniforms.Current);
 			ThicknessTex.BindTextureUnit();
-
 			// Final pass
 			{
 				/*// Depth sort to make sure fragment shader executes only once
@@ -109,6 +115,9 @@ namespace libTech.Materials {
 
 			ThicknessTex.UnbindTextureUnit();
 			FogShader.Unbind();
+			RenderAPI.DbgPopGroup();
+
+			RenderAPI.DbgPopGroup();
 		}
 	}
 }

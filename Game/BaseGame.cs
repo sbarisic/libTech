@@ -75,7 +75,7 @@ namespace Game {
 
 			EntStatic TestEntity = new EntStatic(new libTechModel(Obj.Load("content/models/cube.obj"), Engine.GetMaterial(FogMaterial.Name)));
 			TestEntity.Model.Scale = new Vector3(120); // 20
-			//DragonEnt.Model.Position = new Vector3(0, -1120, 0);
+													   //DragonEnt.Model.Position = new Vector3(0, -1120, 0);
 			TestEntity.Model.Position = new Vector3(0, -1000, 0);
 			Engine.Map.SpawnEntity(TestEntity);
 
@@ -86,7 +86,7 @@ namespace Game {
 			//*/
 
 			PlayerEnt.Camera.LookAt(TestEntity.Position);
-			
+
 
 
 
@@ -101,6 +101,13 @@ namespace Game {
 				PlayerEnt.OnKey(Key, Pressed, Mods);
 				if (Key == Key.Escape && Pressed)
 					Engine.Exit();
+
+				if (Key == Key.F5 && Pressed)
+					RenderDoc.CaptureFrame();
+
+				if (Key == Key.F6 && Pressed)
+					if (!Debugger.IsAttached)
+						Debugger.Launch();
 			};
 		}
 

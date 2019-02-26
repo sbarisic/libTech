@@ -135,6 +135,8 @@ namespace libTech.Entities {
 		}
 
 		public virtual void DrawViewModel() {
+			RenderAPI.DbgPushGroup("Player DrawViewModel");
+
 			ViewModelCamera.Position = Camera.Position;
 			ViewModelCamera.Rotation = Camera.Rotation;
 
@@ -142,6 +144,8 @@ namespace libTech.Entities {
 			ShaderUniforms.Current.Camera = ViewModelCamera;
 			CurrentWeapon?.DrawViewModel(this);
 			ShaderUniforms.Current.Camera = OldCam;
+
+			RenderAPI.DbgPopGroup();
 		}
 	}
 }

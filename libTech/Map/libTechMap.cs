@@ -281,29 +281,41 @@ namespace libTech.Map {
 		}
 
 		public void DrawOpaque() {
+			RenderAPI.DbgPushGroup("Map DrawOpaque");
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawOpaque();
+			RenderAPI.DbgPopGroup();
 
+			RenderAPI.DbgPushGroup("Entity DrawOpaque");
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				Entities[EntityIdx]?.DrawOpaque();
+			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawTransparent() {
+			RenderAPI.DbgPushGroup("Map DrawTransparent");
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawTransparent();
+			RenderAPI.DbgPopGroup();
 
+			RenderAPI.DbgPushGroup("Entity DrawTransparent");
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				Entities[EntityIdx]?.DrawTransparent();
+			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawShadowVolume(ShaderMaterial ShadowVolume) {
+			RenderAPI.DbgPushGroup("Map DrawShadowVolume");
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawShadowVolume(ShadowVolume);
+			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawEntityShadowVolume(DynamicLight Light, ShaderMaterial ShadowVolume) {
+			RenderAPI.DbgPushGroup("Entity DrawShadowVolume");
 			for (int i = 0; i < Entities.Length; i++)
 				Entities[i].DrawShadowVolume(Light.GetBoundingSphere(), ShadowVolume);
+			RenderAPI.DbgPopGroup();
 		}
 	}
 }

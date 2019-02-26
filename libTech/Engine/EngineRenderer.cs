@@ -120,14 +120,16 @@ namespace libTech {
 		}
 
 		public static void Draw(float Dt, bool AmbientLighting = true, bool PointLighting = true) {
+			RenderDoc.StartFrame();
 			Engine.GetTexture("skybox").BindTextureUnit(10);
 
 			DbgDraw.Enabled = Engine.DebugDraw;
 			ShaderUniforms.Current.Resolution = Engine.Window.WindowSize;
 
 			// Deferred opaque pass
-
+			RenderAPI.DbgPushGroup("Deferred opaque pass");
 			Engine.GBuffer.Push();
+
 			{
 				RenderState RS = Gfx.PeekRenderState();
 				RS.EnableBlend = false;
@@ -142,12 +144,14 @@ namespace libTech {
 				Gfx.PopRenderState();
 			}
 			Engine.GBuffer.Pop();
+			RenderAPI.DbgPopGroup();
 
 			// Lighting/transparency pass
-
+			RenderAPI.DbgPushGroup("Lighting/transparency pass");
 			Engine.ScreenRT.Push();
 			{
 				// Clear canvas, copy depth buffer, draw skybox
+				RenderAPI.DbgMessage("Lighting/transparency pass");
 
 				Gfx.Clear(Color.Black);
 				Engine.GBuffer.Framebuffer.Blit(false, true, false, Destination: Engine.ScreenRT.Framebuffer);
@@ -170,11 +174,13 @@ namespace libTech {
 					ShaderUniforms.Current.Camera = Engine.Camera2D;
 
 					if (AmbientLighting) {
+						RenderAPI.DbgPushGroup("Deferred ambient");
 						// Ambient lighting
 						ShaderProgram AmbientShader = Engine.GetShader("deferred_ambient");
 						AmbientShader.Bind(ShaderUniforms.Current);
 						Engine.ScreenQuad.Draw();
 						AmbientShader.Unbind();
+						RenderAPI.DbgPopGroup();
 					}
 
 					// Point lighting
@@ -188,6 +194,7 @@ namespace libTech {
 
 					if (Engine.Map != null && PointLighting) {
 						DynamicLight[] Lights = Engine.Map.GetLights();
+						RenderAPI.DbgPushGroup("Point lighting");
 
 						for (int i = 0; i < Lights.Length; i++) {
 							DbgDraw.DrawCross(Lights[i].Position);
@@ -223,6 +230,8 @@ namespace libTech {
 
 							Gfx.PopRenderState();
 						}
+
+						RenderAPI.DbgPopGroup();
 					}
 
 					Gfx.PopRenderState();
@@ -233,14 +242,18 @@ namespace libTech {
 				Engine.GBuffer.Color.UnbindTextureUnit(0);
 
 				// Draw transparent items
+				RenderAPI.DbgPushGroup("Transparent items");
 				Engine.Map?.DrawTransparent();
 				Engine.Game.DrawTransparent();
+				RenderAPI.DbgPopGroup();
 
 				// Draw debug lines
 				DbgDraw.FinalizeDraw((long)(Engine.Time * 1000));
 			}
 			Engine.ScreenRT.Pop();
+			RenderAPI.DbgPopGroup();
 
+			RenderAPI.DbgPushGroup("2D pass");
 			{
 				RenderState State = Gfx.PeekRenderState();
 				State.EnableDepthTest = false;
@@ -266,12 +279,17 @@ namespace libTech {
 				}
 				Gfx.PopRenderState();
 			}
-
+			RenderAPI.DbgPopGroup();
 			Engine.Window.SwapBuffers();
+
+			RenderDoc.EndFrame();
 		}
 
 		public static void BeginDrawStencilMask(StencilMaskMode MaskMode) {
+			RenderAPI.DbgPushGroup("BeginDrawStencilMask " + MaskMode);
+
 			RenderState RS = Gfx.PeekRenderState();
+			RS.EnableStencilTest = true;
 			RS.EnableBlend = false;
 			RS.EnableCullFace = false;
 
@@ -309,9 +327,12 @@ namespace libTech {
 
 		public static void EndDrawStencilMask() {
 			Gfx.PopRenderState();
+			RenderAPI.DbgPopGroup();
 		}
 
 		public static void BeginUseStencilMask(StencilFunction Func, int Ref, uint Mask, bool WriteDepth = true, bool CullFront = true) {
+			RenderAPI.DbgPushGroup("BeginUseStencilMask");
+
 			RenderState RS = Gfx.PeekRenderState();
 			RS.EnableStencilTest = true;
 			RS.StencilFunc(Func, Ref, Mask);
@@ -332,6 +353,7 @@ namespace libTech {
 
 		public static void EndUseStencilMask() {
 			Gfx.PopRenderState();
+			RenderAPI.DbgPopGroup();
 		}
 
 		static void PreparePointLight(DynamicLight Light) {
