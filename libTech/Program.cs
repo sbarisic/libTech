@@ -211,6 +211,8 @@ namespace libTech {
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, GameDllPath);
 			Importers.RegisterAll(GameAssembly);
 
+			Entity.LoadAllTypes();
+
 			Engine.Game = (LibTechGame)Activator.CreateInstance(GameImplementations[0]);
 			Engine.Game.Load();
 		}

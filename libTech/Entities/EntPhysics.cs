@@ -41,13 +41,8 @@ namespace libTech.Entities {
 		}
 	}
 
+	[EntityClassName("prop_physics")]
 	public class EntPhysics : Entity {
-		public static EntPhysics FromModel(libTechModel Model, float Mass) {
-			EntPhysics PhysEnt = new EntPhysics(Model.GetMeshes().First().GetVertices().Select(V => V.Position), Mass);
-			PhysEnt.RenderModel = Model;
-			return PhysEnt;
-		}
-
 		internal RigidBody RigidBody;
 		public libTechModel RenderModel;
 
@@ -57,7 +52,7 @@ namespace libTech.Entities {
 		Quaternion UpdatedRotation;
 		Vector3 UpdatedPosition;
 
-		public EntPhysics(libTechCollisionShape Shape, float Mass = 10) {
+		void Init(libTechCollisionShape Shape, float Mass = 10) {
 			bool IsDynamic = Mass != 0;
 
 			Vector3 LocalInertia = Vector3.Zero;
@@ -76,7 +71,33 @@ namespace libTech.Entities {
 			IsStatic = Mass == 0;
 		}
 
-		public EntPhysics(IEnumerable<Vector3> Vertices, float Mass = 10) : this(libTechCollisionShape.FromVertices(Vertices), Mass) {
+		void Init(IEnumerable<Vector3> Vertices, float Mass = 10) {
+			Init(libTechCollisionShape.FromVertices(Vertices), Mass);
+		}
+
+		void Init(libTechModel Model, float Mass = 10) {
+			Init(Model.GetMeshes().First().GetVertices().Select(V => V.Position), Mass);
+			RenderModel = Model;
+		}
+
+		public EntPhysics(libTechCollisionShape Shape, float Mass = 10) {
+			Init(Shape, Mass);
+		}
+
+		public EntPhysics(IEnumerable<Vector3> Vertices, float Mass = 10) {
+			Init(Vertices, Mass);
+		}
+
+		public EntPhysics(libTechModel Model, float Mass = 10) {
+			Init(Model, Mass);
+		}
+
+		public EntPhysics(EntityKeyValues KVs) {
+			string ModelName = KVs.Get<string>("model");
+			libTechModel Model = KVs.Map.LoadModel(ModelName);
+
+			Init(Model, 18);
+			SetWorldTransform(Vector3.One, KVs.Get<Quaternion>("qangles"), KVs.Get<Vector3>("origin"));
 		}
 
 		public override void Spawned() {

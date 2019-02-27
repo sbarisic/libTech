@@ -341,41 +341,27 @@ namespace libTech.Map {
 				TextureData[] TexDatas = BSP.TextureData.ToArray();
 				Brush[] Brushes = BSP.Brushes.ToArray();
 				BrushSide[] Sides = BSP.BrushSides.ToArray();
-
-				string[] SpawnEntityNames = new string[] { "info_player_start", "info_player_deathmatch", "info_player_terrorist", "info_player_counterterrorist", "info_coop_spawn" };
+				
 				foreach (var VEnt in BSP.Entities) {
 					Vector3 Angles = ToVec3(VEnt.Angles) * ((float)Math.PI / 360) + new Vector3(-((float)Math.PI / 2), 0, 0); ;
 					Vector3 Origin = ToVec3(VEnt.Origin);
-
 					Quaternion QAngles = Quaternion.CreateFromYawPitchRoll(Angles.Y, Angles.X, Angles.Z);
 
-					if (SpawnEntityNames.Contains(VEnt.ClassName))
-						Map.SpawnEntity(new PlayerSpawn(Origin, Quaternion.CreateFromYawPitchRoll(Angles.X, Angles.Y, Angles.Z)));
-					else if (VEnt.ClassName == "light") {
-						float Radius = VEnt["_distance"];
-						float Dist50 = VEnt["_fifty_percent_distance"];
-						float Dist0 = VEnt["_zero_percent_distance"];
+					EntityKeyValues KVs = new EntityKeyValues(Map);
+					KVs.Add(new EntityKeyValue("origin", Origin));
+					KVs.Add(new EntityKeyValue("angles", Angles));
+					KVs.Add(new EntityKeyValue("qangles", QAngles));
 
-						if (Radius == 0) {
-							if (Dist0 == 0)
-								Radius = 250;
-							else
-								Radius = Dist0;
-						}
+					foreach (var Name in VEnt.PropertyNames)
+						if (!KVs.Contains(Name))
+							KVs.Add(new EntityKeyValue(Name, (string)VEnt[Name]));
 
-						//DynamicLight Light = new DynamicLight(Origin, Color.White, Radius);
-						DynamicLight Light = new DynamicLight(Origin, Color.White, Radius);
+					Entity Ent = Entity.CreateInstance(VEnt.ClassName, KVs);
 
-						Map.SpawnEntity(Light);
-					} else if (VEnt.ClassName == "prop_physics") {
-						string ModelName = VEnt["model"];
-						libTechModel Model = Map.LoadModel(ModelName);
-						EntPhysics PhysEnt = EntPhysics.FromModel(Model, 18);
+					if (Ent == null)
+						continue;
 
-						PhysEnt.SetWorldTransform(Vector3.One, QAngles, Origin);
-
-						Map.SpawnEntity(PhysEnt);
-					}
+					Map.SpawnEntity(Ent);
 				}
 
 				List<Vertex3> DispTriangleStrip = new List<Vertex3>();
