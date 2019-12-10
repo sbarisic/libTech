@@ -196,8 +196,14 @@ namespace libTech {
 
 		static void LoadGameDll(string BasePath) {
 			string GameDllPath = Path.Combine(BasePath, "Game.dll");
+			Assembly GameAssembly = Assembly.GetExecutingAssembly();
+			bool LoadImporters = false;
 
-			Assembly GameAssembly = Reflect.LoadAssembly(GameDllPath);
+			if (File.Exists(GameDllPath)) {
+				GameAssembly = Reflect.LoadAssembly(GameDllPath);
+				LoadImporters = true;
+			}
+
 			Type[] GameImplementations = Reflect.GetAllImplementationsOf(GameAssembly, typeof(LibTechGame)).ToArray();
 
 			if (GameImplementations.Length == 0) {
@@ -209,7 +215,9 @@ namespace libTech {
 			}
 
 			AppDomain.CurrentDomain.AssemblyResolve += (S, E) => TryLoadAssembly(E.Name, GameDllPath);
-			Importers.RegisterAll(GameAssembly);
+
+			if (LoadImporters)
+				Importers.RegisterAll(GameAssembly);
 
 			Entity.LoadAllTypes();
 
@@ -288,6 +296,7 @@ namespace libTech {
 			Engine.Camera3D.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, FarPlane: 16000);
 
 			LoadGameDll(Engine.GamePath);
+
 			Stopwatch SWatch = Stopwatch.StartNew();
 
 			int MaxFPS = Engine.MaxFPS;

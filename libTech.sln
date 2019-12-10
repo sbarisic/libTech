@@ -13,14 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Rebracer.xml = Rebracer.xml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{83AC2525-9901-4475-9688-6989B6CC894A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{33567D87-968A-4BC3-AAED-52DEB31E61A2} = {33567D87-968A-4BC3-AAED-52DEB31E61A2}
-		{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9} = {9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "basegame", "basegame", "{0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libNative", "libNative\libNative.vcxproj", "{33567D87-968A-4BC3-AAED-52DEB31E61A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishGfx", "FishGfx\FishGfx\FishGfx.csproj", "{9D55CABD-BA2D-4FB2-8156-82CEA30B15B9}"
@@ -56,14 +48,6 @@ Global
 		{A0C03244-D714-4BFE-8A14-23D809D9211A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0C03244-D714-4BFE-8A14-23D809D9211A}.Release|x64.ActiveCfg = Release|x64
 		{A0C03244-D714-4BFE-8A14-23D809D9211A}.Release|x64.Build.0 = Release|x64
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Debug|x64.ActiveCfg = Debug|x64
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Debug|x64.Build.0 = Debug|x64
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|x64.ActiveCfg = Release|x64
-		{83AC2525-9901-4475-9688-6989B6CC894A}.Release|x64.Build.0 = Release|x64
 		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Debug|x64.ActiveCfg = Debug|x64
 		{33567D87-968A-4BC3-AAED-52DEB31E61A2}.Debug|x64.Build.0 = Debug|x64
@@ -127,9 +111,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{83AC2525-9901-4475-9688-6989B6CC894A} = {0AE392FE-4D31-4AD1-9BB8-10755A1E2EB2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C2663A4-61BA-41BA-975E-E38032980A41}

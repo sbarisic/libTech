@@ -116,16 +116,16 @@ namespace libTech.GUI {
 				}
 			};
 
-			DefaultFont = new BMFont("content/fonts/proggy_clean_16.fnt");
+			DefaultFont = new BMFont("content/fonts/proggy_clean_16.fnt", DoLoadTextures: false);
 			((BMFont)DefaultFont).LoadTextures("content/textures", TextureFilter.Linear);
 
-			DebugFont = new BMFont("content/fonts/proggy_small_16.fnt");
+			DebugFont = new BMFont("content/fonts/proggy_small_16.fnt", DoLoadTextures: false);
 			((BMFont)DebugFont).LoadTextures("content/textures", TextureFilter.Linear);
 
-			AnonPro16 = new BMFont("content/fonts/anonymous_pro_16.fnt");
+			AnonPro16 = new BMFont("content/fonts/anonymous_pro_16.fnt", DoLoadTextures: false);
 			AnonPro16.LoadTextures("content/textures", TextureFilter.Linear);
 
-			AnonPro32 = new BMFont("content/fonts/anonymous_pro_32.fnt");
+			AnonPro32 = new BMFont("content/fonts/anonymous_pro_32.fnt", DoLoadTextures: false);
 			AnonPro32.LoadTextures("content/textures", TextureFilter.Linear);
 		}
 
@@ -197,7 +197,7 @@ namespace libTech.GUI {
 			RS.EnableScissorTest = true;
 			RS.ScissorRegion = new AABB(new Vector2(Engine.WindowWidth, Engine.WindowHeight));
 			Gfx.PushRenderState(RS);
-			
+
 			/*Color[] Colors = new Color[] { Color.White, Color.Black, Color.Yellow, Color.Cyan, Color.Red };
 
 			for (int i = 0; i < Colors.Length; i++) {

@@ -52,23 +52,8 @@ namespace libTech.Weapons {
 
 				if (Ent != null)
 					Ent.Unfreeze();
-
-				//DbgDraw.DrawFrustum(Engine.Camera3D, Time: 10000);
-				//DbgDraw.DrawFrustum(Engine.Map.GetEntities<Player>().First().ViewModelCamera, Time: 10000);
-
-				Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
-
-				/*// Near
-				DbgDraw.DrawLine(Pts[0], Pts[1], Time: 10000);
-				DbgDraw.DrawLine(Pts[1], Pts[2], Time: 10000);
-				DbgDraw.DrawLine(Pts[2], Pts[3], Time: 10000);
-				DbgDraw.DrawLine(Pts[3], Pts[0], Time: 10000);
-
-				// Far
-				DbgDraw.DrawLine(Pts[4], Pts[5], Time: 10000);
-				DbgDraw.DrawLine(Pts[5], Pts[6], Time: 10000);
-				DbgDraw.DrawLine(Pts[6], Pts[7], Time: 10000);
-				DbgDraw.DrawLine(Pts[7], Pts[4], Time: 10000);*/
+				
+				/*Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
 
 				// Connecting lines
 				Vector3 A = DrawRay(Pts[0], Pts[4]);
@@ -79,7 +64,7 @@ namespace libTech.Weapons {
 				DbgDraw.DrawLine(A, B, FishGfx.Color.Red, Time: 30000);
 				DbgDraw.DrawLine(B, C, FishGfx.Color.Red, Time: 30000);
 				DbgDraw.DrawLine(C, D, FishGfx.Color.Red, Time: 30000);
-				DbgDraw.DrawLine(D, A, FishGfx.Color.Red, Time: 30000);
+				DbgDraw.DrawLine(D, A, FishGfx.Color.Red, Time: 30000);*/
 			}
 		}
 
