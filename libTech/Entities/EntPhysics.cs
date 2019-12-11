@@ -9,6 +9,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace libTech.Entities {
 	public class libTechCollisionShape {
@@ -95,6 +96,9 @@ namespace libTech.Entities {
 		public EntPhysics(EntityKeyValues KVs) {
 			string ModelName = KVs.Get<string>("model");
 			libTechModel Model = KVs.Map.LoadModel(ModelName);
+
+			if (ModelName.Contains("oil"))
+				Debugger.Break();
 
 			Init(Model, 18);
 			SetWorldTransform(Vector3.One, KVs.Get<Quaternion>("qangles"), KVs.Get<Vector3>("origin"));
