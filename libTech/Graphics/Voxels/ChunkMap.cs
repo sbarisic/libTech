@@ -22,9 +22,11 @@ namespace libTech.Graphics.Voxels {
 
 	class ChunkMap {
 		Dictionary<Vector3, Chunk> Chunks;
+		Materials.Material ChunkMaterial;
 
-		public ChunkMap() {
+		public ChunkMap(Materials.Material ChunkMaterial) {
 			Chunks = new Dictionary<Vector3, Chunk>();
+			this.ChunkMaterial = ChunkMaterial;
 		}
 
 		/*public void LoadFromChunk(string FileName) {

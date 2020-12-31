@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FishGfx;
 using System.Numerics;
+using libTech.Models;
 
 namespace libTech.Graphics.Voxels {
 	class ChunkPalette {
@@ -175,15 +176,15 @@ namespace libTech.Graphics.Voxels {
 
 		PlacedBlock[] Blocks;
 		bool Dirty;
-		bool ModelValid;
 
-		Model CachedModelOpaque;
-		Mesh CachedMeshOpaque;
+		libTechModel CachedModelOpaque;
+		libTechMesh CachedMeshOpaque;
 
 		public Color ChunkColor = Color.White;
 
 		Vector3 GlobalChunkIndex;
 		ChunkMap WorldMap;
+
 
 		public Chunk(Vector3 GlobalChunkIndex, ChunkMap WorldMap) {
 			this.GlobalChunkIndex = GlobalChunkIndex;
@@ -194,8 +195,6 @@ namespace libTech.Graphics.Voxels {
 				Blocks[i] = new PlacedBlock(BlockType.None);
 
 			Dirty = true;
-			ModelValid = false;
-
 			//int TileTexSize = AtlasTex.width / 16;
 		}
 
@@ -377,7 +376,7 @@ namespace libTech.Graphics.Voxels {
 			Verts.SetUVOffsetSize(UVPos + new Vector2(0, UVSize.Y), UVSize * new Vector2(1, -1));
 		}
 
-		Mesh GenMesh() {
+		libTechMesh GenMesh() {
 			MeshBuilder Vertices = new MeshBuilder();
 			Vector3 Size = new Vector3(BlockSize);
 			Color AOColor = new Color(128, 128, 128);
@@ -506,30 +505,38 @@ namespace libTech.Graphics.Voxels {
 				}
 			}
 
-			return Raylib.GenMeshRaw(Vertices.ToArray());
+			//return Raylib.GenMeshRaw(Vertices.ToArray());
+			return new libTechMesh(Vertices.ToArray(), null);
 		}
 
-		Model GetModel() {
+		libTechModel GetModel() {
 			if (!Dirty)
 				return CachedModelOpaque;
 
 			Dirty = false;
+			CachedMeshOpaque = GenMesh();
 
-			if (ModelValid) {
+			if (CachedModelOpaque != null) {
+
+			} else {
+				CachedModelOpaque = new libTechModel();
+			}
+
+			// TODO: Fix shit
+			/*if (ModelValid) {
 				CachedModelOpaque.materials[0].maps[0].texture.id = 1;
 				Raylib.UnloadModel(CachedModelOpaque);
 			}
 
-			CachedMeshOpaque = GenMesh();
 			CachedModelOpaque = Raylib.LoadModelFromMesh(CachedMeshOpaque);
-			CachedModelOpaque.materials[0].maps[0].texture = ResMgr.AtlasTexture;
+			CachedModelOpaque.materials[0].maps[0].texture = ResMgr.AtlasTexture;*/
 
-			ModelValid = true;
 			return CachedModelOpaque;
 		}
 
 		public void Draw(Vector3 Position) {
-			Raylib.DrawModel(GetModel(), Position, BlockSize, ChunkColor);
+			// TODO: Draw chunk model
+			//Raylib.DrawModel(GetModel(), Position, BlockSize, ChunkColor);
 		}
 
 		public void DrawTransparent(Vector3 Position) {
