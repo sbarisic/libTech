@@ -113,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\EngineRenderer.cs" />
+    <Compile Include="Engine\Noise.cs" />
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Engine\RunningAverage.cs" />
     <Compile Include="Entities\Player.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Graphics\DbgDraw.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\IShaderArgumentative.cs" />
+    <Compile Include="Graphics\MeshBuilder.cs" />
     <Compile Include="Graphics\NineSlice.cs" />
     <Compile Include="Graphics\Text.cs" />
     <Compile Include="Engine\ArgumentParser.cs" />
@@ -134,6 +136,9 @@
     <Compile Include="Engine\FileWatcher.cs" />
     <Compile Include="Engine\GConsole.cs" />
     <Compile Include="Engine\CVar.cs" />
+    <Compile Include="Graphics\Voxels\BlockInfo.cs" />
+    <Compile Include="Graphics\Voxels\Chunk.cs" />
+    <Compile Include="Graphics\Voxels\ChunkMap.cs" />
     <Compile Include="GUI\Controls\Control.cs" />
     <Compile Include="GUI\Controls\Button.cs" />
     <Compile Include="GUI\Controls\CheckBox.cs" />

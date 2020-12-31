@@ -68,16 +68,16 @@ namespace libTech.Game {
 			/*foreach (var L in Engine.Map.GetLights())
 				Engine.Map.RemoveEntity(L);*/
 
-			LightEmitter = Engine.Map.GetEntities<EntPhysics>().Skip(5).First();
-			Light = new DynamicLight(Vector3.Zero, Color.Red);
-			Engine.Map.SpawnEntity(Light);
+			//LightEmitter = Engine.Map.GetEntities<EntPhysics>().Skip(5).First();
+			//Light = new DynamicLight(Vector3.Zero, Color.Red);
+			//Engine.Map.SpawnEntity(Light);
 
 
-			EntStatic TestEntity = new EntStatic(new libTechModel(Obj.Load("content/models/cube.obj"), Engine.GetMaterial(FogMaterial.Name)));
+			/*EntStatic TestEntity = new EntStatic(new libTechModel(Obj.Load("content/models/cube.obj"), Engine.GetMaterial(FogMaterial.Name)));
 			TestEntity.Model.Scale = new Vector3(120); // 20
 													   //DragonEnt.Model.Position = new Vector3(0, -1120, 0);
 			TestEntity.Model.Position = new Vector3(0, -1000, 0);
-			Engine.Map.SpawnEntity(TestEntity);
+			Engine.Map.SpawnEntity(TestEntity);*/
 
 			/*
 			EntStatic TestEntity2 = new EntStatic(new libTechModel(TestEntity.Model));
@@ -85,7 +85,7 @@ namespace libTech.Game {
 			Engine.Map.SpawnEntity(TestEntity2);
 			//*/
 
-			PlayerEnt.Camera.LookAt(TestEntity.Position);
+			//PlayerEnt.Camera.LookAt(TestEntity.Position);
 
 
 
@@ -112,7 +112,7 @@ namespace libTech.Game {
 		}
 
 		public override void Update(float Dt) {
-			if (LightEmitter != null) {
+			if (LightEmitter != null && Light != null) {
 				LightEmitter.GetWorldTransform(out Vector3 S, out Quaternion R, out Vector3 Pos);
 				Light.Position = Pos;
 			}

@@ -97,8 +97,9 @@ namespace libTech.Entities {
 			string ModelName = KVs.Get<string>("model");
 			libTechModel Model = KVs.Map.LoadModel(ModelName);
 
-			if (ModelName.Contains("oil"))
-				Debugger.Break();
+			// TODO
+			/*if (ModelName.Contains("oil"))
+				Debugger.Break();*/
 
 			Init(Model, 18);
 			SetWorldTransform(Vector3.One, KVs.Get<Quaternion>("qangles"), KVs.Get<Vector3>("origin"));
