@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using libTech.Models;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using FishGfx;
 using System.Numerics;
-using libTech.Models;
 
 namespace libTech.Graphics.Voxels {
 	class ChunkPalette {
@@ -376,7 +376,7 @@ namespace libTech.Graphics.Voxels {
 			Verts.SetUVOffsetSize(UVPos + new Vector2(0, UVSize.Y), UVSize * new Vector2(1, -1));
 		}
 
-		libTechMesh GenMesh() {
+		Vertex3[] GenMesh() {
 			MeshBuilder Vertices = new MeshBuilder();
 			Vector3 Size = new Vector3(BlockSize);
 			Color AOColor = new Color(128, 128, 128);
@@ -505,8 +505,7 @@ namespace libTech.Graphics.Voxels {
 				}
 			}
 
-			//return Raylib.GenMeshRaw(Vertices.ToArray());
-			return new libTechMesh(Vertices.ToArray(), null);
+			return Vertices.ToArray();
 		}
 
 		libTechModel GetModel() {
@@ -514,12 +513,15 @@ namespace libTech.Graphics.Voxels {
 				return CachedModelOpaque;
 
 			Dirty = false;
-			CachedMeshOpaque = GenMesh();
 
-			if (CachedModelOpaque != null) {
+			if (CachedMeshOpaque == null)
+				CachedMeshOpaque = new libTechMesh();
 
-			} else {
+			CachedMeshOpaque.SetVertices(GenMesh());
+
+			if (CachedModelOpaque == null) {
 				CachedModelOpaque = new libTechModel();
+				CachedModelOpaque.AddMesh(CachedMeshOpaque);
 			}
 
 			// TODO: Fix shit
@@ -537,6 +539,11 @@ namespace libTech.Graphics.Voxels {
 		public void Draw(Vector3 Position) {
 			// TODO: Draw chunk model
 			//Raylib.DrawModel(GetModel(), Position, BlockSize, ChunkColor);
+
+			libTechModel Model = GetModel();
+			Model.Position = Position;
+			Model.Scale = new Vector3(BlockSize);
+			Model.DrawOpaque();
 		}
 
 		public void DrawTransparent(Vector3 Position) {

@@ -22,9 +22,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using libTech.Graphics.Voxels;
 using System.Text;
 using System.Threading.Tasks;
 using Color = FishGfx.Color;
+
 
 namespace libTech.Game {
 	public unsafe class Game : LibTechGame {
@@ -44,6 +46,8 @@ namespace libTech.Game {
 		DynamicLight Light;
 
 		Vector3 PlySpawnPos;
+
+		ChunkMap VoxelMap;
 
 		public override void Load() {
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
@@ -87,7 +91,9 @@ namespace libTech.Game {
 
 			//PlayerEnt.Camera.LookAt(TestEntity.Position);
 
-
+			Material VoxelMat = Engine.GetMaterial("default");
+			VoxelMap = new ChunkMap(VoxelMat);
+			VoxelMap.GenerateFloatingIsland(64, 64);
 
 
 			Engine.Camera3D.MouseMovement = true;
@@ -144,6 +150,8 @@ namespace libTech.Game {
 			}*/
 
 			//Gfx.ClearDepth();
+
+			VoxelMap.Draw();
 			PlayerEnt?.DrawViewModel();
 		}
 
