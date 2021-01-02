@@ -505,7 +505,7 @@ namespace libTech.Graphics.Voxels {
 				}
 			}
 
-			return Vertices.ToArray();
+			return Vertices.ToArray().Reverse().ToArray();
 		}
 
 		libTechModel GetModel() {
@@ -517,7 +517,9 @@ namespace libTech.Graphics.Voxels {
 			if (CachedMeshOpaque == null)
 				CachedMeshOpaque = new libTechMesh();
 
+			CachedMeshOpaque.Material = WorldMap.Material;
 			CachedMeshOpaque.SetVertices(GenMesh());
+			CachedMeshOpaque.MeshMatrix = Matrix4x4.CreateScale(10);
 
 			if (CachedModelOpaque == null) {
 				CachedModelOpaque = new libTechModel();
@@ -542,7 +544,6 @@ namespace libTech.Graphics.Voxels {
 
 			libTechModel Model = GetModel();
 			Model.Position = Position;
-			Model.Scale = new Vector3(BlockSize);
 			Model.DrawOpaque();
 		}
 

@@ -91,7 +91,7 @@ namespace libTech.Game {
 
 			//PlayerEnt.Camera.LookAt(TestEntity.Position);
 
-			Material VoxelMat = Engine.GetMaterial("default");
+			TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
 			VoxelMap = new ChunkMap(VoxelMat);
 			VoxelMap.GenerateFloatingIsland(64, 64);
 

@@ -2,14 +2,18 @@
 using FishGfx.Formats;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
+
 using libTech.Materials;
+
 using SourceUtils;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 
@@ -27,14 +31,17 @@ namespace libTech.Models {
 			MeshMatrix = Matrix4x4.Identity;
 		}
 
-		public libTechMesh(Vertex3[] Verts, Material Material) : this() {
+		public libTechMesh(Material Material) : this() {
 			this.Material = Material;
+		}
+
+		public libTechMesh(Vertex3[] Verts, Material Material) : this(Material) {
 			SetVertices(Verts);
 		}
 
 		public libTechMesh(libTechMesh Clone) : this(Clone.Vertices, Clone.Material) {
 		}
-		
+
 		public void SetVertices(Vertex3[] Verts) {
 			this.Vertices = Verts;
 
@@ -72,8 +79,12 @@ namespace libTech.Models {
 
 		public Dictionary<string, libTechBone> Bones;
 
-		public BoundSphere BoundingSphere { get; private set; }
-		public AABB BoundingBox { get; private set; }
+		public BoundSphere BoundingSphere {
+			get; private set;
+		}
+		public AABB BoundingBox {
+			get; private set;
+		}
 
 		List<libTechMesh> Meshes;
 
@@ -97,7 +108,7 @@ namespace libTech.Models {
 			Scale = Clone.Scale;
 			Position = Clone.Position;
 			Rotation = Clone.Rotation;
-			Enabled = true;	
+			Enabled = true;
 		}
 
 		public libTechModel(GenericMesh[] Meshes, Material Mat) : this() {

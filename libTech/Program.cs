@@ -1,7 +1,9 @@
 ﻿using CARP;
+
 using FishGfx;
 using FishGfx.Graphics;
 using FishGfx.Graphics.Drawables;
+
 using libTech.Entities;
 using libTech.FileSystem;
 using libTech.Graphics;
@@ -11,6 +13,7 @@ using libTech.Materials;
 using libTech.Models;
 using libTech.Reflection;
 using libTech.Scripting;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +27,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Color = FishGfx.Color;
 
 namespace libTech {
@@ -298,8 +302,8 @@ namespace libTech {
 			LoadGameDll(Engine.GamePath);
 
 			Stopwatch SWatch = Stopwatch.StartNew();
-
 			int MaxFPS = Engine.MaxFPS;
+
 			if (MaxFPS <= 0)
 				MaxFPS = 900;
 
