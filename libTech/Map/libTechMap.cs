@@ -3,6 +3,7 @@ using FishGfx;
 using FishGfx.Graphics;
 using libTech;
 using libTech.Entities;
+using libTech.Graphics;
 using libTech.Materials;
 using libTech.Models;
 using System;
@@ -60,6 +61,7 @@ namespace libTech.Map {
 
 		internal ClosestConvexResultCallback ClosestConvexResult;
 		internal Dictionary<string, libTechModel> LoadedModels;
+
 		internal libTechModel SkyboxModel;
 
 		public Vector3 Gravity {
@@ -95,6 +97,7 @@ namespace libTech.Map {
 			World.DispatchInfo.AllowedCcdPenetration = 0.0001f;
 			World.DispatchInfo.UseContinuous = true;
 			World.Gravity = new Vector3(0, -600, 0);
+			// World.DebugDrawer = new DbgDrawPhysics();
 
 			ClosestConvexResult = new ClosestConvexResultCallback();
 
@@ -281,6 +284,8 @@ namespace libTech.Map {
 		}
 
 		public void DrawOpaque() {
+			DrawDebugPhysics();
+
 			RenderAPI.DbgPushGroup("Map DrawOpaque");
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawOpaque();
@@ -289,6 +294,12 @@ namespace libTech.Map {
 			RenderAPI.DbgPushGroup("Entity DrawOpaque");
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				Entities[EntityIdx]?.DrawOpaque();
+			RenderAPI.DbgPopGroup();
+		}
+
+		public void DrawDebugPhysics() {
+			RenderAPI.DbgPushGroup("Debug Physics");
+			World.DebugDrawWorld();
 			RenderAPI.DbgPopGroup();
 		}
 

@@ -47,11 +47,10 @@ namespace libTech.Game {
 
 		Vector3 PlySpawnPos;
 
-		ChunkMap VoxelMap;
+		//ChunkMap VoxelMap;
 
 		public override void Load() {
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
-			UtilityGun UtilGun = new UtilityGun();
 
 			Console.WriteLine("Loading map");
 			Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
@@ -59,14 +58,16 @@ namespace libTech.Game {
 			Console.WriteLine("Done!");
 
 			PlayerSpawn[] SpawnPositions = Engine.Map.GetEntities<PlayerSpawn>().ToArray();
+
 			PlayerEnt = new Player();
 			PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
 			PlayerEnt.Camera.LookAt(Vector3.Zero);
-
 			PlayerEnt.SetPosition(new Vector3(-285.1535f, -964.8776f, 229.2883f));
 
-			Engine.Map.SpawnEntity(UtilGun);
 			Engine.Map.SpawnEntity(PlayerEnt);
+
+			UtilityGun UtilGun = new UtilityGun();
+			Engine.Map.SpawnEntity(UtilGun);
 			PlayerEnt.WeaponPickUp(UtilGun);
 
 			/*foreach (var L in Engine.Map.GetLights())
@@ -91,9 +92,15 @@ namespace libTech.Game {
 
 			//PlayerEnt.Camera.LookAt(TestEntity.Position);
 
-			TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
-			VoxelMap = new ChunkMap(VoxelMat);
-			VoxelMap.GenerateFloatingIsland(64, 64);
+			//------------- VOXEL STUFF
+			//TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
+			//VoxelMap = new ChunkMap(VoxelMat);
+			//VoxelMap.GenerateFloatingIsland(64, 64);
+
+
+			//Vector3[] Points = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * new Vector3(40, 40, 40)).ToArray()).ToArray();
+			//EntPhysics VoxelPhys = new EntPhysics(Points, 0);
+			//Engine.Map.SpawnEntity(VoxelPhys);
 
 
 			Engine.Camera3D.MouseMovement = true;
@@ -151,7 +158,7 @@ namespace libTech.Game {
 
 			//Gfx.ClearDepth();
 
-			VoxelMap.Draw();
+			//VoxelMap.Draw();
 			PlayerEnt?.DrawViewModel();
 		}
 

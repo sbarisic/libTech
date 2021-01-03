@@ -1,7 +1,9 @@
 ﻿using BulletSharp;
+
 using libTech.Entities;
 using libTech.Graphics;
 using libTech.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +54,7 @@ namespace libTech.Weapons {
 
 				if (Ent != null)
 					Ent.Unfreeze();
-				
+
 				/*Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
 
 				// Connecting lines
@@ -92,7 +94,7 @@ namespace libTech.Weapons {
 			PickedEntity = RayCastEntity(out Vector3 PickPoint, out Vector3 Normal);
 
 			if (PickedEntity != null) {
-				DbgDraw.DrawLine(FireOrigin, PickPoint, Time: 5000);
+				DbgDraw.DrawLine(FireOrigin + FireDirection * 10, PickPoint, Time: 5000);
 				DbgDraw.DrawCircle(PickPoint + Normal * 0.1f, Normal, FishGfx.Color.Red, 5, 8, Time: 5000);
 
 				PickDist = Vector3.Distance(FireOrigin, PickPoint);

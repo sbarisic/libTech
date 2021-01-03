@@ -125,6 +125,7 @@
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Game\BaseGame.cs" />
     <Compile Include="Graphics\DbgDraw.cs" />
+    <Compile Include="Graphics\DbgDrawPhysics.cs" />
     <Compile Include="Graphics\DefaultObjects.cs" />
     <Compile Include="Graphics\IShaderArgumentative.cs" />
     <Compile Include="Graphics\MeshBuilder.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Graphics\Voxels\BlockInfo.cs" />
     <Compile Include="Graphics\Voxels\Chunk.cs" />
     <Compile Include="Graphics\Voxels\ChunkMap.cs" />
+    <Compile Include="Graphics\Voxels\Other.cs" />
     <Compile Include="GUI\Controls\Control.cs" />
     <Compile Include="GUI\Controls\Button.cs" />
     <Compile Include="GUI\Controls\CheckBox.cs" />

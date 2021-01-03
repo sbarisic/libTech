@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 namespace libTech.Weapons {
 	public abstract class BaseWeapon : Entity {
 		public virtual Vector3 FireOrigin { get; set; }
+
 		public virtual Vector3 FireDirection { get; set; }
 
 		public virtual Vector3 ViewModelTranslation { get; set; }
+
 		public virtual libTechModel ViewModel { get; set; }
 
 		public virtual void PrimaryFire(bool Pressed) {
