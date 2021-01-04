@@ -56,12 +56,12 @@ namespace libTech.Entities {
 			//PlayerShape = new SphereShape(PlyHeight / 2);
 
 
-			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(1, new DefaultMotionState(Matrix4x4.Identity), PlayerShape, PlayerShape.CalculateLocalInertia(1))) {
+			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(0, new DefaultMotionState(Matrix4x4.Identity), PlayerShape, PlayerShape.CalculateLocalInertia(0))) {
 				PlayerBody = new RigidBody(RBInfo);
 				PlayerBody.AngularFactor = new Vector3(0, 0, 0);
 
 				PlayerBody.ActivationState = ActivationState.DisableDeactivation;
-				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject | CollisionFlags.CharacterObject;
+				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject;
 			}
 		}
 
@@ -164,8 +164,6 @@ namespace libTech.Entities {
 			Vector3 Position = GetPosition();
 			Vector3 EyePosition = GetEyePosition(Position);
 
-			const int MoveAccel = 100;
-
 			if (CurrentWeapon != null) {
 				CurrentWeapon.FireOrigin = EyePosition;
 				CurrentWeapon.FireDirection = Camera.WorldForwardNormal;
@@ -186,57 +184,62 @@ namespace libTech.Entities {
 				}
 			}
 
-			Vector3 Gravity = new Vector3(0, 0, 600);
+			Vector3 Gravity = new Vector3(0, -50, 0);
+			Velocity += Gravity * Dt;
+
+
+			bool IsGrounded = Map.Sweep(PlayerShape, Position, new Vector3(0, -1, 0), 1).HasHit;
+			bool IsHittingHead = Map.Sweep(PlayerShape, Position, new Vector3(0, 1, 0), 1).HasHit;
+
+			if (IsHittingHead)
+			Console.WriteLine("Hitting head " + IsGrounded);
+
+			PM_Friction(Dt, IsGrounded);
 			Vector3 WishDir = new Vector3(0, 0, 0);
 
-			// Velocity = Velocity * 0.9f;
-
-			SweepResult FallRes = Map.Sweep(PlayerShape, Position, Position - new Vector3(0, 100, 0));
-			Console.WriteLine("Distance: {0}", FallRes.Distance);
-
-
-
-
-			//if (Jump )
-
-
-
-			/*if (W && Map.Sweep(PlayerShape, Position, Camera.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
-				Movement += Camera.WorldForwardNormal * MoveSpeed * Dt;
-
-			if (A && Map.Sweep(PlayerShape, Position, -Camera.WorldRightNormal, 100).Distance > PlayerShape.Radius)
-				Movement += -Camera.WorldRightNormal * MoveSpeed * Dt;
-
-			if (S && Map.Sweep(PlayerShape, Position, -Camera.WorldForwardNormal, 100).Distance > PlayerShape.Radius)
-				Movement += -Camera.WorldForwardNormal * MoveSpeed * Dt;
-
-			if (D && Map.Sweep(PlayerShape, Position, Camera.WorldRightNormal, 100).Distance > PlayerShape.Radius)
-				Movement += Camera.WorldRightNormal * MoveSpeed * Dt;*/
-
 			if (W)
-				WishDir += Camera.WorldForwardNormal * MoveAccel * Dt;
+				WishDir += Camera.WorldForwardNormal;
 
 			if (A)
-				WishDir += -Camera.WorldRightNormal * MoveAccel * Dt;
+				WishDir += -Camera.WorldRightNormal;
 
 			if (S)
-				WishDir += -Camera.WorldForwardNormal * MoveAccel * Dt;
+				WishDir += -Camera.WorldForwardNormal;
 
 			if (D)
-				WishDir += Camera.WorldRightNormal * MoveAccel * Dt;
+				WishDir += Camera.WorldRightNormal;
+
+			WishDir.Y = 0;
+
+			if (WishDir.Length() > 0.5)
+				WishDir = Vector3.Normalize(WishDir);
+
+			/*if (IsHittingHead && !IsGrounded) {
+				if (Velocity.Y > 0)
+					Velocity.Y = 0;
+			}*/
+
+			if (IsGrounded) {
+				if (Velocity.Y < 0)
+					Velocity.Y = 0;
+
+				if (Jump) {
+					Velocity.Y += 10;
+				}
+
+				// Walking
+				PM_Accelerate(Dt, WishDir, 8, 8);
+			} else {
+				// Air movement
+				PM_Accelerate(Dt, WishDir, 8, 1);
+			}
+
+
 
 			/*float MaxVel = 20;
 			if ((Velocity + WishDir).Length() < MaxVel) {
 				Velocity += WishDir;
 			}*/
-
-			PM_Friction(Dt);
-
-			// Walking
-			PM_Accelerate(Dt, WishDir, 20, 10);
-
-			// Air movement
-			//PM_Accelerate(Dt, WishDir, 20, 1);
 
 			//Console.WriteLine(Velocity.Length());
 			//Console.WriteLine(Velocity);
@@ -245,38 +248,46 @@ namespace libTech.Entities {
 			SetPosition(Position);
 		}
 
-		void PM_Accelerate(float Dt, Vector3 WishDir, float WishSpeed, float Accel) {
-			float currentspeed = Vector3.Dot(Velocity, WishDir);
-			float addspeed = WishSpeed - currentspeed;
+		void PM_Jump(float Dt, Vector3 JumpDir, float JumpForce) {
+			Velocity += JumpDir * JumpForce;
+		}
 
-			if (addspeed <= 0) {
+		void PM_Accelerate(float Dt, Vector3 WishDir, float WishSpeed, float Accel) {
+			float CurSpeed = Vector3.Dot(Velocity, WishDir);
+			float AddSpeed = WishSpeed - CurSpeed;
+
+			if (AddSpeed <= 0) {
 				return;
 			}
 
-			float accelspeed = Accel * Dt * WishSpeed;
-			if (accelspeed > addspeed) {
-				accelspeed = addspeed;
+			float AccelSpeed = Accel * WishSpeed * Dt;
+			if (AccelSpeed > AddSpeed) {
+				AccelSpeed = AddSpeed;
 			}
 
-			Velocity += accelspeed * WishDir;
+			Velocity += AccelSpeed * WishDir;
 		}
 
-		void PM_Friction(float Dt) {
-			float pm_stopspeed = 5;
+		void PM_Friction(float Dt, bool IsGrounded) {
+			float pm_stopspeed = 1;
 			float pm_friction = 9;
 
 			float Speed = Velocity.Length();
+
+			if (!IsGrounded) {
+				return;
+			}
 
 			if (Speed < 1) {
 				Velocity = Vector3.Zero;
 				return;
 			}
 
-			float control = Speed < pm_stopspeed ? pm_stopspeed : Speed;
-			float drop = control * pm_friction * Dt;
+			float Control = Speed < pm_stopspeed ? pm_stopspeed : Speed;
+			float Drop = Control * pm_friction * Dt;
 
-			float NewSpeed = Speed - drop;
 
+			float NewSpeed = Speed - Drop;
 			if (NewSpeed < 0)
 				NewSpeed = 0;
 
@@ -296,6 +307,18 @@ namespace libTech.Entities {
 			ShaderUniforms.Current.Camera = OldCam;
 
 			RenderAPI.DbgPopGroup();
+		}
+
+		int VelMax;
+
+		public virtual void DrawGUI() {
+			int Vel = (int)Velocity.Length();
+
+			if (Vel > VelMax)
+				VelMax = Vel;
+
+			Gfx.DrawText(Engine.UI.DefaultFont, (Engine.Window.WindowSize / 2) + new Vector2(0, -50), Vel.ToString(), Color.White, 32);
+			Gfx.DrawText(Engine.UI.DefaultFont, (Engine.Window.WindowSize / 2) + new Vector2(0, -50 - 32), VelMax.ToString(), Color.Green, 32);
 		}
 	}
 }

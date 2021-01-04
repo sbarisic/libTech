@@ -167,6 +167,8 @@ namespace libTech.Game {
 				float CW = CrosshairTex.Width;
 				float CH = CrosshairTex.Height;
 				Gfx.TexturedRectangle(Engine.Window.WindowWidth / 2 - CW / 2, Engine.Window.WindowHeight / 2 - CH / 2, CW, CH, Texture: CrosshairTex);
+
+				PlayerEnt?.DrawGUI();
 			}
 		}
 	}
