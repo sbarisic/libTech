@@ -32,11 +32,11 @@ namespace libTech.Entities {
 		float PlyHeight = 72;
 		float PlyEyeLevel = 64;
 
-		Vector3 Velocity;
 		CylinderShape PlayerShape;
 		RigidBody PlayerBody;
 
 		bool W, A, S, D, Jump, Crouch;
+		Vector3 Velocity;
 
 		bool LastPrimaryFire, LastSecondaryFire, LastReload;
 		bool PrimaryFire, SecondaryFire, Reload;
@@ -61,7 +61,7 @@ namespace libTech.Entities {
 				PlayerBody.AngularFactor = new Vector3(0, 0, 0);
 
 				PlayerBody.ActivationState = ActivationState.DisableDeactivation;
-				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject;
+				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject | CollisionFlags.CharacterObject;
 			}
 		}
 
@@ -187,19 +187,13 @@ namespace libTech.Entities {
 			}
 
 			Vector3 Gravity = new Vector3(0, 0, 600);
-			Vector3 Movement = new Vector3(0, 0, 0);
+			Vector3 WishDir = new Vector3(0, 0, 0);
 
-			Velocity = Velocity * 0.9f;
+			// Velocity = Velocity * 0.9f;
 
-			SweepResult FallRes = Map.Sweep(PlayerShape, Position, -Camera.UpNormal, 100);
-			if (FallRes.Distance <= 0) {
-				Velocity.Y = 0;
+			SweepResult FallRes = Map.Sweep(PlayerShape, Position, Position - new Vector3(0, 100, 0));
+			Console.WriteLine("Distance: {0}", FallRes.Distance);
 
-				if (Jump) {
-					Velocity.Y = 10;
-				}
-			} else
-				Velocity.Y -= 25 * Dt;
 
 
 
@@ -220,23 +214,74 @@ namespace libTech.Entities {
 				Movement += Camera.WorldRightNormal * MoveSpeed * Dt;*/
 
 			if (W)
-				Movement += Camera.WorldForwardNormal * MoveAccel * Dt;
+				WishDir += Camera.WorldForwardNormal * MoveAccel * Dt;
 
 			if (A)
-				Movement += -Camera.WorldRightNormal * MoveAccel * Dt;
+				WishDir += -Camera.WorldRightNormal * MoveAccel * Dt;
 
 			if (S)
-				Movement += -Camera.WorldForwardNormal * MoveAccel * Dt;
+				WishDir += -Camera.WorldForwardNormal * MoveAccel * Dt;
 
 			if (D)
-				Movement += Camera.WorldRightNormal * MoveAccel * Dt;
+				WishDir += Camera.WorldRightNormal * MoveAccel * Dt;
 
+			/*float MaxVel = 20;
+			if ((Velocity + WishDir).Length() < MaxVel) {
+				Velocity += WishDir;
+			}*/
 
-			Velocity += Movement;
+			PM_Friction(Dt);
 
-			Console.WriteLine(Velocity);
+			// Walking
+			PM_Accelerate(Dt, WishDir, 20, 10);
+
+			// Air movement
+			//PM_Accelerate(Dt, WishDir, 20, 1);
+
+			//Console.WriteLine(Velocity.Length());
+			//Console.WriteLine(Velocity);
+
 			Position += Velocity;
 			SetPosition(Position);
+		}
+
+		void PM_Accelerate(float Dt, Vector3 WishDir, float WishSpeed, float Accel) {
+			float currentspeed = Vector3.Dot(Velocity, WishDir);
+			float addspeed = WishSpeed - currentspeed;
+
+			if (addspeed <= 0) {
+				return;
+			}
+
+			float accelspeed = Accel * Dt * WishSpeed;
+			if (accelspeed > addspeed) {
+				accelspeed = addspeed;
+			}
+
+			Velocity += accelspeed * WishDir;
+		}
+
+		void PM_Friction(float Dt) {
+			float pm_stopspeed = 5;
+			float pm_friction = 9;
+
+			float Speed = Velocity.Length();
+
+			if (Speed < 1) {
+				Velocity = Vector3.Zero;
+				return;
+			}
+
+			float control = Speed < pm_stopspeed ? pm_stopspeed : Speed;
+			float drop = control * pm_friction * Dt;
+
+			float NewSpeed = Speed - drop;
+
+			if (NewSpeed < 0)
+				NewSpeed = 0;
+
+			NewSpeed /= Speed;
+			Velocity = Velocity * NewSpeed;
 		}
 
 		public virtual void DrawViewModel() {
