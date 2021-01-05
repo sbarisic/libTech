@@ -66,9 +66,6 @@ namespace libTech {
 		public static RunningAverage FrameTime = new RunningAverage(30);
 
 		public static void LogFatal(string Msg) {
-			if (IsTerminating)
-				Msg = string.Format("On termination:\n{0}", Msg);
-
 			Console.WriteLine(Msg);
 			File.AppendAllText("exceptions.txt", Msg + "\n\n");
 		}
@@ -96,13 +93,7 @@ namespace libTech {
 			return false;
 		}
 
-		internal static bool IsTerminating { get; private set; } = false;
-
-		public static void Exit() {
-			IsTerminating = true;
-			Program.DetachErrorHandler();
-			Environment.Exit(0);
-		}
+		//internal static bool IsTerminating { get; private set; } = false;
 	}
 
 	unsafe static class Program {
@@ -134,12 +125,10 @@ namespace libTech {
 			AttachErrorHandler();
 
 			if (Engine.LogFatal(RunGame)) {
-				if (!Engine.IsTerminating) {
-					Console.WriteLine("\n\nENGINE TERMINATED UNEXPECTEDLY");
+				Console.WriteLine("\n\nENGINE TERMINATED UNEXPECTEDLY");
 
-					while (true)
-						Thread.Sleep(10);
-				}
+				while (true)
+					Thread.Sleep(10);
 			}
 		}
 
@@ -323,6 +312,8 @@ namespace libTech {
 				Dt = SWatch.ElapsedMilliseconds / 1000.0f;
 				SWatch.Restart();
 			}
+
+			DetachErrorHandler();
 		}
 
 		static void Update(float Dt) {

@@ -43,7 +43,7 @@ namespace libTech.Graphics {
 		}
 
 		public void DrawCapsule(float radius, float halfHeight, int upAxis, ref Matrix4x4 transform, Color color) {
-			throw new NotImplementedException();
+			DrawCylinder(radius, halfHeight, upAxis, ref transform, color);
 		}
 
 		public void DrawCone(float radius, float height, int upAxis, ref Matrix4x4 transform, Color color) {

@@ -13,10 +13,16 @@ using System.Diagnostics;
 
 namespace libTech.Entities {
 	public class libTechCollisionShape {
+		public Vector3 AABBMin;
+		public Vector3 AABBMax;
+		public Vector3 CenterOfVertices;
+
 		internal CollisionShape CollisionShape;
 
 		internal libTechCollisionShape(CollisionShape CollisionShape) {
 			this.CollisionShape = CollisionShape;
+			CollisionShape.GetAabb(Matrix4x4.Identity, out AABBMin, out AABBMax);
+			CenterOfVertices = (AABBMin + AABBMax) / 2;
 		}
 
 		public static libTechCollisionShape FromVertices(IEnumerable<Vector3> Verts) {
@@ -47,7 +53,9 @@ namespace libTech.Entities {
 		internal RigidBody RigidBody;
 		public libTechModel RenderModel;
 
-		public bool IsStatic { get; private set; }
+		public bool IsStatic {
+			get; private set;
+		}
 
 		Vector3 UpdatedScale;
 		Quaternion UpdatedRotation;
@@ -68,6 +76,17 @@ namespace libTech.Entities {
 
 			RigidBody = Body;
 			RigidBody.UserObject = this;
+			RigidBody.SetAnisotropicFriction(Shape.CollisionShape.AnisotropicRollingFrictionDirection, AnisotropicFrictionFlags.AnisotropicRollingFriction);
+			RigidBody.Friction = 0.75f;
+			// RigidBody.CenterOfMassTransform
+
+			//RigidBody.CenterOfMassTransform = Matrix4x4.CreateTranslation(-Shape.CenterOfVertices);
+
+
+
+			// TODO: What are these for
+			RigidBody.CcdMotionThreshold = 1e-7f;
+			//RigidBody.CcdSweptSphereRadius = 0.9f;
 
 			IsStatic = Mass == 0;
 		}

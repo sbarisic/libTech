@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+
 using Vertex2 = FishGfx.Vertex2;
 /*using PhysVector3 = BEPUutilities.Vector3;
 using PhysMatrix = BEPUutilities.Matrix;
@@ -179,7 +180,7 @@ namespace libTech {
 				*Unicode = 0;
 			}
 
-			// TODO; convert to code points
+			// TODO: convert to code points
 			return Unicodes.ToArray();
 		}
 
@@ -453,6 +454,11 @@ namespace libTech {
 
 		public static int Mod(int A, int B) {
 			return A - B * (int)Math.Floor((float)A / (float)B);
+		}
+
+		public static Vector3 Slide(Vector3 Vec, Vector3 WallNormal) {
+			Vector3 Undesired = WallNormal * Vector3.Dot(Vec, WallNormal);
+			return Vec - Undesired;
 		}
 	}
 

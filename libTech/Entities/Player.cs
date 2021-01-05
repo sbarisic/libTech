@@ -6,6 +6,7 @@ using FishGfx.Graphics;
 using libTech.Map;
 using libTech.Models;
 using libTech.Weapons;
+using libTech.Physics;
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using libTech.Graphics;
 
 namespace libTech.Entities {
 	public class Player : Entity {
@@ -32,9 +34,10 @@ namespace libTech.Entities {
 		float PlyHeight = 72;
 		float PlyEyeLevel = 64;
 
-		CylinderShape PlayerShape;
+		CapsuleShape PlayerShape;
 		RigidBody PlayerBody;
 
+		bool NoClipOn = false;
 		bool W, A, S, D, Jump, Crouch;
 		Vector3 Velocity;
 
@@ -51,7 +54,8 @@ namespace libTech.Entities {
 			ViewModelCamera = new Camera();
 			ViewModelCamera.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, 54 * ((float)Math.PI / 180));
 
-			PlayerShape = new CylinderShape(PlyWidth / 2, PlyHeight / 2, PlyWidth / 2);
+
+			PlayerShape = new CapsuleShape(PlyWidth, PlyHeight);
 			//PlayerShape.GetAabb(Matrix4x4.Identity, out Vector3 AABBMin, out Vector3 AABBMax);
 			//PlayerShape = new SphereShape(PlyHeight / 2);
 
@@ -66,7 +70,7 @@ namespace libTech.Entities {
 		}
 
 		public override void Spawned() {
-			Map.World.AddRigidBody(PlayerBody);
+			Map.World.AddRigidBody(PlayerBody, CollisionFilterGroups.CharacterFilter, CollisionFilterGroups.AllFilter);
 		}
 
 		public virtual void OnKey(Key Key, bool Pressed, KeyMods Mods) {
@@ -87,6 +91,9 @@ namespace libTech.Entities {
 
 			if (Key == Key.LeftControl)
 				Crouch = Pressed;
+
+			if (Key == Key.V && Pressed)
+				NoClipOn = !NoClipOn;
 
 			if (Key == Key.MouseLeft)
 				PrimaryFire = Pressed;
@@ -185,16 +192,15 @@ namespace libTech.Entities {
 			}
 
 			Vector3 Gravity = new Vector3(0, -50, 0);
-			Velocity += Gravity * Dt;
 
+			//bool IsGrounded = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 1, CollisionFilterGroups.CharacterFilter).HasHit;
+			ContactResult HitSomething = Map.ContactTest(PlayerBody);
 
-			bool IsGrounded = Map.Sweep(PlayerShape, Position, new Vector3(0, -1, 0), 1).HasHit;
-			bool IsHittingHead = Map.Sweep(PlayerShape, Position, new Vector3(0, 1, 0), 1).HasHit;
+			bool IsGrounded = false;
+			if (HitSomething.AnyNormalLower(new Vector3(0, 1, 0), 45)) {
+				IsGrounded = true;
+			}
 
-			if (IsHittingHead)
-			Console.WriteLine("Hitting head " + IsGrounded);
-
-			PM_Friction(Dt, IsGrounded);
 			Vector3 WishDir = new Vector3(0, 0, 0);
 
 			if (W)
@@ -209,32 +215,48 @@ namespace libTech.Entities {
 			if (D)
 				WishDir += Camera.WorldRightNormal;
 
-			WishDir.Y = 0;
 
-			if (WishDir.Length() > 0.5)
-				WishDir = Vector3.Normalize(WishDir);
+
+			/*if (WishDir.Length() > 0.5)
+				WishDir = Vector3.Normalize(WishDir);*/
 
 			/*if (IsHittingHead && !IsGrounded) {
 				if (Velocity.Y > 0)
 					Velocity.Y = 0;
 			}*/
 
-			if (IsGrounded) {
-				if (Velocity.Y < 0)
-					Velocity.Y = 0;
+			if (NoClipOn) {
+				// Noclip movement
 
-				if (Jump) {
-					Velocity.Y += 10;
-				}
-
-				// Walking
+				PM_Friction(Dt, true);
 				PM_Accelerate(Dt, WishDir, 8, 8);
 			} else {
-				// Air movement
-				PM_Accelerate(Dt, WishDir, 8, 1);
+				// Regular movement
+
+				WishDir.Y = 0;
+				Velocity += Gravity * Dt;
+				PM_Friction(Dt, IsGrounded);
+
+				if (IsGrounded) {
+					if (Velocity.Y < 0)
+						Velocity.Y = 0;
+
+					if (Jump) {
+						Velocity.Y += 10;
+					}
+
+					// Walking
+					PM_Accelerate(Dt, WishDir, 8, 8);
+				} else {
+					// Air movement
+					PM_Accelerate(Dt, WishDir, 8, 1);
+				}
+
+				// Collision response
+				for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
+					Velocity = Utils.Slide(Velocity, HitSomething.CollisionNormals[i]);
+				}
 			}
-
-
 
 			/*float MaxVel = 20;
 			if ((Velocity + WishDir).Length() < MaxVel) {
@@ -294,6 +316,19 @@ namespace libTech.Entities {
 			NewSpeed /= Speed;
 			Velocity = Velocity * NewSpeed;
 		}
+
+		/*public override void DrawOpaque() {
+			RenderAPI.DbgPushGroup("Player DrawOpaque");
+
+			for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
+				Vector3 A = HitSomething.CollisionPointsWorld[i];
+				Vector3 B = A + HitSomething.CollisionNormals[i] * 5;
+
+				DbgDraw.DrawArrow(A, B, Color.Blue, 3);
+			}
+
+			RenderAPI.DbgPopGroup();
+		}*/
 
 		public virtual void DrawViewModel() {
 			RenderAPI.DbgPushGroup("Player DrawViewModel");

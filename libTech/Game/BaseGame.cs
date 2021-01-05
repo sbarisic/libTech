@@ -112,8 +112,9 @@ namespace libTech.Game {
 
 			Engine.Window.OnKey += (Wnd, Key, Scancode, Pressed, Repeat, Mods) => {
 				PlayerEnt.OnKey(Key, Pressed, Mods);
+
 				if (Key == Key.Escape && Pressed)
-					Engine.Exit();
+					Engine.Window.ShouldClose = true;
 
 				if (Key == Key.F5 && Pressed)
 					RenderDoc.CaptureFrame();

@@ -8,6 +8,7 @@ using libTech.Entities;
 using libTech.Graphics;
 using libTech.Materials;
 using libTech.Models;
+using libTech.Physics;
 
 using System;
 using System.Collections.Generic;
@@ -17,23 +18,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.Map {
-	public struct SweepResult {
-		public bool HasHit;
-		public float Fraction;
-		public float Distance;
-
-		public Vector3 SweepFrom;
-		public Vector3 HitPoint;
-		public Vector3 HitCenterOfMass;
-		public Vector3 Normal;
-
-		public override string ToString() {
-			return string.Format("{0} {1} {2}", HasHit, (int)Distance, Fraction);
-		}
-	}
-
 	public class libTechMap {
-		const float UnitMeterScale = 52.5f;
+		/*const float UnitMeterScale = 52.5f;
 
 		public static float UnitToMeter(float Unit) {
 			return Unit / UnitMeterScale;
@@ -49,7 +35,7 @@ namespace libTech.Map {
 
 		public static Vector3 MeterToUnit(Vector3 Meter) {
 			return Meter * UnitMeterScale;
-		}
+		}*/
 
 		libTechModel[] MapModels;
 		Entity[] Entities;
@@ -96,11 +82,12 @@ namespace libTech.Map {
 
 			World = new DiscreteDynamicsWorld(Dispatcher, Broadphase, Solver, CollisionConf);
 			World.SolverInfo.SolverMode |= SolverModes.Use2FrictionDirections | SolverModes.RandomizeOrder;
+
 			World.SolverInfo.NumIterations = 20;
 			World.DispatchInfo.AllowedCcdPenetration = 0.0001f;
 			World.DispatchInfo.UseContinuous = true;
 			World.Gravity = new Vector3(0, -600, 0);
-			// World.DebugDrawer = new DbgDrawPhysics();
+			//World.DebugDrawer = new DbgDrawPhysics();
 
 			ClosestConvexResult = new ClosestConvexResultCallback();
 
@@ -178,12 +165,13 @@ namespace libTech.Map {
 			return Body;
 		}
 
-		public SweepResult Sweep(ConvexShape Shape, Vector3 From, Vector3 To) {
+		public SweepResult SweepTest(ConvexShape Shape, Vector3 From, Vector3 To, CollisionFilterGroups Filter = CollisionFilterGroups.None) {
 			ClosestConvexResult.ClosestHitFraction = 1.0f;
 			ClosestConvexResult.ConvexFromWorld = From;
 			ClosestConvexResult.ConvexToWorld = To;
-
+			ClosestConvexResult.CollisionFilterMask = ~Filter;
 			World.ConvexSweepTest(Shape, Matrix4x4.CreateTranslation(From), Matrix4x4.CreateTranslation(To), ClosestConvexResult);
+
 			SweepResult Result = new SweepResult();
 			Result.SweepFrom = From;
 			Result.HasHit = ClosestConvexResult.HasHit;
@@ -204,8 +192,14 @@ namespace libTech.Map {
 			return Result;
 		}
 
-		public SweepResult Sweep(ConvexShape Shape, Vector3 Pos, Vector3 Normal, float Dist) {
-			return Sweep(Shape, Pos, Pos + Normal * Dist);
+		public ContactResult ContactTest(RigidBody Body) {
+			ContactResult Result = new ContactResult(Body);
+			World.ContactTest(Body, Result);
+			return Result;
+		}
+
+		public SweepResult SweepTest(ConvexShape Shape, Vector3 Pos, Vector3 Normal, float Dist, CollisionFilterGroups Filter = CollisionFilterGroups.None) {
+			return SweepTest(Shape, Pos, Pos + Normal * Dist, Filter);
 		}
 
 		void InitEntity(Entity Ent) {
