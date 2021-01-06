@@ -137,8 +137,8 @@ namespace libTech {
 			//Engine.GamePath = ConVar.Register("game", "legprocessor", ConVarType.Replicated | ConVarType.Init);
 
 			Engine.MaxFPS = ConVar.Register("maxfps", 60, ConVarType.Archive);
-			Engine.WindowWidth = ConVar.Register("width", 1366, ConVarType.Archive);
-			Engine.WindowHeight = ConVar.Register("height", 768, ConVarType.Archive);
+			Engine.WindowWidth = ConVar.Register("width", 1980, ConVarType.Archive);
+			Engine.WindowHeight = ConVar.Register("height", 1080, ConVarType.Archive);
 
 			//Engine.WindowWidth = CVar.Register("width", 800, CVarType.Archive);
 			//Engine.WindowHeight = CVar.Register("height", 600, CVarType.Archive);

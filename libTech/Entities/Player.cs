@@ -30,11 +30,11 @@ namespace libTech.Entities {
 			get; set;
 		}
 
-		float PlyWidth = 32;
-		float PlyHeight = 72;
-		float PlyEyeLevel = 64;
+		float PlyWidth = 30;
+		float PlyHeight = 46;
+		float PlyEyeLevel = 46;
 
-		CapsuleShape PlayerShape;
+		CylinderShape PlayerShape;
 		RigidBody PlayerBody;
 
 		bool NoClipOn = false;
@@ -55,7 +55,7 @@ namespace libTech.Entities {
 			ViewModelCamera.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, 54 * ((float)Math.PI / 180));
 
 
-			PlayerShape = new CapsuleShape(PlyWidth, PlyHeight);
+			PlayerShape = new CylinderShape(PlyWidth, PlyHeight, PlyWidth);
 			//PlayerShape.GetAabb(Matrix4x4.Identity, out Vector3 AABBMin, out Vector3 AABBMax);
 			//PlayerShape = new SphereShape(PlyHeight / 2);
 
@@ -193,13 +193,13 @@ namespace libTech.Entities {
 
 			Vector3 Gravity = new Vector3(0, -50, 0);
 
-			//bool IsGrounded = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 1, CollisionFilterGroups.CharacterFilter).HasHit;
-			ContactResult HitSomething = Map.ContactTest(PlayerBody);
+			bool IsGrounded = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 1, CollisionFilterGroups.CharacterFilter).HasHit;
+			/*ContactResult HitSomething = Map.ContactTest(PlayerBody);
 
 			bool IsGrounded = false;
 			if (HitSomething.AnyNormalLower(new Vector3(0, 1, 0), 45)) {
 				IsGrounded = true;
-			}
+			}*/
 
 			Vector3 WishDir = new Vector3(0, 0, 0);
 
@@ -230,6 +230,8 @@ namespace libTech.Entities {
 
 				PM_Friction(Dt, true);
 				PM_Accelerate(Dt, WishDir, 8, 8);
+
+				Position += Velocity;
 			} else {
 				// Regular movement
 
@@ -253,9 +255,18 @@ namespace libTech.Entities {
 				}
 
 				// Collision response
+
+				SweepResult Res = Map.SweepTest(PlayerShape, Position, Position + Velocity, CollisionFilterGroups.CharacterFilter);
+				if (Res.HasHit) {
+					Velocity = Utils.Slide(Velocity, Res.Normal);
+					Position = Res.HitCenterOfMass + Velocity;
+				} else
+					Position += Velocity;
+				/*ContactResult HitSomething = Map.ContactTest(PlayerBody);
+
 				for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
 					Velocity = Utils.Slide(Velocity, HitSomething.CollisionNormals[i]);
-				}
+				}*/
 			}
 
 			/*float MaxVel = 20;
@@ -266,7 +277,7 @@ namespace libTech.Entities {
 			//Console.WriteLine(Velocity.Length());
 			//Console.WriteLine(Velocity);
 
-			Position += Velocity;
+			// Position += Velocity;
 			SetPosition(Position);
 		}
 

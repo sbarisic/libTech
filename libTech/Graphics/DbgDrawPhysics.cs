@@ -67,8 +67,8 @@ namespace libTech.Graphics {
 
 			//DbgDraw.DrawArrow(Pos, Pos + axis * halfHeight, color, 10);
 
-			DbgDraw.DrawCircle(Pos + axis * halfHeight, axis, color);
-			DbgDraw.DrawCircle(Pos - axis * halfHeight, axis, color);
+			DbgDraw.DrawCircle(Pos + axis * halfHeight, axis, color, radius);
+			DbgDraw.DrawCircle(Pos - axis * halfHeight, axis, color, radius);
 
 			//throw new NotImplementedException();
 		}
