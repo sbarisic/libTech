@@ -30,16 +30,22 @@ namespace libTech.Entities {
 			get; set;
 		}
 
-		float PlyWidth = 30;
+		float PlyWidth = 20;
 		float PlyHeight = 46;
 		float PlyEyeLevel = 46;
 
-		CylinderShape PlayerShape;
+		CapsuleShape PlayerShape;
 		RigidBody PlayerBody;
 
 		bool NoClipOn = false;
 		bool W, A, S, D, Jump, Crouch;
 		Vector3 Velocity;
+		Vector3 PrevVelocity;
+
+		Vector3 GroundPoint;
+		Vector3 GroundNormal;
+		bool GroundPlane;
+		bool Walking;
 
 		bool LastPrimaryFire, LastSecondaryFire, LastReload;
 		bool PrimaryFire, SecondaryFire, Reload;
@@ -55,7 +61,9 @@ namespace libTech.Entities {
 			ViewModelCamera.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, 54 * ((float)Math.PI / 180));
 
 
-			PlayerShape = new CylinderShape(PlyWidth, PlyHeight, PlyWidth);
+			// PlayerShape = new CylinderShape(PlyWidth, PlyHeight, PlyWidth);
+			PlayerShape = new CapsuleShape(PlyWidth, PlyHeight);
+
 			//PlayerShape.GetAabb(Matrix4x4.Identity, out Vector3 AABBMin, out Vector3 AABBMax);
 			//PlayerShape = new SphereShape(PlyHeight / 2);
 
@@ -170,6 +178,7 @@ namespace libTech.Entities {
 		public override void Update(float Dt) {
 			Vector3 Position = GetPosition();
 			Vector3 EyePosition = GetEyePosition(Position);
+			PrevVelocity = Velocity;
 
 			if (CurrentWeapon != null) {
 				CurrentWeapon.FireOrigin = EyePosition;
@@ -192,8 +201,9 @@ namespace libTech.Entities {
 			}
 
 			Vector3 Gravity = new Vector3(0, -50, 0);
+			PM_GroundTrace(Position);
 
-			bool IsGrounded = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 1, CollisionFilterGroups.CharacterFilter).HasHit;
+			//bool IsGrounded = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f, CollisionFilterGroups.CharacterFilter).HasHit;
 			/*ContactResult HitSomething = Map.ContactTest(PlayerBody);
 
 			bool IsGrounded = false;
@@ -203,19 +213,30 @@ namespace libTech.Entities {
 
 			Vector3 WishDir = new Vector3(0, 0, 0);
 
-			if (W)
-				WishDir += Camera.WorldForwardNormal;
+			if ((W || S) && !(W && S)) {
+				float Dir = W ? 1 : -1;
+
+				if (NoClipOn) {
+					WishDir += Camera.WorldForwardNormal * Dir;
+				} else {
+					Vector3 Fwd = Camera.WorldForwardNormal;
+					Fwd.Y = 0;
+					float Len = Fwd.Length();
+
+					if (Len > 0.1f) {
+						WishDir += Vector3.Normalize(new Vector3(Fwd.X, 0, Fwd.Z)) * Dir;
+					}
+				}
+			}
 
 			if (A)
 				WishDir += -Camera.WorldRightNormal;
 
-			if (S)
-				WishDir += -Camera.WorldForwardNormal;
-
 			if (D)
 				WishDir += Camera.WorldRightNormal;
 
-
+			if (Walking)
+				WishDir = PM_ClipVelocity(WishDir, GroundNormal);
 
 			/*if (WishDir.Length() > 0.5)
 				WishDir = Vector3.Normalize(WishDir);*/
@@ -228,22 +249,21 @@ namespace libTech.Entities {
 			if (NoClipOn) {
 				// Noclip movement
 
-				PM_Friction(Dt, true);
+				PM_Friction(Dt);
 				PM_Accelerate(Dt, WishDir, 8, 8);
 
 				Position += Velocity;
 			} else {
 				// Regular movement
 
-				WishDir.Y = 0;
-				Velocity += Gravity * Dt;
-				PM_Friction(Dt, IsGrounded);
+				//WishDir.Y = 0;
+				if (!GroundPlane)
+					Velocity += Gravity * Dt;
 
-				if (IsGrounded) {
-					if (Velocity.Y < 0)
-						Velocity.Y = 0;
+				PM_Friction(Dt);
 
-					if (Jump) {
+				if (Walking) {
+					if (Jump && GroundPlane) {
 						Velocity.Y += 10;
 					}
 
@@ -255,6 +275,7 @@ namespace libTech.Entities {
 				}
 
 				// Collision response
+				//Position = PM_ClipVelocity(Position, GroundNormal);
 
 				SweepResult Res = Map.SweepTest(PlayerShape, Position, Position + Velocity, CollisionFilterGroups.CharacterFilter);
 				if (Res.HasHit) {
@@ -262,6 +283,7 @@ namespace libTech.Entities {
 					Position = Res.HitCenterOfMass + Velocity;
 				} else
 					Position += Velocity;
+
 				/*ContactResult HitSomething = Map.ContactTest(PlayerBody);
 
 				for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
@@ -279,6 +301,43 @@ namespace libTech.Entities {
 
 			// Position += Velocity;
 			SetPosition(Position);
+		}
+
+		void PM_GroundTrace(Vector3 Position) {
+			SweepResult Result = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f, CollisionFilterGroups.CharacterFilter);
+
+			if (!Result.HasHit) {
+				// TODO: Ground trace missed
+				GroundPlane = false;
+				Walking = false;
+				return;
+			}
+
+			GroundPoint = Result.HitPoint;
+			GroundNormal = Result.Normal;
+			float FloorAngle = Vector3.Dot(Vector3.UnitY, GroundNormal); // 1 - normal looking up, -1 normal looking down;
+
+			// Floor steeper than 45°
+			if (FloorAngle < 0.5f) {
+				GroundPlane = true;
+				Walking = false;
+				return;
+			}
+
+			GroundPlane = true;
+			Walking = true;
+		}
+
+		Vector3 PM_ClipVelocity(Vector3 In, Vector3 Normal, float OverBounce = 1.001f) {
+			float Backoff = Vector3.Dot(In, Normal);
+
+			if (Backoff < 0)
+				Backoff *= OverBounce;
+			else
+				Backoff /= OverBounce;
+
+			Vector3 Change = Normal * Backoff;
+			return In - Change;
 		}
 
 		void PM_Jump(float Dt, Vector3 JumpDir, float JumpForce) {
@@ -301,24 +360,27 @@ namespace libTech.Entities {
 			Velocity += AccelSpeed * WishDir;
 		}
 
-		void PM_Friction(float Dt, bool IsGrounded) {
+		void PM_Friction(float Dt) {
 			float pm_stopspeed = 1;
 			float pm_friction = 9;
-
 			float Speed = Velocity.Length();
 
-			if (!IsGrounded) {
-				return;
+			if (!NoClipOn) {
+				if (Walking) {
+					Velocity.Y = 0;
+				}
 			}
 
-			if (Speed < 1) {
+			if (!NoClipOn && !GroundPlane)
+				return;
+
+			if (Speed < 0.1f) {
 				Velocity = Vector3.Zero;
 				return;
 			}
 
 			float Control = Speed < pm_stopspeed ? pm_stopspeed : Speed;
 			float Drop = Control * pm_friction * Dt;
-
 
 			float NewSpeed = Speed - Drop;
 			if (NewSpeed < 0)
@@ -328,18 +390,22 @@ namespace libTech.Entities {
 			Velocity = Velocity * NewSpeed;
 		}
 
-		/*public override void DrawOpaque() {
+		public override void DrawOpaque() {
 			RenderAPI.DbgPushGroup("Player DrawOpaque");
 
-			for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
+			/*for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
 				Vector3 A = HitSomething.CollisionPointsWorld[i];
 				Vector3 B = A + HitSomething.CollisionNormals[i] * 5;
 
 				DbgDraw.DrawArrow(A, B, Color.Blue, 3);
+			}*/
+
+			if (GroundPlane) {
+				DbgDraw.DrawArrow(GroundPoint, GroundPoint + GroundNormal * 16, Color.Blue, 2);
 			}
 
 			RenderAPI.DbgPopGroup();
-		}*/
+		}
 
 		public virtual void DrawViewModel() {
 			RenderAPI.DbgPushGroup("Player DrawViewModel");
@@ -358,7 +424,8 @@ namespace libTech.Entities {
 		int VelMax;
 
 		public virtual void DrawGUI() {
-			int Vel = (int)Velocity.Length();
+			Vector3 VelH = new Vector3(Velocity.X, 0, Velocity.Z);
+			int Vel = (int)VelH.Length();
 
 			if (Vel > VelMax)
 				VelMax = Vel;
