@@ -117,6 +117,8 @@ namespace libTech.Graphics {
 			if (!Enabled)
 				return;
 
+			RenderAPI.DbgPushGroup("DbgDraw Finalize");
+
 			debug_draw.debug_draw_flush(TimeMS);
 			DebugDrawShader.Bind(ShaderUniforms.Current);
 			RenderState RS = Gfx.PeekRenderState();
@@ -145,6 +147,8 @@ namespace libTech.Graphics {
 
 			DebugDrawShader.Unbind();
 			FreeLineIdx = FreeDepthTestedLineIdx = 0;
+
+			RenderAPI.DbgPopGroup();
 		}
 	}
 }

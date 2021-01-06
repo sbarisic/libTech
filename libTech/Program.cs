@@ -314,6 +314,7 @@ namespace libTech {
 			}
 
 			DetachErrorHandler();
+			Thread.Sleep(10);
 		}
 
 		static void Update(float Dt) {

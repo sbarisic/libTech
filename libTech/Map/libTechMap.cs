@@ -87,7 +87,7 @@ namespace libTech.Map {
 			World.DispatchInfo.AllowedCcdPenetration = 0.0001f;
 			World.DispatchInfo.UseContinuous = true;
 			World.Gravity = new Vector3(0, -600, 0);
-			World.DebugDrawer = new DbgDrawPhysics();
+			//World.DebugDrawer = new DbgDrawPhysics();
 
 			ClosestConvexResult = new ClosestConvexResultCallback();
 

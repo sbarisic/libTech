@@ -42,6 +42,8 @@ namespace libTech.Entities {
 		Vector3 Velocity;
 		Vector3 PrevVelocity;
 
+		Vector3 DEBUG_WishDir;
+
 		Vector3 GroundPoint;
 		Vector3 GroundNormal;
 		bool GroundPlane;
@@ -235,30 +237,17 @@ namespace libTech.Entities {
 			if (D)
 				WishDir += Camera.WorldRightNormal;
 
-			if (Walking)
-				WishDir = PM_ClipVelocity(WishDir, GroundNormal);
-
-			/*if (WishDir.Length() > 0.5)
-				WishDir = Vector3.Normalize(WishDir);*/
-
-			/*if (IsHittingHead && !IsGrounded) {
-				if (Velocity.Y > 0)
-					Velocity.Y = 0;
-			}*/
 
 			if (NoClipOn) {
-				// Noclip movement
-
 				PM_Friction(Dt);
 				PM_Accelerate(Dt, WishDir, 8, 8);
 
 				Position += Velocity;
 			} else {
-				// Regular movement
-
 				//WishDir.Y = 0;
-				if (!GroundPlane)
+				if (!GroundPlane) {
 					Velocity += Gravity * Dt;
+				}
 
 				PM_Friction(Dt);
 
@@ -275,31 +264,19 @@ namespace libTech.Entities {
 				}
 
 				// Collision response
-				//Position = PM_ClipVelocity(Position, GroundNormal);
 
 				SweepResult Res = Map.SweepTest(PlayerShape, Position, Position + Velocity, CollisionFilterGroups.CharacterFilter);
 				if (Res.HasHit) {
 					Velocity = Utils.Slide(Velocity, Res.Normal);
-					Position = Res.HitCenterOfMass + Velocity;
-				} else
-					Position += Velocity;
+					Position = Res.HitCenterOfMass;
+				}
 
-				/*ContactResult HitSomething = Map.ContactTest(PlayerBody);
-
-				for (int i = 0; i < HitSomething.CollisionPointCount; i++) {
-					Velocity = Utils.Slide(Velocity, HitSomething.CollisionNormals[i]);
-				}*/
+				Position += Velocity;
 			}
 
-			/*float MaxVel = 20;
-			if ((Velocity + WishDir).Length() < MaxVel) {
-				Velocity += WishDir;
-			}*/
+			if (WishDir.X != 0 && WishDir.Y != 0 && WishDir.Z != 0)
+				DEBUG_WishDir = WishDir;
 
-			//Console.WriteLine(Velocity.Length());
-			//Console.WriteLine(Velocity);
-
-			// Position += Velocity;
 			SetPosition(Position);
 		}
 
@@ -340,11 +317,23 @@ namespace libTech.Entities {
 			return In - Change;
 		}
 
+		Vector3 ProjectToNormal(Vector3 D, Vector3 N) {
+			float T = Vector3.Dot(D, N);
+			return D - (N * T);
+		}
+
+		Vector3 ProjectToNormal2(Vector3 D, Vector3 N) {
+			return Utils.Slide(D, N);
+		}
+
 		void PM_Jump(float Dt, Vector3 JumpDir, float JumpForce) {
 			Velocity += JumpDir * JumpForce;
 		}
 
 		void PM_Accelerate(float Dt, Vector3 WishDir, float WishSpeed, float Accel) {
+			if (WishDir.X == 0 && WishDir.Y == 0 && WishDir.Z == 0)
+				return;
+
 			float CurSpeed = Vector3.Dot(Velocity, WishDir);
 			float AddSpeed = WishSpeed - CurSpeed;
 
@@ -402,6 +391,8 @@ namespace libTech.Entities {
 
 			if (GroundPlane) {
 				DbgDraw.DrawArrow(GroundPoint, GroundPoint + GroundNormal * 16, Color.Blue, 2);
+
+				DbgDraw.DrawArrow(GroundPoint, GroundPoint + DEBUG_WishDir * 32, Color.Orange, 2);
 			}
 
 			RenderAPI.DbgPopGroup();
