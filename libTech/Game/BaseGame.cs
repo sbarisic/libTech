@@ -47,7 +47,7 @@ namespace libTech.Game {
 
 		Vector3 PlySpawnPos;
 
-		//ChunkMap VoxelMap;
+		ChunkMap VoxelMap;
 
 		public override void Load() {
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
@@ -93,14 +93,16 @@ namespace libTech.Game {
 			//PlayerEnt.Camera.LookAt(TestEntity.Position);
 
 			//------------- VOXEL STUFF
-			//TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
-			//VoxelMap = new ChunkMap(VoxelMat);
-			//VoxelMap.GenerateFloatingIsland(64, 64);
+			TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
+			VoxelMap = new ChunkMap(VoxelMat);
+			VoxelMap.GenerateFloatingIsland(128, 128);
 
 
 			//Vector3[] Points = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * new Vector3(40, 40, 40)).ToArray()).ToArray();
 			//EntPhysics VoxelPhys = new EntPhysics(Points, 0);
 			//Engine.Map.SpawnEntity(VoxelPhys);
+
+
 
 
 			Engine.Camera3D.MouseMovement = true;
@@ -159,7 +161,7 @@ namespace libTech.Game {
 
 			//Gfx.ClearDepth();
 
-			//VoxelMap.Draw();
+			VoxelMap.Draw();
 			PlayerEnt?.DrawViewModel();
 		}
 

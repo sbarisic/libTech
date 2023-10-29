@@ -15,6 +15,8 @@ namespace libTech.Graphics.Voxels {
 		public const float BlockSize = 1;
 		public const int AtlasSize = 16;
 
+		public Vector3i Position;
+
 		PlacedBlock[] Blocks;
 		bool Dirty;
 
@@ -23,13 +25,12 @@ namespace libTech.Graphics.Voxels {
 
 		public Color ChunkColor = Color.White;
 
-		Vector3 GlobalChunkIndex;
 		ChunkMap WorldMap;
 
 		Vertex3[] ChunkVertices;
 
-		public Chunk(Vector3 GlobalChunkIndex, ChunkMap WorldMap) {
-			this.GlobalChunkIndex = GlobalChunkIndex;
+		public Chunk(Vector3i Position, ChunkMap WorldMap) {
+			this.Position = Position;
 			this.WorldMap = WorldMap;
 
 			Blocks = new PlacedBlock[ChunkSize * ChunkSize * ChunkSize];
@@ -86,7 +87,7 @@ namespace libTech.Graphics.Voxels {
 				return PlacedBlock.None;*/
 
 			if (X < 0 || X >= ChunkSize || Y < 0 || Y >= ChunkSize || Z < 0 || Z >= ChunkSize) {
-				WorldMap.GetWorldPos(0, 0, 0, GlobalChunkIndex, out Vector3 GlobalBlockPos);
+				WorldMap.GetWorldPos(Vector3i.Empty, Position, out Vector3 GlobalBlockPos);
 				return WorldMap.GetPlacedBlock((int)GlobalBlockPos.X + X, (int)GlobalBlockPos.Y + Y, (int)GlobalBlockPos.Z + Z, out Chunk Chk);
 			}
 
@@ -117,18 +118,20 @@ namespace libTech.Graphics.Voxels {
 		}
 
 
-		public void To3D(int Idx, out int X, out int Y, out int Z) {
-			Z = Idx / (ChunkSize * ChunkSize);
+		public Vector3i To3D(int Idx) {
+			int Z = Idx / (ChunkSize * ChunkSize);
 			Idx -= (Z * ChunkSize * ChunkSize);
-			Y = Idx / ChunkSize;
-			X = Idx % ChunkSize;
+			int Y = Idx / ChunkSize;
+			int X = Idx % ChunkSize;
+
+			return new Vector3i(X, Y, Z);
 		}
 
-		bool IsCovered(int X, int Y, int Z) {
+		bool IsCovered(Vector3i Position) {
 			for (int i = 0; i < Utils.MainDirs.Length; i++) {
-				int XX = (int)(X + Utils.MainDirs[i].X);
-				int YY = (int)(Y + Utils.MainDirs[i].Y);
-				int ZZ = (int)(Z + Utils.MainDirs[i].Z);
+				int XX = (int)(Position.X + Utils.MainDirs[i].X);
+				int YY = (int)(Position.Y + Utils.MainDirs[i].Y);
+				int ZZ = (int)(Position.Z + Utils.MainDirs[i].Z);
 
 				if (GetBlock(XX, YY, ZZ).Type == BlockType.None)
 					return false;
@@ -143,11 +146,11 @@ namespace libTech.Graphics.Voxels {
 				if (Block.Type == BlockType.None)
 					continue;
 
-				To3D(i, out int LocalX, out int LocalY, out int LocalZ);
-				if (IsCovered(LocalX, LocalY, LocalZ))
+				Vector3i LocalPos = To3D(i);
+				if (IsCovered(LocalPos))
 					continue;
 
-				WorldMap.GetWorldPos(LocalX, LocalY, LocalZ, GlobalChunkIndex, out Vector3 GlobalPos);
+				WorldMap.GetWorldPos(LocalPos, Position, out Vector3 GlobalPos);
 
 				int X = (int)GlobalPos.X;
 				int Y = (int)GlobalPos.Y;
@@ -227,7 +230,7 @@ namespace libTech.Graphics.Voxels {
 			for (int x = 0; x < ChunkSize; x++) {
 				for (int y = 0; y < ChunkSize; y++) {
 					for (int z = 0; z < ChunkSize; z++) {
-						WorldMap.GetWorldPos(x, y, z, GlobalChunkIndex, out Vector3 GlobalBlockPos);
+						WorldMap.GetWorldPos(new Vector3i(x, y, z), Position, out Vector3 GlobalBlockPos);
 
 						PlacedBlock CurBlock = null;
 						if ((CurBlock = GetBlock(x, y, z)).Type != BlockType.None) {

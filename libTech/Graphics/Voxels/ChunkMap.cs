@@ -22,10 +22,9 @@ namespace libTech.Graphics.Voxels {
 
 	class ChunkMap {
 		public Materials.Material Material;
-		Dictionary<Vector3, Chunk> Chunks;
+		List<Chunk> Chunks = new List<Chunk>();
 
 		public ChunkMap(Materials.Material Material) {
-			Chunks = new Dictionary<Vector3, Chunk>();
 			this.Material = Material;
 		}
 
@@ -49,42 +48,6 @@ namespace libTech.Graphics.Voxels {
 			}
 		}*/
 
-		public void Write(Stream Output) {
-			using (GZipStream ZipStream = new GZipStream(Output, CompressionMode.Compress, true)) {
-				using (BinaryWriter Writer = new BinaryWriter(ZipStream)) {
-					KeyValuePair<Vector3, Chunk>[] ChunksArray = Chunks.ToArray();
-					Writer.Write(ChunksArray.Length);
-
-					for (int i = 0; i < ChunksArray.Length; i++) {
-						Writer.Write((int)ChunksArray[i].Key.X);
-						Writer.Write((int)ChunksArray[i].Key.Y);
-						Writer.Write((int)ChunksArray[i].Key.Z);
-
-						ChunksArray[i].Value.Write(Writer);
-					}
-				}
-			}
-		}
-
-		public void Read(Stream Input) {
-			using (GZipStream ZipStream = new GZipStream(Input, CompressionMode.Decompress, true)) {
-				using (BinaryReader Reader = new BinaryReader(ZipStream)) {
-					int Count = Reader.ReadInt32();
-
-					for (int i = 0; i < Count; i++) {
-						int CX = Reader.ReadInt32();
-						int CY = Reader.ReadInt32();
-						int CZ = Reader.ReadInt32();
-						Vector3 ChunkIndex = new Vector3(CX, CY, CZ);
-
-						Chunk Chk = new Chunk(ChunkIndex, this);
-						Chk.Read(Reader);
-						Chunks.Add(ChunkIndex, Chk);
-					}
-				}
-			}
-		}
-
 		float Simplex(int Octaves, float X, float Y, float Z, float Scale) {
 			float Val = 0.0f;
 
@@ -102,8 +65,37 @@ namespace libTech.Graphics.Voxels {
 				Max = Val;
 		}
 
+		public bool ContainsChunk(Vector3i Pos) {
+			foreach (Chunk C in Chunks) {
+				if (C.Position == Pos)
+					return true;
+			}
+
+			return false;
+		}
+
+		public bool ContainsChunk(Chunk C) {
+			return Chunks.Contains(C);
+		}
+
+		public void AddChunk(Chunk C) {
+			if (ContainsChunk(C))
+				throw new Exception("Cannot add chunk twice");
+
+			Chunks.Add(C);
+		}
+
+		public Chunk GetChunk(Vector3i ChunkPosition) {
+			foreach (Chunk C in Chunks) {
+				if (C.Position == ChunkPosition)
+					return C;
+			}
+
+			throw new Exception("Chunk not found at " + ChunkPosition.ToString());
+		}
+
 		public Chunk[] GetAllChunks() {
-			return Chunks.Values.ToArray();
+			return Chunks.ToArray();
 		}
 
 		public void GenerateFloatingIsland(int Width, int Length, int Seed = 666) {
@@ -140,9 +132,9 @@ namespace libTech.Graphics.Voxels {
 						float Density = Simplex(2, x, y * 0.5f, z, Scale) * CenterFalloff * HeightFalloff;
 
 						if (Density > 0.1f) {
-							float Caves = Simplex(1, x, y, z, Scale * 4) * HeightFalloff;
+							float Caves = Simplex(1, x, y, z, Scale * 0.5f) * HeightFalloff;
 
-							if (Caves < 0.65f)
+							if (Caves < 0.95f)
 								SetBlock(x, y, z, BlockType.Stone);
 						}
 					}
@@ -173,34 +165,44 @@ namespace libTech.Graphics.Voxels {
 			BlockPos = Utils.Mod(S, Chunk.ChunkSize);
 		}
 
-		void TranslateChunkPos(int X, int Y, int Z, out Vector3 ChunkIndex, out Vector3 BlockPos) {
+		void TranslateChunkPos(int X, int Y, int Z, out Vector3i ChunkPosition, out Vector3 BlockPos) {
 			TransPosScalar(X, out int ChkX, out int BlkX);
 			TransPosScalar(Y, out int ChkY, out int BlkY);
 			TransPosScalar(Z, out int ChkZ, out int BlkZ);
 
-			ChunkIndex = new Vector3(ChkX, ChkY, ChkZ);
+			ChunkPosition = new Vector3i(ChkX, ChkY, ChkZ);
 			BlockPos = new Vector3(BlkX, BlkY, BlkZ);
 		}
 
-		public void GetWorldPos(int X, int Y, int Z, Vector3 ChunkIndex, out Vector3 GlobalPos) {
-			GlobalPos = ChunkIndex * Chunk.ChunkSize + new Vector3(X, Y, Z);
+		public void GetWorldPos(Vector3i Local, Vector3i ChunkPosition, out Vector3 GlobalPos) {
+			GlobalPos = (Vector3)ChunkPosition * Chunk.ChunkSize + (Vector3)Local;
 		}
 
-		void MarkDirty(int ChunkX, int ChunkY, int ChunkZ) {
-			Vector3 ChunkIndex = new Vector3(ChunkX, ChunkY, ChunkZ);
+		void MarkDirty(Vector3i ChunkPosition) {
+			/*Vector3 ChunkIndex = new Vector3(ChunkX, ChunkY, ChunkZ);
 
 			if (Chunks.ContainsKey(ChunkIndex))
-				Chunks[ChunkIndex].MarkDirty();
+				Chunks[ChunkIndex].MarkDirty();*/
+
+			foreach (Chunk C in Chunks) {
+				if (C.Position == ChunkPosition)
+					C.MarkDirty();
+			}
+		}
+
+		void MarkDirty(int X, int Y, int Z) {
+			MarkDirty(new Vector3i(X, Y, Z));
 		}
 
 		public void SetPlacedBlock(int X, int Y, int Z, PlacedBlock Block) {
-			TranslateChunkPos(X, Y, Z, out Vector3 ChunkIndex, out Vector3 BlockPos);
+			TranslateChunkPos(X, Y, Z, out Vector3i ChunkPosition, out Vector3 BlockPos);
+
 			int XX = (int)BlockPos.X;
 			int YY = (int)BlockPos.Y;
 			int ZZ = (int)BlockPos.Z;
-			int CX = (int)ChunkIndex.X;
-			int CY = (int)ChunkIndex.Y;
-			int CZ = (int)ChunkIndex.Z;
+			int CX = (int)ChunkPosition.X;
+			int CY = (int)ChunkPosition.Y;
+			int CZ = (int)ChunkPosition.Z;
 
 			const int MaxBlock = Chunk.ChunkSize - 1;
 
@@ -261,12 +263,12 @@ namespace libTech.Graphics.Voxels {
 					for (int z = -1; z < 2; z++)
 						MarkDirty(ChunkIndex + new Vector3(x, y, z));*/
 
-			if (!Chunks.ContainsKey(ChunkIndex)) {
-				Chunk Chk = new Chunk(ChunkIndex, this);
-				Chunks.Add(ChunkIndex, Chk);
+			if (!ContainsChunk(ChunkPosition)) {
+				Chunk Chk = new Chunk(ChunkPosition, this);
+				AddChunk(Chk);
 			}
 
-			Chunks[ChunkIndex].SetBlock(XX, YY, ZZ, Block);
+			GetChunk(ChunkPosition).SetBlock(XX, YY, ZZ, Block);
 		}
 
 		public void SetBlock(int X, int Y, int Z, BlockType T) {
@@ -301,12 +303,13 @@ namespace libTech.Graphics.Voxels {
 				for (int X = 0; X < Chunk.ChunkSize; X++) {
 					for (int Y = 0; Y < Chunk.ChunkSize; Y++) {
 						for (int Z = 0; Z < Chunk.ChunkSize; Z++) {
-							PlacedBlock CurBlock = C.Value.GetBlock(X, Y, Z);
+
+							PlacedBlock CurBlock = C.GetBlock(X, Y, Z);
 							if (CurBlock.Type == BlockType.None)
 								continue;
 
-							GetWorldPos(X, Y, Z, C.Key, out Vector3 GlobalPos);
-							yield return new GlobalPlacedBlock(GlobalPos, CurBlock, C.Value);
+							GetWorldPos(new Vector3i(X, Y, Z), C.Position, out Vector3 GlobalPos);
+							yield return new GlobalPlacedBlock(GlobalPos, CurBlock, C);
 						}
 					}
 				}
@@ -384,10 +387,11 @@ namespace libTech.Graphics.Voxels {
 		}*/
 
 		public PlacedBlock GetPlacedBlock(int X, int Y, int Z, out Chunk Chk) {
-			TranslateChunkPos(X, Y, Z, out Vector3 ChunkIndex, out Vector3 BlockPos);
+			TranslateChunkPos(X, Y, Z, out Vector3i ChunkPosition, out Vector3 BlockPos);
 
-			if (Chunks.ContainsKey(ChunkIndex)) {
-				return (Chk = Chunks[ChunkIndex]).GetBlock((int)BlockPos.X, (int)BlockPos.Y, (int)BlockPos.Z);
+			if (ContainsChunk(ChunkPosition)) {
+				Chk = GetChunk(ChunkPosition);
+				return Chk.GetBlock((int)BlockPos.X, (int)BlockPos.Y, (int)BlockPos.Z);
 			}
 
 			Chk = null;
@@ -403,16 +407,16 @@ namespace libTech.Graphics.Voxels {
 		}
 
 		public void Draw() {
-			foreach (var KV in Chunks) {
-				Vector3 ChunkPos = KV.Key * new Vector3(Chunk.ChunkSize);
-				KV.Value.Draw(ChunkPos);
+			foreach (Chunk C in Chunks) {
+				Vector3 ChunkPos = C.Position * new Vector3(Chunk.ChunkSize);
+				C.Draw(ChunkPos);
 			}
 		}
 
 		public void DrawTransparent() {
-			foreach (var KV in Chunks) {
-				Vector3 ChunkPos = KV.Key * new Vector3(Chunk.ChunkSize);
-				KV.Value.DrawTransparent(ChunkPos);
+			foreach (Chunk C in Chunks) {
+				Vector3 ChunkPos = C.Position * new Vector3(Chunk.ChunkSize);
+				C.DrawTransparent(ChunkPos);
 			}
 		}
 	}

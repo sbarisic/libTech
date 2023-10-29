@@ -183,6 +183,7 @@
     <Compile Include="Utilities\Matrix3x3.cs" />
     <Compile Include="Utilities\RectanglePacker.cs" />
     <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Utilities\Vector3i.cs" />
     <Compile Include="Weapons\BaseWeapon.cs" />
     <Compile Include="Weapons\UtilityGun.cs" />
   </ItemGroup>

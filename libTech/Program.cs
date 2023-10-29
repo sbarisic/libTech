@@ -329,6 +329,7 @@ namespace libTech {
 
 		private static void OnKey(RenderWindow Wnd, Key Key, int Scancode, bool Pressed, bool Repeat, KeyMods Mods) {
 			if (Key == Key.F1 && Pressed) {
+				Console.WriteLine("Toggling console");
 				GConsole.Open = !GConsole.Open;
 				return;
 			} /*else if (Key == Key.F3 && Pressed) {
