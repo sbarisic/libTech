@@ -53,8 +53,13 @@ namespace libTech.Game {
 			CrosshairTex = Engine.Load<Texture>("/content/textures/gui/crosshair_default.png");
 
 			Console.WriteLine("Loading map");
-			Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
+
+			//Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
+			//Engine.Map.InitPhysics();
+			Engine.Map = new libTechMap();
+			Engine.Map.SpawnEntity(new PlayerSpawn(new Vector3(0, 0, 0), Quaternion.Identity));
 			Engine.Map.InitPhysics();
+
 			Console.WriteLine("Done!");
 
 			PlayerSpawn[] SpawnPositions = Engine.Map.GetEntities<PlayerSpawn>().ToArray();

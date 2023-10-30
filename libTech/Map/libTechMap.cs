@@ -91,8 +91,16 @@ namespace libTech.Map {
 
 			ClosestConvexResult = new ClosestConvexResultCallback();
 
-			EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(GetModels().First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position))), 0);
-			SpawnEntity(MapPhysics);
+			libTechModel[] Models = GetModels().ToArray();
+
+			if (Models.Length > 0) {
+				Vector3[] MapVerts = Models.First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position)).ToArray();
+
+				if (MapVerts.Length > 0) {
+					EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(MapVerts), 0);
+					SpawnEntity(MapPhysics);
+				}
+			}
 		}
 
 		public void AddModel(libTechModel Model) {
