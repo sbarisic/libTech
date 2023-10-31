@@ -77,7 +77,7 @@ namespace libTech.Textures {
 				if (MImg.Width != Width || MImg.Height != Height)
 					MImg.Resize(new MagickGeometry(Width, Height) { IgnoreAspectRatio = true });
 
-				Bitmap Bmp = MImg.ToBitmap(PixelMapping.RGBA);
+				Bitmap Bmp = MImg.ToBitmap(PixelMapping.BGRA);
 
 				if (RemoveAlpha)
 					Bmp.RemoveAlpha();

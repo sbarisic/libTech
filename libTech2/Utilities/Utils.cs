@@ -503,10 +503,10 @@ namespace libTech {
 			return true;
 		}
 
-		public static Bitmap ToBitmap(this MagickImage Img, PixelMapping Mapping) {
-			StackTrace ST = new StackTrace(true);
-			MethodInfo CallingMethod = (MethodInfo)ST.GetFrame(1).GetMethod();
-			Console.WriteLine(">> {0}.{1}()", CallingMethod.DeclaringType.FullName, CallingMethod.Name);
+		public static Bitmap ToBitmap(this MagickImage Img, PixelMapping Mapping = PixelMapping.RGBA) {
+			//StackTrace ST = new StackTrace(true);
+			//MethodInfo CallingMethod = (MethodInfo)ST.GetFrame(1).GetMethod();
+			//Console.WriteLine(">> {0}.{1}()", CallingMethod.DeclaringType.FullName, CallingMethod.Name);
 
 			if (!OperatingSystem.IsWindows())
 				throw new NotImplementedException("ToBitmap not implemented on non-Windows OS");
