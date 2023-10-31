@@ -1,6 +1,9 @@
 ﻿using FishGfx.Graphics;
+
 using ImageMagick;
+
 using SourceUtils;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -74,7 +77,7 @@ namespace libTech.Textures {
 				if (MImg.Width != Width || MImg.Height != Height)
 					MImg.Resize(new MagickGeometry(Width, Height) { IgnoreAspectRatio = true });
 
-				Bitmap Bmp = MImg.ToBitmap();
+				Bitmap Bmp = MImg.ToBitmap(PixelMapping.RGBA);
 
 				if (RemoveAlpha)
 					Bmp.RemoveAlpha();

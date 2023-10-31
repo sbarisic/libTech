@@ -52,7 +52,7 @@ namespace libTech.Importer {
 						RS.Format = MagickFormat.Tga;
 
 						using (MagickImage Img = new MagickImage(S, RS)) {
-							return Texture.FromImage(Img.ToBitmap());
+							return Texture.FromImage(Img.ToBitmap(PixelMapping.ABGR));
 						}
 
 					}

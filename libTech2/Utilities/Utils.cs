@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -501,24 +503,30 @@ namespace libTech {
 			return true;
 		}
 
-		public static Bitmap ToBitmap(this MagickImage Img) {
-			PixelFormat format = PixelFormat.Format32bppArgb;
-			PixelMapping mapping = PixelMapping.RGBA;
+		public static Bitmap ToBitmap(this MagickImage Img, PixelMapping Mapping) {
+			StackTrace ST = new StackTrace(true);
+			MethodInfo CallingMethod = (MethodInfo)ST.GetFrame(1).GetMethod();
+			Console.WriteLine(">> {0}.{1}()", CallingMethod.DeclaringType.FullName, CallingMethod.Name);
 
-			using (IPixelCollection<ushort> pixels = Img.GetPixelsUnsafe()) {
-				Bitmap bitmap = new Bitmap(Img.Width, Img.Height, format);
-				BitmapData data = bitmap.LockBits(new Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, format);
-				nint destination = data.Scan0;
+			if (!OperatingSystem.IsWindows())
+				throw new NotImplementedException("ToBitmap not implemented on non-Windows OS");
+
+			PixelFormat Fmt = PixelFormat.Format32bppArgb;
+
+			using (IPixelCollection<ushort> Px = Img.GetPixelsUnsafe()) {
+				Bitmap Bmp = new Bitmap(Img.Width, Img.Height, Fmt);
+				BitmapData Dat = Bmp.LockBits(new Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, Fmt);
+				nint Dst = Dat.Scan0;
 
 				for (int y = 0; y < Img.Height; y++) {
-					byte[] bytes = pixels.ToByteArray(0, y, Img.Width, 1, mapping);
-					Marshal.Copy(bytes, 0, destination, bytes.Length);
+					byte[] Bytes = Px.ToByteArray(0, y, Img.Width, 1, Mapping);
+					Marshal.Copy(Bytes, 0, Dst, Bytes.Length);
 
-					destination = new IntPtr(destination.ToInt64() + data.Stride);
+					Dst = new IntPtr(Dst.ToInt64() + Dat.Stride);
 				}
 
-				bitmap.UnlockBits(data);
-				return bitmap;
+				Bmp.UnlockBits(Dat);
+				return Bmp;
 			}
 		}
 	}
