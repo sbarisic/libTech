@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -501,9 +502,23 @@ namespace libTech {
 		}
 
 		public static Bitmap ToBitmap(this MagickImage Img) {
-			using (MemoryStream MS = new MemoryStream()) {
-				Img.Write(MS);
-				return new Bitmap(MS);
+			PixelFormat format = PixelFormat.Format32bppArgb;
+			PixelMapping mapping = PixelMapping.RGBA;
+
+			using (IPixelCollection<ushort> pixels = Img.GetPixelsUnsafe()) {
+				Bitmap bitmap = new Bitmap(Img.Width, Img.Height, format);
+				BitmapData data = bitmap.LockBits(new Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, format);
+				nint destination = data.Scan0;
+
+				for (int y = 0; y < Img.Height; y++) {
+					byte[] bytes = pixels.ToByteArray(0, y, Img.Width, 1, mapping);
+					Marshal.Copy(bytes, 0, destination, bytes.Length);
+
+					destination = new IntPtr(destination.ToInt64() + data.Stride);
+				}
+
+				bitmap.UnlockBits(data);
+				return bitmap;
 			}
 		}
 	}
