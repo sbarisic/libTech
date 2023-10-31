@@ -54,20 +54,24 @@ namespace libTech.Game {
 
 			Console.WriteLine("Loading map");
 
-			//Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
-			//Engine.Map.InitPhysics();
-			Engine.Map = new libTechMap();
-			Engine.Map.SpawnEntity(new PlayerSpawn(new Vector3(0, 0, 0), Quaternion.Identity));
+			Engine.Map = BSPMap.LoadMap("/content/maps/lt_test.bsp");
 			Engine.Map.InitPhysics();
+
+			//Engine.Map = new libTechMap();
+			//Engine.Map.SpawnEntity(new PlayerSpawn(new Vector3(0, 0, 0), Quaternion.Identity));
+			//Engine.Map.InitPhysics();
 
 			Console.WriteLine("Done!");
 
 			PlayerSpawn[] SpawnPositions = Engine.Map.GetEntities<PlayerSpawn>().ToArray();
+			//PlayerSpawn[] SpawnPositions = new[] { new PlayerSpawn(new Vector3(-1712, -1119, -1528), Quaternion.CreateFromYawPitchRoll(-90, 60, 0)) };
+
 
 			PlayerEnt = new Player();
-			PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
-			PlayerEnt.Camera.LookAt(Vector3.Zero);
-			PlayerEnt.SetPosition(new Vector3(-285.1535f, -964.8776f, 229.2883f));
+			PlayerEnt.EnableNoclip(true);
+			//PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
+			//PlayerEnt.Camera.LookAt(Vector3.Zero);
+			PlayerEnt.SetPosition(new Vector3(0, 0, 0));
 
 			Engine.Map.SpawnEntity(PlayerEnt);
 
@@ -100,12 +104,21 @@ namespace libTech.Game {
 			//------------- VOXEL STUFF
 			TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
 			VoxelMap = new ChunkMap(VoxelMat);
-			VoxelMap.GenerateFloatingIsland(128, 128);
+			VoxelMap.GenerateFloatingIsland(64, 64);
+			//VoxelMap.GenerateFilled(6, 6, 6);
 
 
 			//Vector3[] Points = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * new Vector3(40, 40, 40)).ToArray()).ToArray();
 			//EntPhysics VoxelPhys = new EntPhysics(Points, 0);
 			//Engine.Map.SpawnEntity(VoxelPhys);
+
+			{
+				Vector3[] Verts = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * Chunk.BlockScale)).ToArray();
+
+				libTechCollisionShape Shp = libTechCollisionShape.FromVerticesConcave(Verts);
+				EntPhysics Pyz = new EntPhysics(Shp, 0);
+				Engine.Map.SpawnEntity(Pyz);
+			}
 
 
 

@@ -332,11 +332,11 @@ namespace libTech {
 				Console.WriteLine("Toggling console");
 				GConsole.Open = !GConsole.Open;
 				return;
-			} /*else if (Key == Key.F3 && Pressed) {
+			} else if (Key == Key.F3 && Pressed) {
 				Engine.Window.ShowCursor = false;
 			} else if (Key == Key.F2 && Pressed) {
 				Engine.Window.ShowCursor = true;
-			}*/
+			}
 
 			Engine.GUI.OnKey(Wnd, Key, Scancode, Pressed, Repeat, Mods);
 		}

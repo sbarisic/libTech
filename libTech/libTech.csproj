@@ -64,6 +64,12 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BepuPhysics">
+      <HintPath>..\..\bepu2\BepuPhysics\bin\Release\net7.0\BepuPhysics.dll</HintPath>
+    </Reference>
+    <Reference Include="BepuUtilities">
+      <HintPath>..\..\bepu2\BepuPhysics\bin\Release\net7.0\BepuUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="BulletSharp">
       <HintPath>..\3rdParty\managed\BulletSharp.dll</HintPath>
     </Reference>
@@ -99,6 +105,9 @@
       <HintPath>..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -172,6 +181,7 @@
     <Compile Include="native\Msdfgen.cs" />
     <Compile Include="native\WinAPI.cs" />
     <Compile Include="Physics\ContactResult.cs" />
+    <Compile Include="Physics\PhysEngine.cs" />
     <Compile Include="Physics\SweepResult.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

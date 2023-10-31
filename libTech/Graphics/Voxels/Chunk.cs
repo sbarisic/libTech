@@ -12,8 +12,10 @@ using System.Numerics;
 namespace libTech.Graphics.Voxels {
 	unsafe class Chunk {
 		public const int ChunkSize = 16;
-		public const float BlockSize = 1;
 		public const int AtlasSize = 16;
+
+		public const float BlockSize = 1;
+		public const float BlockScale = 40;
 
 		public Vector3i Position;
 
@@ -372,7 +374,7 @@ namespace libTech.Graphics.Voxels {
 
 			CachedMeshOpaque.Material = WorldMap.Material;
 			CachedMeshOpaque.SetVertices(GenMesh());
-			CachedMeshOpaque.MeshMatrix = Matrix4x4.CreateScale(40);
+			CachedMeshOpaque.MeshMatrix = Matrix4x4.CreateScale(BlockScale);
 
 			if (CachedModelOpaque == null) {
 				CachedModelOpaque = new libTechModel();

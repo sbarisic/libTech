@@ -19,23 +19,7 @@ using System.Threading.Tasks;
 
 namespace libTech.Map {
 	public class libTechMap {
-		/*const float UnitMeterScale = 52.5f;
-
-		public static float UnitToMeter(float Unit) {
-			return Unit / UnitMeterScale;
-		}
-
-		public static float MeterToUnit(float Meter) {
-			return Meter * UnitMeterScale;
-		}
-
-		public static Vector3 UnitToMeter(Vector3 Unit) {
-			return Unit / UnitMeterScale;
-		}
-
-		public static Vector3 MeterToUnit(Vector3 Meter) {
-			return Meter * UnitMeterScale;
-		}*/
+		const bool SkyboxEnabled = true;
 
 		libTechModel[] MapModels;
 		Entity[] Entities;
@@ -47,10 +31,10 @@ namespace libTech.Map {
 		internal CollisionDispatcher Dispatcher;
 		internal BroadphaseInterface Broadphase;
 		internal ConstraintSolver Solver;
-
 		internal ClosestConvexResultCallback ClosestConvexResult;
-		internal Dictionary<string, libTechModel> LoadedModels;
 
+
+		internal Dictionary<string, libTechModel> LoadedModels;
 		internal libTechModel SkyboxModel;
 
 		public Vector3 Gravity {
@@ -94,12 +78,10 @@ namespace libTech.Map {
 			libTechModel[] Models = GetModels().ToArray();
 
 			if (Models.Length > 0) {
-				Vector3[] MapVerts = Models.First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position)).ToArray();
+				IEnumerable<Vector3> MapVerts = Models.First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position));
 
-				if (MapVerts.Length > 0) {
-					EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(MapVerts), 0);
-					SpawnEntity(MapPhysics);
-				}
+				EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(MapVerts), 0);
+				SpawnEntity(MapPhysics);
 			}
 		}
 
@@ -265,6 +247,9 @@ namespace libTech.Map {
 		}
 
 		public void DrawSkybox() {
+			if (!SkyboxEnabled)
+				return;
+
 			if (SkyboxModel == null) {
 				SkyboxModel = new libTechModel();
 				SkyboxModel.Scale = new Vector3(5000);
@@ -292,45 +277,59 @@ namespace libTech.Map {
 			DrawDebugPhysics();
 
 			RenderAPI.DbgPushGroup("Map DrawOpaque");
+
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawOpaque();
+
 			RenderAPI.DbgPopGroup();
 
 			RenderAPI.DbgPushGroup("Entity DrawOpaque");
+
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				Entities[EntityIdx]?.DrawOpaque();
+
 			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawDebugPhysics() {
 			RenderAPI.DbgPushGroup("Debug Physics");
+
 			World.DebugDrawWorld();
+
 			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawTransparent() {
 			RenderAPI.DbgPushGroup("Map DrawTransparent");
+
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawTransparent();
+
 			RenderAPI.DbgPopGroup();
 
 			RenderAPI.DbgPushGroup("Entity DrawTransparent");
+
 			for (int EntityIdx = 0; EntityIdx < Entities.Length; EntityIdx++)
 				Entities[EntityIdx]?.DrawTransparent();
+
 			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawShadowVolume(ShaderMaterial ShadowVolume) {
 			RenderAPI.DbgPushGroup("Map DrawShadowVolume");
+
 			for (int ModelIdx = 0; ModelIdx < MapModels.Length; ModelIdx++)
 				MapModels[ModelIdx].DrawShadowVolume(ShadowVolume);
+
 			RenderAPI.DbgPopGroup();
 		}
 
 		public void DrawEntityShadowVolume(DynamicLight Light, ShaderMaterial ShadowVolume) {
 			RenderAPI.DbgPushGroup("Entity DrawShadowVolume");
+
 			for (int i = 0; i < Entities.Length; i++)
 				Entities[i].DrawShadowVolume(Light.GetBoundingSphere(), ShadowVolume);
+
 			RenderAPI.DbgPopGroup();
 		}
 	}

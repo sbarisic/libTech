@@ -54,6 +54,8 @@ namespace libTech.Entities {
 		List<BaseWeapon> Weapons;
 		BaseWeapon CurrentWeapon;
 
+		int VelMax;
+
 		public Player() {
 			Weapons = new List<BaseWeapon>();
 			Camera = Engine.Camera3D;
@@ -412,8 +414,6 @@ namespace libTech.Entities {
 			RenderAPI.DbgPopGroup();
 		}
 
-		int VelMax;
-
 		public virtual void DrawGUI() {
 			Vector3 VelH = new Vector3(Velocity.X, 0, Velocity.Z);
 			int Vel = (int)VelH.Length();
@@ -423,6 +423,10 @@ namespace libTech.Entities {
 
 			Gfx.DrawText(Engine.UI.DefaultFont, (Engine.Window.WindowSize / 2) + new Vector2(0, -50), Vel.ToString(), Color.White, 32);
 			Gfx.DrawText(Engine.UI.DefaultFont, (Engine.Window.WindowSize / 2) + new Vector2(0, -50 - 32), VelMax.ToString(), Color.Green, 32);
+		}
+
+		public virtual void EnableNoclip(bool Enable) {
+			NoClipOn = Enable;
 		}
 	}
 }

@@ -98,7 +98,22 @@ namespace libTech.Graphics.Voxels {
 			return Chunks.ToArray();
 		}
 
+		public void GenerateFilled(int Width, int Length, int Height) {
+			int WorldHeight = Height;
+
+			//Enum.GetValues(typeof(Enu))
+
+			for (int x = 0; x < Width; x++)
+				for (int z = 0; z < Length; z++)
+					for (int y = 0; y < WorldHeight; y++) {
+
+						SetBlock(x, y, z, BlockType.Grass);
+					}
+		}
+
 		public void GenerateFloatingIsland(int Width, int Length, int Seed = 666) {
+			Console.WriteLine("Generating floating island");
+
 			Noise.Seed = Seed;
 			float Scale = 0.02f;
 			int WorldHeight = 64;
@@ -158,6 +173,8 @@ namespace libTech.Graphics.Voxels {
 						}
 					}
 				}
+
+			Console.Write("Generation done");
 		}
 
 		void TransPosScalar(int S, out int ChunkIndex, out int BlockPos) {
