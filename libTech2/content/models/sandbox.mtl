@@ -1,0 +1,17 @@
+# mtl file of Cube 2 level
+
+newmtl slot1
+map_Kd base\base1.png
+
+newmtl slot10
+map_Kd nieb\complex\glass.png
+
+newmtl slot41
+map_Kd agf81\concrete4_diffuse.png
+
+newmtl slot42
+map_Kd agf81\concrete5_diffuse.png
+
+newmtl slot49
+map_Kd nobiax\pattern045_diffuse.png
+

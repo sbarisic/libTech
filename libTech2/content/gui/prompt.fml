@@ -1,0 +1,14 @@
+﻿window disable = [[ return not PromptEnabled ]] title = [[ return tostring(Prompt[1]) ]] x = 100 y = 100 width = 400 height = 140 movable noscrollbar nolayout {
+	layout dynamic height = 64 {
+		label wrap right text = [[ return tostring(Prompt[2]) ]];
+	}
+
+	layout dynamic columns = [[ return #PromptButtons ]] {
+		row pad = 0.3 width = [[ return 0.7 / #PromptButtons ]];
+
+		button text = [[ return tostring(PromptButtons[1][1]) ]] script = [[ PromptButtons[1][2]() ]];
+		button disable = [[ return #PromptButtons < 2 ]] id = "2" text = [[ return tostring(PromptButtons[2][1]) ]] script = [[ PromptButtons[2][2]() ]];
+		button disable = [[ return #PromptButtons < 3 ]] id = "3" text = [[ return tostring(PromptButtons[3][1]) ]] script = [[ PromptButtons[3][2]() ]];
+		button disable = [[ return #PromptButtons < 4 ]] id = "4" text = [[ return tostring(PromptButtons[4][1]) ]] script = [[ PromptButtons[4][2]() ]];
+	}
+}

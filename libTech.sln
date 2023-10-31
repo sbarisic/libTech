@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishGfx_Nuklear", "FishGfx\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lua.NET", "LuaDotNet\Lua.NET\Lua.NET.csproj", "{1D3681D5-9104-4638-A6D4-ACE3B60CECBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libTech2", "libTech2\libTech2.csproj", "{20662D91-97E2-4DE3-9729-BDED14E57996}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,14 @@ Global
 		{1D3681D5-9104-4638-A6D4-ACE3B60CECBB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D3681D5-9104-4638-A6D4-ACE3B60CECBB}.Release|x64.ActiveCfg = Release|Any CPU
 		{1D3681D5-9104-4638-A6D4-ACE3B60CECBB}.Release|x64.Build.0 = Release|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Debug|x64.Build.0 = Debug|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Release|x64.ActiveCfg = Release|Any CPU
+		{20662D91-97E2-4DE3-9729-BDED14E57996}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,19 @@
+﻿window title = "libTech" x = 200 y = 300 width = 200 height = 232 noscrollbar movable resizable closable nolayout {
+	layout dynamic {
+		button text = "Start Game" script = [[ OnStartGame() ]];
+		button text = "Join Game" script = [[ OnJoinGame() ]];
+	}
+
+	layout dynamic height = 10 { row pad; }
+
+	layout dynamic {
+		button text = "Settings" script = [[ OnSettings() ]];
+		button text = "Addons" script = [[ OnAddons() ]];
+	}
+
+	layout dynamic height = 10 { row pad = 10; }
+
+	layout dynamic {
+		button text = "Quit" script = [[ OnQuit() ]];
+	}
+}

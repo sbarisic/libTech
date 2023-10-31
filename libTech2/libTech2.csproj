@@ -4,7 +4,807 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
+    <RootNamespace>libTech</RootNamespace>
+    <ApplicationIcon>ico.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="content\textures\anonymous_pro_16_0.png" />
+    <None Remove="content\textures\anonymous_pro_32_0.png" />
+    <None Remove="content\textures\base\base1.png" />
+    <None Remove="content\textures\base\base2.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric02.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric03.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric04.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric05.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric06.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric07.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric08.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric09.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric10.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric11.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric12.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric13.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric14.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric15.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric16.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric17.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric18.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric19.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric20.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric21.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric22.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric23.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric24.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric25.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric26.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric27.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric28.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric29.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric30.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric31.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric32.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric33.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric34.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric35.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric36.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric37.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric38.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric39.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric40.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric41.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric42.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric43.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric44.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric45.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric46.png" />
+    <None Remove="content\textures\dev\dev_measuregeneric47.png" />
+    <None Remove="content\textures\error.png" />
+    <None Remove="content\textures\gui\button.png" />
+    <None Remove="content\textures\gui\button_click.png" />
+    <None Remove="content\textures\gui\button_hover.png" />
+    <None Remove="content\textures\gui\crosshair_default.png" />
+    <None Remove="content\textures\gui\debug.png" />
+    <None Remove="content\textures\gui\debug_thin.png" />
+    <None Remove="content\textures\gui\panel.png" />
+    <None Remove="content\textures\gui\panel_transparent.png" />
+    <None Remove="content\textures\gui_elements\flat\button.png" />
+    <None Remove="content\textures\gui_elements\flat\button_click.png" />
+    <None Remove="content\textures\gui_elements\flat\button_close.png" />
+    <None Remove="content\textures\gui_elements\flat\button_close_click.png" />
+    <None Remove="content\textures\gui_elements\flat\button_close_hover.png" />
+    <None Remove="content\textures\gui_elements\flat\button_disabled.png" />
+    <None Remove="content\textures\gui_elements\flat\button_hover.png" />
+    <None Remove="content\textures\gui_elements\flat\checkbox.png" />
+    <None Remove="content\textures\gui_elements\flat\checkbox_checked.png" />
+    <None Remove="content\textures\gui_elements\flat\checkbox_hover_overlay.png" />
+    <None Remove="content\textures\gui_elements\flat\textbox.png" />
+    <None Remove="content\textures\gui_elements\flat\textbox_selected.png" />
+    <None Remove="content\textures\gui_elements\flat\window.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_click.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_close.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_close_click.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_close_hover.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_disabled.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\button_hover.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\checkbox.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\checkbox_checked.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\checkbox_hover_overlay.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\textbox.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\textbox_selected.png" />
+    <None Remove="content\textures\gui_elements\flat_gray\window.png" />
+    <None Remove="content\textures\gui_elements\standard\button.png" />
+    <None Remove="content\textures\gui_elements\standard\button_click.png" />
+    <None Remove="content\textures\gui_elements\standard\button_close.png" />
+    <None Remove="content\textures\gui_elements\standard\button_close_click.png" />
+    <None Remove="content\textures\gui_elements\standard\button_close_hover.png" />
+    <None Remove="content\textures\gui_elements\standard\button_disabled.png" />
+    <None Remove="content\textures\gui_elements\standard\button_hover.png" />
+    <None Remove="content\textures\gui_elements\standard\checkbox.png" />
+    <None Remove="content\textures\gui_elements\standard\checkbox_checked.png" />
+    <None Remove="content\textures\gui_elements\standard\checkbox_hover_overlay.png" />
+    <None Remove="content\textures\gui_elements\standard\textbox.png" />
+    <None Remove="content\textures\gui_elements\standard\textbox_selected.png" />
+    <None Remove="content\textures\gui_elements\standard\window.png" />
+    <None Remove="content\textures\gwen.png" />
+    <None Remove="content\textures\msdf_test.png" />
+    <None Remove="content\textures\oil_drum001h.png" />
+    <None Remove="content\textures\proggy_clean_16_0.png" />
+    <None Remove="content\textures\proggy_clean_32_0.png" />
+    <None Remove="content\textures\proggy_small_16_0.png" />
+    <None Remove="content\textures\proggy_small_32_0.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_bk.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_bt.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_ft.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_lt.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_rt.png" />
+    <None Remove="content\textures\skybox\cloudtop\cloudtop_tp.png" />
+    <None Remove="content\textures\skybox\test\test_bk.png" />
+    <None Remove="content\textures\skybox\test\test_bt.png" />
+    <None Remove="content\textures\skybox\test\test_ft.png" />
+    <None Remove="content\textures\skybox\test\test_lt.png" />
+    <None Remove="content\textures\skybox\test\test_rt.png" />
+    <None Remove="content\textures\skybox\test\test_tp.png" />
+    <None Remove="content\textures\test.png" />
+    <None Remove="content\textures\voxel_atlas.png" />
+    <None Remove="content\textures\wallpaper.png" />
+    <None Remove="ico.ico" />
+    <None Remove="native\freetype.dll" />
+    <None Remove="native\lua51.dll" />
+    <None Remove="native\Msdfgen.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\bin\data\fonts\proggy_0.png" Link="content\textures\proggy_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FishGfx\FishGfx\glfw3.dll" Link="native\glfw3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FishGfx\submodule_NuklearDotNet\binaries\Nuklear.dll" Link="native\Nuklear.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\anonymous_pro_16_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\anonymous_pro_32_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\base\base1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\base\base2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric02.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric03.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric04.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric05.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric06.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric07.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric08.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric09.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric12.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric13.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric14.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric15.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric17.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric18.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric19.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric20.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric21.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric22.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric23.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric24.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric25.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric26.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric27.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric28.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric30.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric31.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric33.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric34.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric35.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric36.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric37.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric38.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric39.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric40.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric41.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric42.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric43.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric44.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric45.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric46.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\dev\dev_measuregeneric47.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\error.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\button_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\button_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\crosshair_default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\debug.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\debug_thin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\panel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui\panel_transparent.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_close.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_close_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_close_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\button_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\checkbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\checkbox_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\checkbox_hover_overlay.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\textbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\textbox_selected.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat\window.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_close.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_close_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_close_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\button_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\checkbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\checkbox_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\checkbox_hover_overlay.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\textbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\textbox_selected.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\flat_gray\window.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_close.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_close_click.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_close_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\button_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\checkbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\checkbox_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\checkbox_hover_overlay.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\textbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\textbox_selected.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gui_elements\standard\window.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\gwen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\msdf_test.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\oil_drum001h.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\proggy_clean_16_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\proggy_clean_32_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\proggy_small_16_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\proggy_small_32_0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_bk.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_bt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_ft.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_lt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_rt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\cloudtop\cloudtop_tp.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_bk.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_bt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_ft.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_lt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_rt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\skybox\test\test_tp.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\test.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\voxel_atlas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\textures\wallpaper.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ico.ico" />
+    <Content Include="native\freetype.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="native\lua51.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="native\Msdfgen.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepuPhysics">
+      <HintPath>..\3rdParty\managed\BepuPhysics.dll</HintPath>
+    </Reference>
+    <Reference Include="BepuUtilities">
+      <HintPath>..\3rdParty\managed\BepuUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="BulletSharp">
+      <HintPath>..\3rdParty\managed\BulletSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL.Net">
+      <HintPath>..\3rdParty\managed\OpenGL.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpFileSystem">
+      <HintPath>..\3rdParty\managed\SharpFileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="SourceUtils">
+      <HintPath>..\3rdParty\managed\SourceUtils.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="content\materials\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\bin\data\fonts\proggy.fnt" Link="content\fonts\proggy.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\default2d.vert" Link="content\shaders\default2d.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\default_tex_clr.frag" Link="content\shaders\default_tex_clr.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\gui.frag" Link="content\shaders\gui.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\gui.vert" Link="content\shaders\gui.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\line.frag" Link="content\shaders\line.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\line.geom" Link="content\shaders\line.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\line2d.vert" Link="content\shaders\line2d.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\point.frag" Link="content\shaders\point.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\point.geom" Link="content\shaders\point.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\data\shaders\point2d.vert" Link="content\shaders\point2d.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.4.0" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FishGfx\FishGfx\FishGfx.csproj" />
+    <ProjectReference Include="..\FishGfx\FishGfx_Nuklear\FishGfx_Nuklear.csproj" />
+    <ProjectReference Include="..\FishGfx\submodule_NuklearDotNet\NuklearDotNet\NuklearDotNet.csproj" />
+    <ProjectReference Include="..\FML\FishMarkupLanguage\FishMarkupLanguage.csproj" />
+    <ProjectReference Include="..\LuaDotNet\Lua.NET\Lua.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="content\akutatourney8.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\anonymous_pro_16.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\anonymous_pro_32.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\FruityGirl.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\Funkster.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\gt-pressura-mono-light.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\gt-pressura-mono-regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\Hack.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\NotoColorEmoji.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\OpenSansEmoji.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\PhantomOpenEmoji.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\proggy_clean_16.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\proggy_clean_32.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\proggy_small_16.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\proggy_small_32.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\fonts\TwitterColorEmoji.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\gui\console.fml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\gui\main_menu.fml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\gui\prompt.fml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\lun3dm5.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\maps\gm_construct.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\maps\gm_flatgrass.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\maps\lt_test.bsp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\cube.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\dragon.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\lucy.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\oildrum001_explosive_reference.smd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sandbox.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sandbox.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\skull.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sphere.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sphere_2.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sphere_3.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\models\sphere_4.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\phantq3ctf1_rev.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\phantq3dm3_rev.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\pukka3tourney5.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\q3gwdm2.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\rustgrad.pk3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\debug_draw.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\debug_draw.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default_deferred.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default_deferred.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default_fullbright.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\default_fullbright_color.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\deferred_ambient.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\deferred_shading.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\deferred_shading.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\depth_thickness.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\depth_thickness.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\fb.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\fog.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\fog.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\leg.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\leg.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\line3d.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\msdf.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\nop.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\point3d.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\post.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\post_multisample.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\shadow_volume.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\shadow_volume.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\shadow_volume.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\skybox.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\skybox.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\water.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="content\shaders\water.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
