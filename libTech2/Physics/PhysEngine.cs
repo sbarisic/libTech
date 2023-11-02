@@ -72,15 +72,11 @@ namespace libTech.Physics {
 			return new ContactResult();
 		}
 
-		public void AddBody(PhysBodyDescription BodyDesc, Vector3 Pos, Quaternion Rot) {
+		public void AddBody(PhysBodyDescription BodyDesc) {
 			//BodyHandle H = Sim.Bodies.Add(BodyDesc.GetBodyDesc());
 			//BodyDesc.SetHandle(H);
 
-			BodyDesc.AddToSimulation(Sim, Pos, Rot);
-		}
-
-		public void AddBody(PhysBodyDescription BodyDesc) {
-			AddBody(BodyDesc, Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0, 0, 0));
+			BodyDesc.AddToSimulation(Sim);
 		}
 
 		public void AddShape(PhysShape Shp) {

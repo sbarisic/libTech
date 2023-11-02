@@ -37,6 +37,9 @@ namespace libTech.Physics {
 		}
 
 		public void AddToSimulation(Simulation Sim) {
+			if (HandleValid)
+				return;
+
 			switch (Shape) {
 				case Sphere Shp:
 					SetHandle(Sim.Shapes.Add(Shp));
@@ -88,12 +91,9 @@ namespace libTech.Physics {
 				TriBuffer[i] = new Triangle(VertArray[i * 3 + 0], VertArray[i * 3 + 1], VertArray[i * 3 + 2]);
 			}
 
-
 			PhysShape Shp = new PhysShape();
 			Shp.Shape = new Mesh(TriBuffer, Vector3.One, Pool);
 			return Shp;
-
-
 		}
 
 		public static PhysShape FromVerticesConcave(PhysEngine PhysEng, IEnumerable<Vector3> Verts) {

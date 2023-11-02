@@ -77,7 +77,7 @@ namespace libTech.Entities {
 			}*/
 
 			PlayerShape = PhysShape.CreateSphere(10);
-			PlayerBody = new PhysBodyDescription(PlayerShape, 1);
+			PlayerBody = new PhysBodyDescription(Engine.Map.PhysicsEngine, PlayerShape, 1);
 
 			EnableNoclip(true);
 		}

@@ -21,7 +21,7 @@ namespace libTech.Entities {
 		Quaternion UpdatedRotation;
 		Vector3 UpdatedPosition;
 
-		PhysEngine Engine;
+		PhysEngine PhysEng;
 		PhysShape PhysShape;
 		PhysBodyDescription RigidBody;
 
@@ -30,11 +30,12 @@ namespace libTech.Entities {
 
 		//Matrix4x4 _WorldTransform;
 
-		void Init(PhysEngine Engine, PhysShape PhysShape, float Mass = 10) {
-			this.Engine = Engine;
+		void Init(PhysEngine PhysEng, PhysShape PhysShape, float Mass = 10) {
+			this.PhysEng = PhysEng;
 			this.PhysShape = PhysShape;
 
-			RigidBody = new PhysBodyDescription(PhysShape, Mass);
+
+			RigidBody = new PhysBodyDescription(PhysEng, PhysShape, Mass);
 		}
 
 		void Init(PhysEngine Engine, IEnumerable<Vector3> Vertices, float Mass = 10) {
@@ -81,13 +82,13 @@ namespace libTech.Entities {
 		}
 
 		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
-			RigidBody.GetWorldTransform(Engine, out Scale, out Rotation, out Position);
+			RigidBody.GetWorldTransform(PhysEng, out Scale, out Rotation, out Position);
 
 			//Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
-			RigidBody.SetWorldTransform(Engine, Scale, Rotation, Position);
+			RigidBody.SetWorldTransform(PhysEng, Scale, Rotation, Position);
 
 			//WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
 		}

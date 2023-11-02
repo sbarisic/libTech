@@ -28,28 +28,32 @@ namespace libTech.Physics {
 			get; private set;
 		}
 
-		public PhysBodyDescription(PhysShape Shape, float Mass) {
+		public PhysBodyDescription(PhysEngine PhysEng, PhysShape Shape, float Mass) {
 			HandleValid = false;
 			IsStatic = Mass == 0;
 
 			this.Shape = Shape;
 			this.Mass = Mass;
+			PhysEng.AddShape(Shape);
 
-			if (!IsStatic) {
+			if (IsStatic) {
+				StaticDesc = new StaticDescription(RigidPose.Identity, Shape.GetHandle());
+			} else {
 				Inertia = Shape.ComputeInertia(Mass);
+				BodyDesc = BodyDescription.CreateDynamic(RigidPose.Identity, Inertia, Shape.GetHandle(), 0.01f);
 			}
 		}
 
-		public void AddToSimulation(Simulation Sim, Vector3 Pos, Quaternion Rot) {
+		public void AddToSimulation(Simulation Sim) {
 			if (IsStatic) {
 
-				StaticDesc = new StaticDescription(new RigidPose(Pos, Rot), Shape.GetHandle());
+				//StaticDesc = new StaticDescription(new RigidPose(Pos, Rot), Shape.GetHandle());
 				SHandle = Sim.Statics.Add(StaticDesc);
 				HandleValid = true;
 
 			} else {
 
-				BodyDesc = BodyDescription.CreateDynamic(new RigidPose(Pos, Rot), Inertia, Shape.GetHandle(), 0.01f);
+				//BodyDesc = BodyDescription.CreateDynamic(new RigidPose(Pos, Rot), Inertia, Shape.GetHandle(), 0.01f);
 				BHandle = Sim.Bodies.Add(BodyDesc);
 				HandleValid = true;
 
