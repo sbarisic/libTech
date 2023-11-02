@@ -1,6 +1,4 @@
-﻿using BulletSharp;
-
-using FishGfx;
+﻿using FishGfx;
 using FishGfx.Graphics;
 
 using libTech.Map;
@@ -34,8 +32,8 @@ namespace libTech.Entities {
 		float PlyHeight = 46;
 		float PlyEyeLevel = 46;
 
-		CapsuleShape PlayerShape;
-		RigidBody PlayerBody;
+		PhysShape PlayerShape;
+		PhysBodyDescription PlayerBody;
 
 		bool NoClipOn = false;
 		bool W, A, S, D, Jump, Crouch;
@@ -56,6 +54,8 @@ namespace libTech.Entities {
 
 		int VelMax;
 
+		Matrix4x4 WorldTransform;
+
 		public Player() {
 			Weapons = new List<BaseWeapon>();
 			Camera = Engine.Camera3D;
@@ -65,24 +65,27 @@ namespace libTech.Entities {
 			ViewModelCamera.SetPerspective(Engine.Window.WindowWidth, Engine.Window.WindowHeight, 54 * ((float)Math.PI / 180));
 
 
-			// PlayerShape = new CylinderShape(PlyWidth, PlyHeight, PlyWidth);
-			PlayerShape = new CapsuleShape(PlyWidth, PlyHeight);
-
-			//PlayerShape.GetAabb(Matrix4x4.Identity, out Vector3 AABBMin, out Vector3 AABBMax);
-			//PlayerShape = new SphereShape(PlyHeight / 2);
+			//PlayerShape = new CapsuleShape(PlyWidth, PlyHeight);
 
 
-			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(0, new DefaultMotionState(Matrix4x4.Identity), PlayerShape, PlayerShape.CalculateLocalInertia(0))) {
+			/*using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(0, new DefaultMotionState(Matrix4x4.Identity), PlayerShape, PlayerShape.CalculateLocalInertia(0))) {
 				PlayerBody = new RigidBody(RBInfo);
 				PlayerBody.AngularFactor = new Vector3(0, 0, 0);
 
 				PlayerBody.ActivationState = ActivationState.DisableDeactivation;
 				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject;
-			}
+			}*/
+
+			PlayerShape = new PhysShape();
+			PlayerBody = new PhysBodyDescription();
+
+			EnableNoclip(true);
 		}
 
 		public override void Spawned() {
-			Map.World.AddRigidBody(PlayerBody, CollisionFilterGroups.CharacterFilter, CollisionFilterGroups.AllFilter);
+			//Map.World.AddRigidBody(PlayerBody, CollisionFilterGroups.CharacterFilter, CollisionFilterGroups.AllFilter);
+
+			Map.PhysicsEngine.AddBody(PlayerBody);
 		}
 
 		public virtual void OnKey(Key Key, bool Pressed, KeyMods Mods) {
@@ -154,14 +157,23 @@ namespace libTech.Entities {
 		}
 
 		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
+			Scale = Vector3.Zero;
+			Rotation = Quaternion.Identity;
+			Position = Vector3.Zero;
+
 			//PlayerBody.MotionState.WorldTransform
 
-			Matrix4x4.Decompose(PlayerBody.MotionState.WorldTransform, out Scale, out Rotation, out Position);
+			// TODO
+			//Matrix4x4.Decompose(PlayerBody.MotionState.WorldTransform, out Scale, out Rotation, out Position);
+			Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
 			// PlayerBody.WorldTransform
-			PlayerBody.MotionState.WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+
+			// TODO
+			//PlayerBody.MotionState.WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+			WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
 		}
 
 		public virtual void SetPosition(Vector3 Pos) {
@@ -267,7 +279,7 @@ namespace libTech.Entities {
 
 				// Collision response
 
-				SweepResult Res = Map.SweepTest(PlayerShape, Position, Position + Velocity, CollisionFilterGroups.CharacterFilter);
+				SweepResult Res = Map.PhysicsEngine.SweepTest(PlayerShape, Position, Position + Velocity);
 				if (Res.HasHit) {
 					Velocity = Utils.Slide(Velocity, Res.Normal);
 					Position = Res.HitCenterOfMass;
@@ -283,7 +295,7 @@ namespace libTech.Entities {
 		}
 
 		void PM_GroundTrace(Vector3 Position) {
-			SweepResult Result = Map.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f, CollisionFilterGroups.CharacterFilter);
+			SweepResult Result = Map.PhysicsEngine.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f);
 
 			if (!Result.HasHit) {
 				// TODO: Ground trace missed

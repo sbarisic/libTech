@@ -17,22 +17,62 @@ using BepuUtilities.Memory;
 using BepuUtilities.Collections;
 using BepuUtilities;
 
+using RigidBody = System.Object;
+using ConvexShape = libTech.Physics.PhysShape;
+
 namespace libTech.Physics {
-	class PhysEngine {
+	public class PhysEngine {
 		BufferPool BufPool;
 		Simulation Sim;
 
 		public PhysEngine() {
 			BufPool = new BufferPool();
-			//Sim = Simulation.Create(BufPool,);
+			Sim = Simulation.Create(BufPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(new Vector3(0, -9.8f, 0)), new SolveDescription(8, 1));
 		}
 
-		public void Timestep() {
+		public void Timestep(float Dt) {
+			Sim.Timestep(Dt);
+		}
 
+		public bool RayCast(Vector3 From, Vector3 To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body) {
+			HitPos = HitNormal = Vector3.Zero;
+			Body = null;
+			return false;
+		}
+
+		public bool RayCast(Vector3 From, Vector3 To) {
+			return RayCast(From, To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body);
+		}
+
+		public float RayCastDistance(Vector3 From, Vector3 To) {
+			if (RayCast(From, To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body))
+				return Vector3.Distance(From, HitPos);
+
+			return Vector3.Distance(From, To);
+		}
+
+		public RigidBody RayCastBody(Vector3 From, Vector3 To, out Vector3 PickPoint) {
+			RayCast(From, To, out PickPoint, out Vector3 HitNormal, out RigidBody Body);
+			return Body;
+		}
+
+		public SweepResult SweepTest(ConvexShape Shape, Vector3 From, Vector3 To, float Dist = 0) {
+			return new SweepResult();
+		}
+
+		public ContactResult ContactTest(RigidBody Body) {
+			return new ContactResult();
+		}
+
+		public void AddBody(PhysBodyDescription BodyDesc) {
+			//Sim.Bodies.Add(BodyDesc.BodyDesc);
+		}
+
+		public void DebugDraw() {
 		}
 	}
 
-	/*
+
 	struct NarrowPhaseCallbacks : INarrowPhaseCallbacks {
 		/// <summary>
 		/// Performs any required initialization logic after the Simulation instance has been constructed.

@@ -1,5 +1,4 @@
-﻿using BulletSharp;
-using FishGfx;
+﻿using FishGfx;
 using libTech.Map;
 using libTech.Materials;
 using libTech.Models;
@@ -10,47 +9,11 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using libTech.Physics;
 
 namespace libTech.Entities {
-	public class libTechCollisionShape {
-		public Vector3 AABBMin;
-		public Vector3 AABBMax;
-		public Vector3 CenterOfVertices;
-
-		internal CollisionShape CollisionShape;
-
-		internal libTechCollisionShape(CollisionShape CollisionShape) {
-			this.CollisionShape = CollisionShape;
-			CollisionShape.GetAabb(Matrix4x4.Identity, out AABBMin, out AABBMax);
-			CenterOfVertices = (AABBMin + AABBMax) / 2;
-		}
-
-		public static libTechCollisionShape FromVertices(IEnumerable<Vector3> Verts) {
-			ConvexHullShape HullShape = new ConvexHullShape(Verts);
-			HullShape.InitializePolyhedralFeatures();
-			return new libTechCollisionShape(HullShape);
-		}
-
-		public static libTechCollisionShape FromVerticesConcave(IEnumerable<Vector3> Verts) {
-			Vector3[] VertsArray = Verts.ToArray();
-			TriangleMesh TriMesh = new TriangleMesh();
-
-			for (int i = 0; i < VertsArray.Length; i += 3)
-				TriMesh.AddTriangle(VertsArray[i + 0], VertsArray[i + 1], VertsArray[i + 2]);
-
-			BvhTriangleMeshShape TriShape = new BvhTriangleMeshShape(TriMesh, false);
-			return new libTechCollisionShape(TriShape);
-		}
-
-		public static libTechCollisionShape CreateBoxShape(float X, float Y, float Z) {
-			BoxShape Box = new BoxShape(X / 2, Y / 2, Z / 2);
-			return new libTechCollisionShape(Box);
-		}
-	}
-
 	[EntityClassName("prop_physics")]
 	public class EntPhysics : Entity {
-		internal RigidBody RigidBody;
 		public libTechModel RenderModel;
 
 		public bool IsStatic {
@@ -60,9 +23,13 @@ namespace libTech.Entities {
 		Vector3 UpdatedScale;
 		Quaternion UpdatedRotation;
 		Vector3 UpdatedPosition;
+		
+		internal PhysBodyDescription RigidBody;
 
-		void Init(libTechCollisionShape Shape, float Mass = 10) {
-			bool IsDynamic = Mass != 0;
+		Matrix4x4 WorldTransform;
+
+		void Init(PhysShape Shape, float Mass = 10) {
+			/*bool IsDynamic = Mass != 0;
 
 			Vector3 LocalInertia = Vector3.Zero;
 			if (IsDynamic)
@@ -88,11 +55,13 @@ namespace libTech.Entities {
 			RigidBody.CcdMotionThreshold = 1e-7f;
 			//RigidBody.CcdSweptSphereRadius = 0.9f;
 
-			IsStatic = Mass == 0;
+			IsStatic = Mass == 0;*/
+
+			IsStatic = true;
 		}
 
 		void Init(IEnumerable<Vector3> Vertices, float Mass = 10) {
-			Init(libTechCollisionShape.FromVertices(Vertices), Mass);
+			Init(PhysShape.FromVertices(Vertices), Mass);
 		}
 
 		void Init(libTechModel Model, float Mass = 10) {
@@ -100,7 +69,7 @@ namespace libTech.Entities {
 			RenderModel = Model;
 		}
 
-		public EntPhysics(libTechCollisionShape Shape, float Mass = 10) {
+		public EntPhysics(PhysShape Shape, float Mass = 10) {
 			Init(Shape, Mass);
 		}
 
@@ -125,15 +94,17 @@ namespace libTech.Entities {
 		}
 
 		public override void Spawned() {
-			Map.World.AddRigidBody(RigidBody);
+			//Map.World.AddRigidBody(RigidBody);
+
+			Map.PhysicsEngine.AddBody(RigidBody);
 		}
 
-		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
-			Matrix4x4.Decompose(RigidBody.WorldTransform, out Scale, out Rotation, out Position);
+		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {			
+			Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
-			RigidBody.WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+			WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
 		}
 
 		public void SetPosition(Vector3 Pos) {
@@ -142,22 +113,22 @@ namespace libTech.Entities {
 		}
 
 		public virtual void DisableSleep() {
-			RigidBody.ActivationState = ActivationState.DisableDeactivation;
+			//RigidBody.ActivationState = ActivationState.DisableDeactivation;
 		}
 
 		public virtual void Freeze() {
-			RigidBody.LinearFactor = Vector3.Zero;
-			RigidBody.AngularFactor = Vector3.Zero;
-			RigidBody.LinearVelocity = Vector3.Zero;
-			RigidBody.AngularVelocity = Vector3.Zero;
+			//RigidBody.LinearFactor = Vector3.Zero;
+			//RigidBody.AngularFactor = Vector3.Zero;
+			//RigidBody.LinearVelocity = Vector3.Zero;
+			//RigidBody.AngularVelocity = Vector3.Zero;
 		}
 
 		public virtual void Unfreeze() {
-			RigidBody.LinearFactor = Vector3.One;
-			RigidBody.AngularFactor = Vector3.One;
+			//RigidBody.LinearFactor = Vector3.One;
+			//RigidBody.AngularFactor = Vector3.One;
 
-			RigidBody.ForceActivationState(ActivationState.ActiveTag);
-			RigidBody.DeactivationTime = 0;
+			//RigidBody.ForceActivationState(ActivationState.ActiveTag);
+			//RigidBody.DeactivationTime = 0;
 		}
 
 		public override void Update(float Dt) {

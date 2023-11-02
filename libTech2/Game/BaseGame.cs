@@ -26,7 +26,7 @@ using libTech.Graphics.Voxels;
 using System.Text;
 using System.Threading.Tasks;
 using Color = FishGfx.Color;
-
+using libTech.Physics;
 
 namespace libTech.Game {
 	public unsafe class Game : LibTechGame {
@@ -68,16 +68,15 @@ namespace libTech.Game {
 
 
 			PlayerEnt = new Player();
-			PlayerEnt.EnableNoclip(true);
 			//PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
 			//PlayerEnt.Camera.LookAt(Vector3.Zero);
 			PlayerEnt.SetPosition(new Vector3(0, 0, 0));
 
 			Engine.Map.SpawnEntity(PlayerEnt);
 
-			UtilityGun UtilGun = new UtilityGun();
-			Engine.Map.SpawnEntity(UtilGun);
-			PlayerEnt.WeaponPickUp(UtilGun);
+			//UtilityGun UtilGun = new UtilityGun();
+			//Engine.Map.SpawnEntity(UtilGun);
+			//PlayerEnt.WeaponPickUp(UtilGun);
 
 			/*foreach (var L in Engine.Map.GetLights())
 				Engine.Map.RemoveEntity(L);*/
@@ -104,8 +103,8 @@ namespace libTech.Game {
 			//------------- VOXEL STUFF
 			TexturedShaderMaterial VoxelMat = new TexturedShaderMaterial("default", Texture.FromFile("content/textures/voxel_atlas.png", true));
 			VoxelMap = new ChunkMap(VoxelMat);
-			VoxelMap.GenerateFloatingIsland(64, 64);
-			//VoxelMap.GenerateFilled(6, 6, 6);
+			//VoxelMap.GenerateFloatingIsland(32, 32);
+			VoxelMap.GenerateFilled(16, 16, 16);
 
 
 			//Vector3[] Points = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * new Vector3(40, 40, 40)).ToArray()).ToArray();
@@ -115,7 +114,7 @@ namespace libTech.Game {
 			{
 				Vector3[] Verts = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * Chunk.BlockScale)).ToArray();
 
-				libTechCollisionShape Shp = libTechCollisionShape.FromVerticesConcave(Verts);
+				PhysShape Shp = PhysShape.FromVerticesConcave(Verts);
 				EntPhysics Pyz = new EntPhysics(Shp, 0);
 				Engine.Map.SpawnEntity(Pyz);
 			}

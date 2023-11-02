@@ -6,17 +6,15 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-using BulletSharp;
-
 namespace libTech.Graphics {
-	class DbgDrawPhysics : IDebugDraw {
-		public DebugDrawModes DebugMode {
+	class DbgDrawPhysics  {
+		/*public DebugDrawModes DebugMode {
 			get {
 				return DebugDrawModes.DrawWireframe | DebugDrawModes.DrawContactPoints;
 			}
 
 			set => throw new NotImplementedException();
-		}
+		}*/
 
 		public void Draw3dText(ref Vector3 location, string textString) {
 			throw new NotImplementedException();

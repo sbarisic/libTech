@@ -1,4 +1,4 @@
-﻿using BulletSharp;
+﻿//using BulletSharp;
 
 using FishGfx;
 using FishGfx.Graphics;
@@ -9,6 +9,8 @@ using libTech.Graphics;
 using libTech.Materials;
 using libTech.Models;
 using libTech.Physics;
+
+using SharpFileSystem.FileSystems;
 
 using System;
 using System.Collections.Generic;
@@ -26,18 +28,20 @@ namespace libTech.Map {
 		DynamicLight[] Lights;
 
 		// Physics
-		internal DynamicsWorld World;
+		/*internal DynamicsWorld World;
 		internal CollisionConfiguration CollisionConf;
 		internal CollisionDispatcher Dispatcher;
 		internal BroadphaseInterface Broadphase;
 		internal ConstraintSolver Solver;
-		internal ClosestConvexResultCallback ClosestConvexResult;
+		internal ClosestConvexResultCallback ClosestConvexResult;*/
+
+public		PhysEngine PhysicsEngine;
 
 
 		internal Dictionary<string, libTechModel> LoadedModels;
 		internal libTechModel SkyboxModel;
 
-		public Vector3 Gravity {
+		/*public Vector3 Gravity {
 			get {
 				return World.Gravity;
 			}
@@ -45,7 +49,7 @@ namespace libTech.Map {
 			set {
 				World.Gravity = value;
 			}
-		}
+		}*/
 
 		public libTechMap() {
 			MapModels = new libTechModel[] { };
@@ -56,7 +60,7 @@ namespace libTech.Map {
 		}
 
 		public void InitPhysics() {
-			CollisionConf = new DefaultCollisionConfiguration();
+			/*CollisionConf = new DefaultCollisionConfiguration();
 			Dispatcher = new CollisionDispatcher(CollisionConf);
 
 			Broadphase = new DbvtBroadphase();
@@ -73,14 +77,16 @@ namespace libTech.Map {
 			World.Gravity = new Vector3(0, -600, 0);
 			//World.DebugDrawer = new DbgDrawPhysics();
 
-			ClosestConvexResult = new ClosestConvexResultCallback();
+			ClosestConvexResult = new ClosestConvexResultCallback();*/
+
+			PhysicsEngine = new PhysEngine();
 
 			libTechModel[] Models = GetModels().ToArray();
 
 			if (Models.Length > 0) {
 				IEnumerable<Vector3> MapVerts = Models.First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position));
 
-				EntPhysics MapPhysics = new EntPhysics(libTechCollisionShape.FromVerticesConcave(MapVerts), 0);
+				EntPhysics MapPhysics = new EntPhysics(PhysShape.FromVerticesConcave(MapVerts), 0);
 				SpawnEntity(MapPhysics);
 			}
 		}
@@ -122,7 +128,7 @@ namespace libTech.Map {
 			return Bounds;
 		}
 
-		public bool RayCast(Vector3 From, Vector3 To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body) {
+		/*public bool RayCast(Vector3 From, Vector3 To, out Vector3 HitPos, out Vector3 HitNormal, out RigidBody Body) {
 			using (ClosestRayResultCallback RayResult = new ClosestRayResultCallback(ref From, ref To)) {
 				World.RayTestRef(ref From, ref To, RayResult);
 
@@ -190,7 +196,7 @@ namespace libTech.Map {
 
 		public SweepResult SweepTest(ConvexShape Shape, Vector3 Pos, Vector3 Normal, float Dist, CollisionFilterGroups Filter = CollisionFilterGroups.None) {
 			return SweepTest(Shape, Pos, Pos + Normal * Dist, Filter);
-		}
+		}*/
 
 		void InitEntity(Entity Ent) {
 			Ent.Map = this;
@@ -236,7 +242,8 @@ namespace libTech.Map {
 		}
 
 		public void Update(float Dt) {
-			World.StepSimulation(Dt);
+			//World.StepSimulation(Dt);
+			PhysicsEngine.Timestep(Dt);
 
 			for (int i = 0; i < Entities.Length; i++) {
 				if (!Entities[i].HasSpawned)
@@ -294,7 +301,8 @@ namespace libTech.Map {
 		public void DrawDebugPhysics() {
 			RenderAPI.DbgPushGroup("Debug Physics");
 
-			World.DebugDrawWorld();
+			//World.DebugDrawWorld();
+			PhysicsEngine.DebugDraw();
 
 			RenderAPI.DbgPopGroup();
 		}

@@ -1,4 +1,4 @@
-﻿using BulletSharp;
+﻿//using BulletSharp;
 
 using libTech.Entities;
 using libTech.Graphics;
@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace libTech.Weapons {
+	/*
+	 
 	public class UtilityGun : BaseWeapon {
 		public float MaxPickDistance;
 
@@ -55,23 +57,23 @@ namespace libTech.Weapons {
 				if (Ent != null)
 					Ent.Unfreeze();
 
-				/*Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
+				//Vector3[] Pts = Engine.Camera3D.GetFrustumPoints();
 
 				// Connecting lines
-				Vector3 A = DrawRay(Pts[0], Pts[4]);
-				Vector3 B = DrawRay(Pts[1], Pts[5]);
-				Vector3 C = DrawRay(Pts[2], Pts[6]);
-				Vector3 D = DrawRay(Pts[3], Pts[7]);
-
-				DbgDraw.DrawLine(A, B, FishGfx.Color.Red, Time: 30000);
-				DbgDraw.DrawLine(B, C, FishGfx.Color.Red, Time: 30000);
-				DbgDraw.DrawLine(C, D, FishGfx.Color.Red, Time: 30000);
-				DbgDraw.DrawLine(D, A, FishGfx.Color.Red, Time: 30000);*/
+				//Vector3 A = DrawRay(Pts[0], Pts[4]);
+				//Vector3 B = DrawRay(Pts[1], Pts[5]);
+				//Vector3 C = DrawRay(Pts[2], Pts[6]);
+				//Vector3 D = DrawRay(Pts[3], Pts[7]);
+				//
+				//DbgDraw.DrawLine(A, B, FishGfx.Color.Red, Time: 30000);
+				//DbgDraw.DrawLine(B, C, FishGfx.Color.Red, Time: 30000);
+				//DbgDraw.DrawLine(C, D, FishGfx.Color.Red, Time: 30000);
+				//DbgDraw.DrawLine(D, A, FishGfx.Color.Red, Time: 30000);
 			}
 		}
 
 		Vector3 DrawRay(Vector3 From, Vector3 To) {
-			if (Map.RayCast(From, To, out Vector3 HitPos, out Vector3 Normal, out RigidBody Body)) {
+			if (Map.PhysicsEngine.RayCast(From, To, out Vector3 HitPos, out Vector3 Normal, out RigidBody Body)) {
 				DbgDraw.DrawLine(From, HitPos, Time: 30000);
 				return HitPos;
 			}
@@ -81,7 +83,7 @@ namespace libTech.Weapons {
 		}
 
 		EntPhysics RayCastEntity(out Vector3 PickPoint, out Vector3 Normal) {
-			Map.RayCast(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint, out Normal, out RigidBody Body);
+			Map.PhysicsEngine.RayCast(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint, out Normal, out RigidBody Body);
 			return Body?.UserObject as EntPhysics;
 		}
 
@@ -142,4 +144,6 @@ namespace libTech.Weapons {
 			PointConst.PivotInB = FireOrigin + FireDirection * PickDist;
 		}
 	}
+
+	//*/
 }
