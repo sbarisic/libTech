@@ -25,6 +25,8 @@ namespace libTech.Weapons {
 	
 	 
 	public class UtilityGun : BaseWeapon {
+		Grabber Grb;
+
 		public float MaxPickDistance;
 
 		EntPhysics PickedEntity;
@@ -38,6 +40,8 @@ namespace libTech.Weapons {
 		Vector3 GlobalPickPoint;
 		Vector3 LocalPickPoint;
 
+		bool LeftMouseDown;
+
 		public UtilityGun() {
 			MaxPickDistance = 2000;
 			//ViewModel = Engine.Load<libTechModel>("/models/weapons/v_physcannon.mdl");
@@ -45,6 +49,8 @@ namespace libTech.Weapons {
 		}
 
 		public override void PrimaryFire(bool Pressed) {
+			LeftMouseDown = Pressed;
+
 			if (Pressed)
 				PickBody();
 			else
@@ -83,7 +89,7 @@ namespace libTech.Weapons {
 		}
 
 		Vector3 DrawRay(Vector3 From, Vector3 To) {
-			if (Map.PhysicsEngine.RayCast(From, To, out Vector3 HitPos, out Vector3 Normal, out object Body)) {
+			if (Engine.Map.PhysicsEngine.RayCast(From, To, out Vector3 HitPos, out Vector3 Normal, out object Body)) {
 				DbgDraw.DrawLine(From, HitPos, Time: 30000);
 				return HitPos;
 			}
@@ -93,7 +99,7 @@ namespace libTech.Weapons {
 		}
 
 		EntPhysics RayCastEntity(out Vector3 PickPoint, out Vector3 Normal) {
-			Map.PhysicsEngine.RayCast(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint, out Normal, out object Body);
+			Engine.Map.PhysicsEngine.RayCast(FireOrigin, FireOrigin + FireDirection * MaxPickDistance, out PickPoint, out Normal, out object Body);
 			//return Body?.UserObject as EntPhysics;
 
 			return Body as EntPhysics;
@@ -136,8 +142,11 @@ namespace libTech.Weapons {
 		}
 
 		public override void Update(float Dt) {
-			if (!IsPickingBody)
-				return;
+			//if (!IsPickingBody)
+			//	return;
+
+
+			Grb.Update(Engine.Map.PhysicsEngine.GetSimulation(), Engine.Camera3D, true, LeftMouseDown, Quaternion.Identity, new Vector2(0.5f, 0.5f));
 
 			//
 		}
@@ -217,7 +226,7 @@ namespace libTech.Weapons {
 			} else if (shouldGrab && !active) {
 
 				//Vector3 rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
-				Vector3 rayDirection = camera.ForwardNormal;
+				Vector3 rayDirection = camera.WorldForwardNormal;
 
 				var hitHandler = default(RayHitHandler);
 
@@ -240,7 +249,7 @@ namespace libTech.Weapons {
 			} else if (active) {
 
 				//Vector3 rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
-				Vector3 rayDirection = camera.ForwardNormal;
+				Vector3 rayDirection = camera.WorldForwardNormal;
 
 				var targetPoint = camera.Position + rayDirection * t;
 				targetOrientation = QuaternionEx.Normalize(QuaternionEx.Concatenate(targetOrientation, rotation));

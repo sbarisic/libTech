@@ -61,8 +61,14 @@ namespace libTech.Physics {
 		}
 
 		public virtual void GetWorldTransform(PhysEngine Engine, out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
-			if (!HandleValid)
-				throw new InvalidOperationException();
+			Scale = Vector3.One;
+
+			if (!HandleValid) {
+				RigidPose TmpPose = IsStatic ? StaticDesc.Pose : BodyDesc.Pose;
+
+				Rotation = TmpPose.Orientation;
+				Position = TmpPose.Position;
+			}
 
 			Simulation Sim = Engine.GetSimulation();
 			RigidPose Tmp = new RigidPose();
@@ -75,7 +81,6 @@ namespace libTech.Physics {
 			}
 
 
-			Scale = Vector3.One;
 			Rotation = Pose.Orientation;
 			Position = Pose.Position;
 

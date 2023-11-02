@@ -148,7 +148,7 @@ namespace libTech.Entities {
 	public abstract class Entity {
 		internal bool HasSpawned = false;
 
-		public libTechMap Map;
+		//public libTechMap Map;
 
 		public string ClassName {
 			get; private set;

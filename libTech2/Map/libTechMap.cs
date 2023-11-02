@@ -200,7 +200,7 @@ namespace libTech.Map {
 		}*/
 
 		void InitEntity(Entity Ent) {
-			Ent.Map = this;
+			//Ent.Map = this;
 
 			Ent.Spawned();
 			Ent.HasSpawned = true;

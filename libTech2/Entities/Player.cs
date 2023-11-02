@@ -54,6 +54,7 @@ namespace libTech.Entities {
 
 		int VelMax;
 
+		bool EnablePlayerPhys = false;
 		Matrix4x4 WorldTransform;
 
 		public Player() {
@@ -76,8 +77,10 @@ namespace libTech.Entities {
 				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject;
 			}*/
 
-			PlayerShape = PhysShape.CreateSphere(10);
-			PlayerBody = new PhysBodyDescription(Engine.Map.PhysicsEngine, PlayerShape, 1);
+			if (EnablePlayerPhys) {
+				PlayerShape = PhysShape.CreateSphere(10);
+				PlayerBody = new PhysBodyDescription(Engine.Map.PhysicsEngine, PlayerShape, 1);
+			}
 
 			EnableNoclip(true);
 		}
@@ -85,8 +88,10 @@ namespace libTech.Entities {
 		public override void Spawned() {
 			//Map.World.AddRigidBody(PlayerBody, CollisionFilterGroups.CharacterFilter, CollisionFilterGroups.AllFilter);
 
-			Map.PhysicsEngine.AddShape(PlayerShape);
-			Map.PhysicsEngine.AddBody(PlayerBody);
+			if (EnablePlayerPhys) {
+				Engine.Map.PhysicsEngine.AddShape(PlayerShape);
+				Engine.Map.PhysicsEngine.AddBody(PlayerBody);
+			}
 		}
 
 		public virtual void OnKey(Key Key, bool Pressed, KeyMods Mods) {
@@ -166,7 +171,12 @@ namespace libTech.Entities {
 
 			// TODO
 			//Matrix4x4.Decompose(PlayerBody.MotionState.WorldTransform, out Scale, out Rotation, out Position);
-			Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
+
+			if (EnablePlayerPhys) {
+				PlayerBody.GetWorldTransform(Engine.Map.PhysicsEngine, out Scale, out Rotation, out Position);
+			} else {
+				Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
+			}
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
@@ -174,7 +184,12 @@ namespace libTech.Entities {
 
 			// TODO
 			//PlayerBody.MotionState.WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
-			WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+
+			if (EnablePlayerPhys) {
+				PlayerBody.SetWorldTransform(Engine.Map.PhysicsEngine, Scale, Rotation, Position);
+			} else {
+				WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+			}
 		}
 
 		public virtual void SetPosition(Vector3 Pos) {
@@ -280,7 +295,7 @@ namespace libTech.Entities {
 
 				// Collision response
 
-				SweepResult Res = Map.PhysicsEngine.SweepTest(PlayerShape, Position, Position + Velocity);
+				SweepResult Res = Engine.Map.PhysicsEngine.SweepTest(PlayerShape, Position, Position + Velocity);
 				if (Res.HasHit) {
 					Velocity = Utils.Slide(Velocity, Res.Normal);
 					Position = Res.HitCenterOfMass;
@@ -296,7 +311,7 @@ namespace libTech.Entities {
 		}
 
 		void PM_GroundTrace(Vector3 Position) {
-			SweepResult Result = Map.PhysicsEngine.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f);
+			SweepResult Result = Engine.Map.PhysicsEngine.SweepTest(PlayerShape, Position, new Vector3(0, -1, 0), 0.25f);
 
 			if (!Result.HasHit) {
 				// TODO: Ground trace missed

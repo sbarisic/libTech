@@ -70,7 +70,8 @@ namespace libTech.Game {
 			PlayerEnt = new Player();
 			//PlayerEnt.SetPosition((PlySpawnPos = SpawnPositions.Random().SpawnPosition) + new Vector3(0, 100, 0));
 			//PlayerEnt.Camera.LookAt(Vector3.Zero);
-			PlayerEnt.SetPosition(new Vector3(0, 0, 0));
+			//PlayerEnt.SetPosition(new Vector3(0, 0, 0));
+			PlayerEnt.SetWorldTransform(Vector3.One, Quaternion.Identity, new Vector3(0, 0, 0));
 
 			Engine.Map.SpawnEntity(PlayerEnt);
 

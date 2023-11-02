@@ -77,8 +77,8 @@ namespace libTech.Entities {
 		public override void Spawned() {
 			//Map.World.AddRigidBody(RigidBody);
 
-			Map.PhysicsEngine.AddShape(PhysShape);
-			Map.PhysicsEngine.AddBody(RigidBody);
+			Engine.Map.PhysicsEngine.AddShape(PhysShape);
+			Engine.Map.PhysicsEngine.AddBody(RigidBody);
 		}
 
 		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
