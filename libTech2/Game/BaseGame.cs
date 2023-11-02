@@ -74,9 +74,9 @@ namespace libTech.Game {
 
 			Engine.Map.SpawnEntity(PlayerEnt);
 
-			//UtilityGun UtilGun = new UtilityGun();
-			//Engine.Map.SpawnEntity(UtilGun);
-			//PlayerEnt.WeaponPickUp(UtilGun);
+			UtilityGun UtilGun = new UtilityGun();
+			Engine.Map.SpawnEntity(UtilGun);
+			PlayerEnt.WeaponPickUp(UtilGun);
 
 			/*foreach (var L in Engine.Map.GetLights())
 				Engine.Map.RemoveEntity(L);*/
