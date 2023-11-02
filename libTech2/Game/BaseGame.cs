@@ -111,6 +111,7 @@ namespace libTech.Game {
 			//EntPhysics VoxelPhys = new EntPhysics(Points, 0);
 			//Engine.Map.SpawnEntity(VoxelPhys);
 
+			/*
 			{
 				Vector3[] Verts = VoxelMap.GetAllChunks().SelectMany(C => C.GetVertices().Select(V => V.Position * Chunk.BlockScale)).ToArray();
 
@@ -118,6 +119,7 @@ namespace libTech.Game {
 				EntPhysics Pyz = new EntPhysics(Shp, 0);
 				Engine.Map.SpawnEntity(Pyz);
 			}
+			//*/
 
 
 

@@ -76,8 +76,8 @@ namespace libTech.Entities {
 				PlayerBody.CollisionFlags = CollisionFlags.KinematicObject;
 			}*/
 
-			PlayerShape = new PhysShape();
-			PlayerBody = new PhysBodyDescription();
+			PlayerShape = PhysShape.CreateSphere(10);
+			PlayerBody = new PhysBodyDescription(PlayerShape, 1);
 
 			EnableNoclip(true);
 		}
@@ -85,6 +85,7 @@ namespace libTech.Entities {
 		public override void Spawned() {
 			//Map.World.AddRigidBody(PlayerBody, CollisionFilterGroups.CharacterFilter, CollisionFilterGroups.AllFilter);
 
+			Map.PhysicsEngine.AddShape(PlayerShape);
 			Map.PhysicsEngine.AddBody(PlayerBody);
 		}
 

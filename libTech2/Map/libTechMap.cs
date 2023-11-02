@@ -35,7 +35,7 @@ namespace libTech.Map {
 		internal ConstraintSolver Solver;
 		internal ClosestConvexResultCallback ClosestConvexResult;*/
 
-public		PhysEngine PhysicsEngine;
+		public PhysEngine PhysicsEngine;
 
 
 		internal Dictionary<string, libTechModel> LoadedModels;
@@ -57,6 +57,7 @@ public		PhysEngine PhysicsEngine;
 			Lights = new DynamicLight[] { };
 
 			LoadedModels = new Dictionary<string, libTechModel>();
+			PhysicsEngine = new PhysEngine();
 		}
 
 		public void InitPhysics() {
@@ -79,14 +80,14 @@ public		PhysEngine PhysicsEngine;
 
 			ClosestConvexResult = new ClosestConvexResultCallback();*/
 
-			PhysicsEngine = new PhysEngine();
+
 
 			libTechModel[] Models = GetModels().ToArray();
 
 			if (Models.Length > 0) {
 				IEnumerable<Vector3> MapVerts = Models.First().GetMeshes().SelectMany(M => M.GetVertices().Select(V => V.Position));
 
-				EntPhysics MapPhysics = new EntPhysics(PhysShape.FromVerticesConcave(MapVerts), 0);
+				EntPhysics MapPhysics = new EntPhysics(PhysicsEngine, PhysShape.FromVerticesConcave(PhysicsEngine, MapVerts), 0);
 				SpawnEntity(MapPhysics);
 			}
 		}
@@ -200,6 +201,7 @@ public		PhysEngine PhysicsEngine;
 
 		void InitEntity(Entity Ent) {
 			Ent.Map = this;
+
 			Ent.Spawned();
 			Ent.HasSpawned = true;
 		}

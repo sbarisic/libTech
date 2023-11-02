@@ -30,6 +30,14 @@ namespace libTech.Physics {
 			Sim = Simulation.Create(BufPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(new Vector3(0, -9.8f, 0)), new SolveDescription(8, 1));
 		}
 
+		internal BufferPool GetPool() {
+			return BufPool;
+		}
+
+		internal Simulation GetSimulation() {
+			return Sim;
+		}
+
 		public void Timestep(float Dt) {
 			Sim.Timestep(Dt);
 		}
@@ -64,8 +72,24 @@ namespace libTech.Physics {
 			return new ContactResult();
 		}
 
+		public void AddBody(PhysBodyDescription BodyDesc, Vector3 Pos, Quaternion Rot) {
+			//BodyHandle H = Sim.Bodies.Add(BodyDesc.GetBodyDesc());
+			//BodyDesc.SetHandle(H);
+
+			BodyDesc.AddToSimulation(Sim, Pos, Rot);
+		}
+
 		public void AddBody(PhysBodyDescription BodyDesc) {
-			//Sim.Bodies.Add(BodyDesc.BodyDesc);
+			AddBody(BodyDesc, Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0, 0, 0));
+		}
+
+		public void AddShape(PhysShape Shp) {
+			/*IShape S = Shp.GetShape();
+
+			TypedIndex H = Sim.Shapes.Add(S);
+			Shp.SetHandle(H);*/
+
+			Shp.AddToSimulation(Sim);
 		}
 
 		public void DebugDraw() {

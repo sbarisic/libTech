@@ -10,75 +10,52 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using libTech.Physics;
+using BepuPhysics;
 
 namespace libTech.Entities {
 	[EntityClassName("prop_physics")]
 	public class EntPhysics : Entity {
 		public libTechModel RenderModel;
 
-		public bool IsStatic {
-			get; private set;
-		}
-
 		Vector3 UpdatedScale;
 		Quaternion UpdatedRotation;
 		Vector3 UpdatedPosition;
-		
-		internal PhysBodyDescription RigidBody;
 
-		Matrix4x4 WorldTransform;
+		PhysEngine Engine;
+		PhysShape PhysShape;
+		PhysBodyDescription RigidBody;
 
-		void Init(PhysShape Shape, float Mass = 10) {
-			/*bool IsDynamic = Mass != 0;
+		//Quaternion InitialRotation;
+		//Vector3 InitialPosition;
 
-			Vector3 LocalInertia = Vector3.Zero;
-			if (IsDynamic)
-				Shape.CollisionShape.CalculateLocalInertia(Mass, out LocalInertia);
+		//Matrix4x4 _WorldTransform;
 
-			DefaultMotionState MotionState = new DefaultMotionState(Matrix4x4.Identity);
-			RigidBody Body = null;
+		void Init(PhysEngine Engine, PhysShape PhysShape, float Mass = 10) {
+			this.Engine = Engine;
+			this.PhysShape = PhysShape;
 
-			using (RigidBodyConstructionInfo RBInfo = new RigidBodyConstructionInfo(Mass, MotionState, Shape.CollisionShape, LocalInertia))
-				Body = new RigidBody(RBInfo);
-
-			RigidBody = Body;
-			RigidBody.UserObject = this;
-			RigidBody.SetAnisotropicFriction(Shape.CollisionShape.AnisotropicRollingFrictionDirection, AnisotropicFrictionFlags.AnisotropicRollingFriction);
-			RigidBody.Friction = 0.75f;
-			// RigidBody.CenterOfMassTransform
-
-			//RigidBody.CenterOfMassTransform = Matrix4x4.CreateTranslation(-Shape.CenterOfVertices);
-
-
-
-			// TODO: What are these for
-			RigidBody.CcdMotionThreshold = 1e-7f;
-			//RigidBody.CcdSweptSphereRadius = 0.9f;
-
-			IsStatic = Mass == 0;*/
-
-			IsStatic = true;
+			RigidBody = new PhysBodyDescription(PhysShape, Mass);
 		}
 
-		void Init(IEnumerable<Vector3> Vertices, float Mass = 10) {
-			Init(PhysShape.FromVertices(Vertices), Mass);
+		void Init(PhysEngine Engine, IEnumerable<Vector3> Vertices, float Mass = 10) {
+			Init(Engine, PhysShape.FromVertices(Engine, Vertices), Mass);
 		}
 
-		void Init(libTechModel Model, float Mass = 10) {
-			Init(Model.GetMeshes().First().GetVertices().Select(V => V.Position), Mass);
+		void Init(PhysEngine Engine, libTechModel Model, float Mass = 10) {
+			Init(Engine, Model.GetMeshes().First().GetVertices().Select(V => V.Position), Mass);
 			RenderModel = Model;
 		}
 
-		public EntPhysics(PhysShape Shape, float Mass = 10) {
-			Init(Shape, Mass);
+		public EntPhysics(PhysEngine Engine, PhysShape Shape, float Mass = 10) {
+			Init(Engine, Shape, Mass);
 		}
 
-		public EntPhysics(IEnumerable<Vector3> Vertices, float Mass = 10) {
-			Init(Vertices, Mass);
+		public EntPhysics(PhysEngine Engine, IEnumerable<Vector3> Vertices, float Mass = 10) {
+			Init(Engine, Vertices, Mass);
 		}
 
-		public EntPhysics(libTechModel Model, float Mass = 10) {
-			Init(Model, Mass);
+		public EntPhysics(PhysEngine Engine, libTechModel Model, float Mass = 10) {
+			Init(Engine, Model, Mass);
 		}
 
 		public EntPhysics(EntityKeyValues KVs) {
@@ -89,22 +66,30 @@ namespace libTech.Entities {
 			/*if (ModelName.Contains("oil"))
 				Debugger.Break();*/
 
-			Init(Model, 18);
-			SetWorldTransform(Vector3.One, KVs.Get<Quaternion>("qangles"), KVs.Get<Vector3>("origin"));
+			Quaternion InitialRotation = KVs.Get<Quaternion>("qangles");
+			Vector3 InitialPosition = KVs.Get<Vector3>("origin");
+
+			Init(KVs.Map.PhysicsEngine, Model, 18);
+			SetWorldTransform(Vector3.One, InitialRotation, InitialPosition);
 		}
 
 		public override void Spawned() {
 			//Map.World.AddRigidBody(RigidBody);
 
+			Map.PhysicsEngine.AddShape(PhysShape);
 			Map.PhysicsEngine.AddBody(RigidBody);
 		}
 
-		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {			
-			Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
+		public virtual void GetWorldTransform(out Vector3 Scale, out Quaternion Rotation, out Vector3 Position) {
+			RigidBody.GetWorldTransform(Engine, out Scale, out Rotation, out Position);
+
+			//Matrix4x4.Decompose(WorldTransform, out Scale, out Rotation, out Position);
 		}
 
 		public virtual void SetWorldTransform(Vector3 Scale, Quaternion Rotation, Vector3 Position) {
-			WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+			RigidBody.SetWorldTransform(Engine, Scale, Rotation, Position);
+
+			//WorldTransform = Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
 		}
 
 		public void SetPosition(Vector3 Pos) {

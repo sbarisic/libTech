@@ -1,7 +1,10 @@
 ﻿using FishGfx;
+
 using libTech.Map;
 using libTech.Materials;
+using libTech.Physics;
 using libTech.Reflection;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -75,7 +78,9 @@ namespace libTech.Entities {
 	public class EntityKeyValues {
 		List<EntityKeyValue> KVs;
 
-		public libTechMap Map { get; private set; }
+		public libTechMap Map {
+			get; private set;
+		}
 
 		public EntityKeyValues(libTechMap Map) {
 			KVs = new List<EntityKeyValue>();
@@ -144,7 +149,10 @@ namespace libTech.Entities {
 		internal bool HasSpawned = false;
 
 		public libTechMap Map;
-		public string ClassName { get; private set; }
+
+		public string ClassName {
+			get; private set;
+		}
 
 		public virtual void Spawned() {
 		}
