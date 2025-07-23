@@ -81,8 +81,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\3rdParty\managed\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Magick.NET-Q8-x64, Version=7.10.1.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
-      <HintPath>..\packages\Magick.NET-Q8-x64.7.10.1\lib\net40\Magick.NET-Q8-x64.dll</HintPath>
+    <Reference Include="Magick.NET-Q8-x64, Version=14.7.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec">
+      <HintPath>..\packages\Magick.NET-Q8-x64.14.7.0\lib\netstandard20\Magick.NET-Q8-x64.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Magick.NET.Core, Version=14.7.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec">
+      <HintPath>..\packages\Magick.NET.Core.14.7.0\lib\netstandard20\Magick.NET.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="OpenGL.Net, Version=0.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -884,5 +889,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Magick.NET-Q8-x64.7.10.1\build\net40\Magick.NET-Q8-x64.targets'))" />
+    <Error Condition="!Exists('../packages/Magick.NET-Q8-x64.14.7.0/build/netstandard20/Magick.NET-Q8-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '../packages/Magick.NET-Q8-x64.14.7.0/build/netstandard20/Magick.NET-Q8-x64.targets'))" />
   </Target>
+  <Import Project="../packages/Magick.NET-Q8-x64.14.7.0/build/netstandard20/Magick.NET-Q8-x64.targets" Condition="Exists('../packages/Magick.NET-Q8-x64.14.7.0/build/netstandard20/Magick.NET-Q8-x64.targets')" />
 </Project>
